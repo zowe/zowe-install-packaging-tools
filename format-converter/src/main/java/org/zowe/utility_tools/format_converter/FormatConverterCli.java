@@ -10,12 +10,13 @@
 
 package org.zowe.utility_tools.format_converter;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.DumperOptions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -115,7 +116,7 @@ public class FormatConverterCli implements Callable<Integer> {
             : new InputStreamReader(fi, inputEncoding);
         ) {
             if (inputFileFormat == FileFormat.YAML) {
-                Yaml yaml= new Yaml();
+                Yaml yaml = new Yaml();
                 result = yaml.load(reader);
             } else if (inputFileFormat == FileFormat.JSON) {
                 Gson gson = new Gson();
@@ -140,7 +141,7 @@ public class FormatConverterCli implements Callable<Integer> {
                 DumperOptions options = new DumperOptions();
                 options.setPrettyFlow(true);
                 options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-                Yaml yaml= new Yaml(options);
+                Yaml yaml = new Yaml(options);
                 yaml.dump(data, writer);
             } else if (outputFileFormat == FileFormat.JSON) {
                 Gson gson = new GsonBuilder().setPrettyPrinting().create();

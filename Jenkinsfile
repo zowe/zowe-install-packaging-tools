@@ -23,6 +23,14 @@ node('ibm-jenkins-slave-nvm') {
 
   pipeline.build()
 
+  pipeline.createStage(
+    name          : "Check Style",
+    isSkippable   : true,
+    stage         : {
+      sh "./gradlew checkstyleMain"
+    }
+  )
+
   // pipeline.test(
   //   name          : 'Unit',
   //   operation     : {
