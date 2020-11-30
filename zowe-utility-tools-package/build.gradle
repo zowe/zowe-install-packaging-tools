@@ -1,0 +1,39 @@
+ext {
+    artifactName = 'zowe-utility-tools'
+}
+
+configurations {
+    formatConverterJar
+    jacksonJq
+    zip
+}
+
+dependencies {
+    formatConverterJar(project(path: ":format-converter", configuration: "archives"))
+    jacksonJq(project(path: ":jackson-jq", configuration: "archives"))
+}
+
+task packageZoweUtilityTools(type: Zip) {
+    archiveName = artifactName + ".zip"
+    includeEmptyDirs = true
+
+     into('/') {
+        from configurations.formatConverterJar,
+            configurations.jacksonJq
+    }
+}
+
+jar.dependsOn(packageZoweUtilityTools)
+build.dependsOn(packageZoweUtilityTools)
+
+artifacts {
+    zip packageZoweUtilityTools
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact("$buildDir/distributions/$artifactName" + ".zip")
+        }
+    }
+}

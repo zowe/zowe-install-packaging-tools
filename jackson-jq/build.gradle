@@ -1,0 +1,21 @@
+buildscript {
+    repositories mavenRepositories
+}
+
+dependencies {
+    compile libraries.jackson_jq_cli
+}
+
+jar {
+    enabled = true
+
+    destinationDir = project.buildDir
+    archiveName = 'jackson-jq-cli.jar'
+
+    manifest {
+        attributes 'Main-Class': 'net.thisptr.jackson.jq.cli.Main'
+    }
+    from {
+        configurations.runtime.collect { it.isDirectory() ? it : zipTree(it)}
+    }
+}

@@ -1,0 +1,28 @@
+buildscript {
+    repositories mavenRepositories
+}
+
+dependencies {
+    compile libraries.picocli
+    compile libraries.gson
+    compile libraries.snakeyaml
+    compile libraries.slf4j_simple
+    compile libraries.slf4j_api
+
+    testCompile libraries.junit
+}
+
+jar {
+    enabled = true
+
+    destinationDir = project.buildDir
+    archiveName = 'format-converter-cli.jar'
+
+    manifest {
+        attributes 'Main-Class': 'org.zowe.utility_tools.format_converter.FormatConverterCli',
+            'Implementation-Version': project.version
+    }
+    from {
+        configurations.runtime.collect { it.isDirectory() ? it : zipTree(it)}
+    }
+}
