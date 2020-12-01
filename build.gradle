@@ -67,7 +67,7 @@ subprojects {
     license {
         header rootProject.file('.license/LICENSE_HEADER')
         ext.year = Calendar.getInstance().get(Calendar.YEAR)
-        excludes(["**/*.yml", "**/*.json", "**/static", "**/*.sh", "**/*.txt", "**/*.p12", "**/*.xml", "**/*.jsp", "**/*.html", "**/*.jks"])
+        excludes(["**/*.json", "**/static", "**/*.txt", "**/*.p12", "**/*.xml", "**/*.jsp", "**/*.html", "**/*.jks"])
         mapping {
             java = 'SLASHSTAR_STYLE'
         }
@@ -78,10 +78,6 @@ subprojects {
         maxParallelForks = Runtime.runtime.availableProcessors()
     }
 
-}
-
-configurations {
-    all*.exclude group: 'com.fasterxml.jackson.module', module: 'jackson-module-kotlin'
 }
 
 task jacocoSubProjects() {

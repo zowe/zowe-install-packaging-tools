@@ -10,10 +10,7 @@
 
 package org.zowe.utility_tools.format_converter;
 
-class FormatConverterCliError extends Error {
-    private static final long serialVersionUID = 2407528782029823468L;
-
-    FormatConverterCliError(String message, Throwable cause) {
-        super(message, cause);
-    }
+public enum FileFormat {
+    JSON,
+    YAML
 }
