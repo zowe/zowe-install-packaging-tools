@@ -25,7 +25,7 @@ node('ibm-jenkins-slave-nvm') {
   pipeline.test(
     name          : 'Unit',
     operation     : {
-        sh './gradlew coverage'
+        sh './gradlew --info coverage'
     },
     junit         : '**/test-results/test/*.xml',
     htmlReports   : [
