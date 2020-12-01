@@ -4,29 +4,25 @@ ext {
 
     picocliVersion = '4.5.2'
 
-    lombokVersion = '1.16.20'
-    mockitoCoreVersion = '2.23.4'
     gsonVersion = '2.8.2'
     snakeyamlVersion = '1.24'
     slf4jVersion = "1.7.26"
-    jsonPathVersion = "2.4.0"
-    junitVersion = "4.12"
+
+    junit4Version = "4.12"
+    junitSystemRulesVersion = "1.19.0"
 
     libraries = [
         jackson_jq_cli                     : "net.thisptr:jackson-jq-cli:${jaksonJqClicVersion}",
 
         picocli                            : "info.picocli:picocli:${picocliVersion}",
 
-        lombok                             : "org.projectlombok:lombok:${lombokVersion}",
         slf4j_simple                       : "org.slf4j:slf4j-simple:${slf4jVersion}",
         slf4j_api                          : "org.slf4j:slf4j-api:${slf4jVersion}",
 
-        json_path                          : "com.jayway.jsonpath:json-path:${jsonPathVersion}",
-
         gson                               : "com.google.code.gson:gson:${gsonVersion}",
         snakeyaml                          : "org.yaml:snakeyaml:${snakeyamlVersion}",
-        mockito_core                       : "org.mockito:mockito-core:${mockitoCoreVersion}",
 
-        junit                              : "junit:junit:${junitVersion}"
+        junit4                             : "junit:junit:${junit4Version}",
+        junit_system_rules                 : "com.github.stefanbirkner:system-rules:${junitSystemRulesVersion}"
     ]
 }

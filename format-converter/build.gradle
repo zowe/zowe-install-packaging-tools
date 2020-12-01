@@ -9,7 +9,8 @@ dependencies {
     compile libraries.slf4j_simple
     compile libraries.slf4j_api
 
-    testCompile libraries.junit
+    testCompile libraries.junit4
+    testCompile libraries.junit_system_rules
 }
 
 jar {

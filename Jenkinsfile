@@ -15,7 +15,6 @@ node('ibm-jenkins-slave-nvm') {
   def lib = library("jenkins-library").org.zowe.jenkins_shared_library
 
   def pipeline = lib.pipelines.gradle.GradlePipeline.new(this)
-  def uniqueBuildId
 
   pipeline.admins.add("jackjia")
 
@@ -23,25 +22,17 @@ node('ibm-jenkins-slave-nvm') {
 
   pipeline.build()
 
-  pipeline.createStage(
-    name          : "Check Style",
-    isSkippable   : true,
-    stage         : {
-      sh "./gradlew checkstyleMain"
-    }
+  pipeline.test(
+    name          : 'Unit',
+    operation     : {
+        sh './gradlew coverage'
+    },
+    junit         : '**/test-results/test/*.xml',
+    htmlReports   : [
+      [dir: "build/reports/jacoco/jacocoFullReport/html", files: "index.html", name: "Report: Code Coverage"],
+      [dir: "format-converter/build/reports/tests/test", files: "index.html", name: "Report: Format Converter Unit Test"],
+    ],
   )
-
-  // pipeline.test(
-  //   name          : 'Unit',
-  //   operation     : {
-  //       sh './gradlew coverage'
-  //   },
-  //   junit         : '**/test-results/test/*.xml',
-  //   htmlReports   : [
-  //     [dir: "build/reports/jacoco/jacocoFullReport/html", files: "index.html", name: "Report: Code Coverage"],
-  //     [dir: "jobs-api-server/build/reports/tests/test", files: "index.html", name: "Report: Unit Test"],
-  //   ],
-  // )
 
   pipeline.packaging(
       name: 'zowe-utility-tools',
@@ -53,11 +44,9 @@ node('ibm-jenkins-slave-nvm') {
   pipeline.publish(
     artifacts: [
       'zowe-utility-tools-package/build/distributions/zowe-utility-tools.zip'
-    ],
-    allowPublishWithoutTest: true
+    ]
   )
 
-  // define we need release stage
   pipeline.release()
 
   pipeline.end()

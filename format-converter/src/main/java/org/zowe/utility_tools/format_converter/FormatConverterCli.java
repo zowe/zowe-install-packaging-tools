@@ -125,9 +125,9 @@ public class FormatConverterCli implements Callable<Integer> {
 
             return result;
         } catch (UnsupportedEncodingException e) {
-            throw new FormatConverterCliException("Unsupported encoding", e);
+            throw new FormatConverterCliException("Unsupported input encoding: " + inputEncoding, e);
         } catch (IOException e) {
-            throw new FormatConverterCliException("Error reading YAML context file", e);
+            throw new FormatConverterCliException("Error reading YAML file: " + e.getMessage(), e);
         }
     }
 
@@ -150,9 +150,9 @@ public class FormatConverterCli implements Callable<Integer> {
 
             writer.flush();
         } catch (UnsupportedEncodingException e) {
-            throw new FormatConverterCliException("Unsupported encoding", e);
+            throw new FormatConverterCliException("Unsupported output encoding: " + outputEncoding, e);
         } catch (IOException e) {
-            throw new FormatConverterCliException("Error opening output file", e);
+            throw new FormatConverterCliException("Error opening output file: " + e.getMessage(), e);
         }
     }
 }
