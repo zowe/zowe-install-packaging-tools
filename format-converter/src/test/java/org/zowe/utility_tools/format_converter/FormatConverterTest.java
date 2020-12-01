@@ -285,4 +285,34 @@ public class FormatConverterTest {
         assertNotEquals("", err.toString());
         assertTrue(err.toString().contains("Error opening output file"));
     }
+
+    @Test
+    public void testConvertYamlWithEncoding() throws IOException {
+        String[] args = {
+            "--input-encoding=cp1047",
+            locateResource("test1.cp1047.yaml").toString()
+        };
+        int exitCode = new CommandLine(new FormatConverterCli()).execute(args);
+        assertEquals(0, exitCode);
+        assertEquals(loadJsonFromFile(locateResource("test1.json")), loadJson(out.toString()));
+        assertEquals("", err.toString());
+    }
+
+    @Test
+    public void testConvertYamlAndWriteToFileWithEncoding() throws IOException {
+        final File tempFile = tempFolder.newFile("test1.cp1047.json");
+
+        String[] args = {
+            "--input-encoding=cp1047",
+            "--output-encoding=cp1047",
+            "-o",
+            tempFile.toString(),
+            locateResource("test1.cp1047.yaml").toString()
+        };
+        int exitCode = new CommandLine(new FormatConverterCli()).execute(args);
+        assertEquals(0, exitCode);
+        assertEquals("", out.toString());
+        assertEquals("", err.toString());
+        assertEquals(loadJsonFromFile(tempFile, "cp1047"), loadJsonFromFile(locateResource("test1.cp1047.json"), "cp1047"));
+    }
 }
