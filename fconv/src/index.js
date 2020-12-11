@@ -51,7 +51,11 @@ const exitWithError = (message) => {
         content = JSON.stringify(data, null, DEFAULT_INDENT) + '\n';
       }
       if (output.file) {
-        fs.writeFileSync(output.file, content);
+        const writeOptions = {};
+        if (output.encoding) {
+          writeOptions.encoding = output.encoding;
+        }
+        fs.writeFileSync(output.file, content, writeOptions);
       } else {
         process.stdout.write(content);
       }

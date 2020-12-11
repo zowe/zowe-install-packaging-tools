@@ -1,0 +1,13 @@
+{
+  "name": "Test File 1",
+  "description": "A sample test YAML file, in multiple line, and more.\n",
+  "array_example": [
+    "element 1",
+    "element 2",
+    {
+      "key1": "object element value 1",
+      "key2": "object element value 2",
+      "key3": "object element value 3"
+    }
+  ]
+}
