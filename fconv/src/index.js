@@ -141,9 +141,6 @@ if (!isValidFormat(input.format)) {
 if (!output.format) {
   output.format = input.format === 'YAML' ? 'JSON' : 'YAML';
 }
-if (!output.format) {
-  exitWithError("cannot determine output file format. Please supply --output-format option");
-}
 if (!isValidFormat(output.format)) {
   exitWithError(`output format ${output.format} is not supported`);
 }
