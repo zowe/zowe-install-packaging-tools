@@ -3,12 +3,14 @@ ext {
 }
 
 configurations {
+    fconvNpmPackage
     formatConverterJar
     jacksonJq
     zip
 }
 
 dependencies {
+    fconvNpmPackage fileTree(dir: '../fconv', include: "fconv-*.tgz")
     formatConverterJar(project(path: ":format-converter", configuration: "archives"))
     jacksonJq(project(path: ":jackson-jq", configuration: "archives"))
 }
@@ -17,14 +19,16 @@ task packageZoweUtilityTools(type: Zip) {
     archiveName = artifactName + ".zip"
     includeEmptyDirs = true
 
-     into('/') {
+    into('/') {
         from configurations.formatConverterJar,
-            configurations.jacksonJq
+             configurations.jacksonJq,
+             configurations.fconvNpmPackage
     }
 }
 
 jar.dependsOn(packageZoweUtilityTools)
 build.dependsOn(packageZoweUtilityTools)
+packageZoweUtilityTools.dependsOn tasks.findByPath(":npmPackAll")
 
 artifacts {
     zip packageZoweUtilityTools
@@ -37,3 +41,4 @@ publishing {
         }
     }
 }
+ 

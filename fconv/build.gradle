@@ -1,0 +1,46 @@
+plugins {
+    id "com.moowork.node" version "1.3.1"
+}
+
+task cleanBundle(type: Delete) {
+    delete 'build', '.reports', 'node_modules'
+    delete fileTree('.').matching {
+      include 'fconv-*.tgz'
+    }
+}
+
+task runTests(type: NpmTask) {
+    group = 'Verification'
+    description = "Unit Test"
+    args = ['run', 'test']
+}
+
+task npmInstallDev(type: NpmTask) {
+    group = 'Build'
+    description = "Install all dependencies"
+    args = ['install', '--no-audit']
+}
+
+task npmAudit(type: NpmTask) {
+    group = 'Verification'
+    description = "Audit npm dependencies"
+    args = ['audit']
+}
+
+task npmLint(type: NpmTask) {
+    group = 'Verification'
+    description = "Lint source code"
+    args = ['run', 'lint']
+}
+
+task npmPack(type: NpmTask) {
+    dependsOn npmInstallDev
+    group = 'Publishing'
+    description = "Create package"
+    args = ['pack']
+}
+
+clean.dependsOn cleanBundle
+assemble.dependsOn npmInstallDev
+test.dependsOn runTests, npmAudit, npmLint
+checkstyleMain.dependsOn npmLint

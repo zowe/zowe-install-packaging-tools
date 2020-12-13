@@ -34,6 +34,10 @@ buildscript {
     }
 }
 
+ext.npmProjects = [
+    'fconv'
+]
+
 apply plugin: 'com.palantir.jacoco-full-report'
 apply from: 'gradle/publish.gradle'
 apply from: 'gradle/coverage.gradle'
@@ -98,5 +102,13 @@ task mergeCoverage() {
 
 task coverage() {
     mergeCoverage.mustRunAfter jacocoSubProjects
-    dependsOn mergeCoverage, jacocoSubProjects, jacocoTestReport
+    dependsOn mergeCoverage, jacocoSubProjects, jacocoTestReport, ":fconv:runTests"
+}
+
+task npmPackAll() {
+    subprojects.findAll { it.name in npmProjects }.each { dependsOn("${it.name}:npmPack") }
+}
+
+task npmLintAll() {
+    subprojects.findAll { it.name in npmProjects }.each { dependsOn("${it.name}:npmLint") }
 }

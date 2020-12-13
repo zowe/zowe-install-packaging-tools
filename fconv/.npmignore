@@ -14,3 +14,12 @@ build
 .classpath
 .project
 .settings
+
+# project assistant files
+.classpath
+.editorconfig
+.eslintrc.yml
+.mocharc.yml
+.nycrc.yaml
+build.gradle
+test
