@@ -64,7 +64,7 @@ try {
       console.log(argv.raw && typeof one === 'string' ? one : JSON.stringify(one));
     }
   } else {
-    console.log(argv.raw && typeof result === 'string' ? result : JSON.stringify(result));
+    console.log(argv.raw && typeof result === 'string' ? result : (result === undefined ? 'null' : JSON.stringify(result)));
   }
 } catch (e) {
   if (argv.verbose) {

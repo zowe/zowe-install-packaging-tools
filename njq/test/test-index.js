@@ -98,13 +98,13 @@ describe('node.js jq parser', function () {
     });
   });
 
-  it('should show undefined if the filter doesn\'t exist', () => {
+  it('should show null if the filter doesn\'t exist', () => {
     testNodeJq([".doesnotExits", getResource('test1.json')], {
-      stdout: 'undefined\n',
+      stdout: 'null\n',
     }, true);
   });
 
-  it('should show undefined if the filter doesn\'t exist', () => {
+  it('should show all array elements if we filter on array of object key', () => {
     testNodeJq([".array_example[].key2", getResource('test1.json')], {
       stdout: '"object element value 1-2"\n"object element value 2-2"\n"object element value 3-2"\n',
     }, true);
