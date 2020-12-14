@@ -1,0 +1,5 @@
+recursive: true
+timeout: 360000
+reporter: mocha-multi-reporters
+reporter-option:
+- configFile=test/multi-reporters.json

@@ -4,15 +4,17 @@ ext {
 
 configurations {
     fconvNpmPackage
-    formatConverterJar
-    jacksonJq
+    njqNpmPackage
+    // formatConverterJar
+    // jacksonJq
     zip
 }
 
 dependencies {
-    fconvNpmPackage fileTree(dir: '../fconv', include: "fconv-*.tgz")
-    formatConverterJar(project(path: ":format-converter", configuration: "archives"))
-    jacksonJq(project(path: ":jackson-jq", configuration: "archives"))
+    fconvNpmPackage fileTree(dir: '../fconv', include: "zowe-fconv-*.tgz")
+    njqNpmPackage fileTree(dir: '../njq', include: "zowe-njq-*.tgz")
+    // formatConverterJar(project(path: ":format-converter", configuration: "archives"))
+    // jacksonJq(project(path: ":jackson-jq", configuration: "archives"))
 }
 
 task packageZoweUtilityTools(type: Zip) {
@@ -20,9 +22,10 @@ task packageZoweUtilityTools(type: Zip) {
     includeEmptyDirs = true
 
     into('/') {
-        from configurations.formatConverterJar,
-             configurations.jacksonJq,
-             configurations.fconvNpmPackage
+        from configurations.fconvNpmPackage,
+             configurations.njqNpmPackage
+            //  configurations.formatConverterJar,
+            //  configurations.jacksonJq,
     }
 }
 

@@ -1,14 +1,14 @@
 {
-  "name": "@zowe/fconv",
+  "name": "@zowe/njq",
   "version": "0.1.0",
-  "description": "YAML/JSON format converter",
+  "description": "A simple jq implementation with node.js",
   "main": "src/index.js",
   "dependencies": {
-    "yaml": "^1.10.0",
+    "@elastic/micro-jq": "^1.2.0",
     "yargs": "^15.4.0"
   },
   "bundledDependencies": [
-    "yaml",
+    "@elastic/micro-jq",
     "yargs"
   ],
   "devDependencies": {
@@ -19,8 +19,7 @@
     "mocha-jenkins-reporter": "^0.4.3",
     "mocha-multi-reporters": "^1.1.7",
     "mochawesome": "^4.1.0",
-    "nyc": "^15.1.0",
-    "tmp": "^0.2.1"
+    "nyc": "^15.1.0"
   },
   "scripts": {
     "lint": "eslint .",
@@ -33,8 +32,7 @@
   "keywords": [
     "yaml",
     "json",
-    "format",
-    "converter"
+    "jq"
   ],
   "license": "EPL-2.0",
   "bugs": {

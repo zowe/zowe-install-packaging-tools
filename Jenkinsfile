@@ -31,6 +31,8 @@ node('zowe-jenkins-agent') {
     htmlReports   : [
       [dir: "fconv/.reports/lcov-report", files: "index.html", name: "Format Converter: Code Coverage"],
       [dir: "fconv/.reports/unit-test", files: "index.html", name: "Format Converter: Unit Test"],
+      [dir: "njq/.reports/lcov-report", files: "index.html", name: "Node JQ: Code Coverage"],
+      [dir: "njq/.reports/unit-test", files: "index.html", name: "Node JQ: Unit Test"],
     ],
   )
 
