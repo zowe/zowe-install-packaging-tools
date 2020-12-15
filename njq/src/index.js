@@ -19,12 +19,26 @@ const exitWithError = (message) => {
   process.stderr.write(`Error: ${message}\n`);
   process.exit(1);
 };
+const writeValue = (val, varName, raw) => {
+  return (varName ? varName + '=' : '') +
+    (
+      raw && typeof val === 'string' ?
+      val : 
+      (val === undefined ? 'null' : JSON.stringify(val))
+    );
+};
 
 //==============================================================================
 // define cli options
 const argv = require('yargs')
-  .usage('Usage: $0 [options] <jq-filter> [input-file]')
+  .usage('Usage: $0 [options] <jq-filter-1> [<jq-filter-n>...]')
   .options({
+    'input': {
+      alias: 'i',
+      type: 'string',
+      default: '',
+      description: 'input file'
+    },
     'raw': {
       alias: 'r',
       type: 'boolean',
@@ -47,24 +61,35 @@ if (argv.verbose) {
 
 //==============================================================================
 // validate input parameters
-const filter = (argv && argv['_'] && argv['_'][0]);
-const inputFile = argv && argv['_'] && argv['_'][1];
+const filters = argv && argv['_'];
+const inputFile = argv.input || '';
 if (argv.verbose) {
-  process.stdout.write(util.format('Parse %s with jq filter: %j\n', inputFile || 'stdin', filter));
+  process.stdout.write(util.format('Parse %s with jq filter(s): %j\n', inputFile || 'stdin', filters));
 }
 
 //==============================================================================
-// parse JSOn with jq filter
+// parse JSOn with jq filter(s)
 try {
-  const data = JSON.parse(fs.readFileSync(inputFile || STDIN_FILENO));
-  const result = executeScript(data, filter);
-
-  if (Array.isArray(result)) {
-    for (const one of result) {
-      console.log(argv.raw && typeof one === 'string' ? one : JSON.stringify(one));
+  for (const oneJq of filters) {
+    let filter = '';
+    let varName = '';
+    const rem = oneJq.match(/^<([^>]+)>(.+)/);
+    if (rem) {
+      filter = rem[2];
+      varName = rem[1];
+    } else {
+      filter = oneJq;
     }
-  } else {
-    console.log(argv.raw && typeof result === 'string' ? result : (result === undefined ? 'null' : JSON.stringify(result)));
+    const data = JSON.parse(fs.readFileSync(inputFile || STDIN_FILENO));
+    const result = executeScript(data, filter);
+
+    if (Array.isArray(result)) {
+      for (const one of result) {
+        process.stdout.write(writeValue(one, varName, argv.raw) + '\n');
+      }
+    } else {
+      process.stdout.write(writeValue(result, varName, argv.raw) + '\n');
+    }
   }
 } catch (e) {
   if (argv.verbose) {

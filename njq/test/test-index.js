@@ -81,49 +81,49 @@ describe('node.js jq parser', function () {
   });
 
   it('should return name stored in JSON if as string we use a JSON file as second argument', () => {
-    testNodeJq([".name", getResource('test1.json')], {
+    testNodeJq(["-i", getResource('test1.json'), ".name"], {
       stdout: '"Test File 1"\n',
     }, true);
   });
 
   it('should return raw name stored in JSON if we use a JSON file as second argument', () => {
-    testNodeJq(["-r", ".name", getResource('test1.json')], {
+    testNodeJq(["-r", "-i", getResource('test1.json'), ".name"], {
       stdout: 'Test File 1\n',
     }, true);
   });
 
   it('should show verbose information if -v is provided', () => {
     testNodeJq(["-v", ".name", "<", getResource('test1.json')], {
-      stdout: ['CLI arguments:', 'Parse stdin with jq filter:'],
+      stdout: ['CLI arguments:', 'Parse stdin with jq filter(s):'],
     });
   });
 
   it('should show null if the filter doesn\'t exist', () => {
-    testNodeJq([".doesnotExits", getResource('test1.json')], {
+    testNodeJq(["-i", getResource('test1.json'), ".doesnotExits"], {
       stdout: 'null\n',
     }, true);
   });
 
   it('should show all array elements if we filter on array of object key', () => {
-    testNodeJq([".array_example[].key2", getResource('test1.json')], {
+    testNodeJq(["-i", getResource('test1.json'), ".array_example[].key2"], {
       stdout: '"object element value 1-2"\n"object element value 2-2"\n"object element value 3-2"\n',
     }, true);
   });
 
   it('should show multiple lines of array elements when we filter on array', () => {
-    testNodeJq(["-r", ".simple_array", getResource('test1.json')], {
+    testNodeJq(["-r", "-i", getResource('test1.json'), ".simple_array"], {
       stdout: 'element 1\nelement 2\nelement 3\n',
     }, true);
   });
 
   it('should show array element when we filter on specified element of array', () => {
-    testNodeJq(["-r", ".array_example[2]", getResource('test1.json')], {
+    testNodeJq(["-r", "-i", getResource('test1.json'), ".array_example[2]"], {
       stdout: '{"key1":"object element value 3-1","key2":"object element value 3-2","key3":"object element value 3-3"}\n',
     }, true);
   });
 
   it('should return file not found if specify a wrong file as input', () => {
-    testNodeJq([".name", getResource('file-doesnot-exist.json')], {
+    testNodeJq(["-i", getResource('file-doesnot-exist.json'), ".name"], {
       rc: 1,
       // this error comes from node.js
       stderr: 'no such file or directory',
@@ -139,10 +139,28 @@ describe('node.js jq parser', function () {
   });
 
   it('should return file not found if specify a wrong file as input', () => {
-    testNodeJq(["-v", ".name", getResource('file-doesnot-exist.json')], {
+    testNodeJq(["-v", "-i", getResource('file-doesnot-exist.json'), ".name"], {
       rc: 1,
       // this error comes from node.js
       stderr: ['no such file or directory', 'test/resources/file-doesnot-exist.json', 'at Object.fs.openSync'],
     });
+  });
+
+  it('should show variable assignment when we define variable name as part of filter', () => {
+    testNodeJq(["-i", getResource('test1.json'), "'<my_var>.array_example[2]'"], {
+      stdout: 'my_var={"key1":"object element value 3-1","key2":"object element value 3-2","key3":"object element value 3-3"}\n',
+    }, true);
+  });
+
+  it('should show multiple responses when we define multiple filters', () => {
+    testNodeJq(["-i", getResource('test1.json'), "'.array_example[2]'", "'.name'"], {
+      stdout: '{"key1":"object element value 3-1","key2":"object element value 3-2","key3":"object element value 3-3"}\n"Test File 1"\n',
+    }, true);
+  });
+
+  it('should show multiple variable assignments when we define multiple filters with variable names', () => {
+    testNodeJq(["-i", getResource('test1.json'), "'<my_var1>.array_example[2]'", "'<my_var2>.name'"], {
+      stdout: 'my_var1={"key1":"object element value 3-1","key2":"object element value 3-2","key3":"object element value 3-3"}\nmy_var2="Test File 1"\n',
+    }, true);
   });
 });
