@@ -23,8 +23,8 @@ const writeValue = (val, varName, raw) => {
   return (varName ? varName + '=' : '') +
     (
       raw && typeof val === 'string' ?
-      val : 
-      (val === undefined ? 'null' : JSON.stringify(val))
+        val : 
+        (val === undefined ? 'null' : JSON.stringify(val))
     );
 };
 
