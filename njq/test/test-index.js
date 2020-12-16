@@ -146,7 +146,7 @@ describe('node.js jq parser', function () {
       // seems rc varies based on OS. mac returns 1, but ubuntu returns 2, so let's check non-zero
       rc: /^(?!0$)\d+$/,
       // this error comes from shell
-      stderr: 'No such file or directory',
+      stderr: 'No such file',
     });
   });
 
