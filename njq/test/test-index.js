@@ -135,8 +135,7 @@ describe('node.js jq parser', function () {
 
   it('should return file not found if specify a wrong file as input', () => {
     testNodeJq(["-i", getResource('file-doesnot-exist.json'), ".name"], {
-      // seems rc varies based on OS. mac returns 1, but ubuntu returns 2, so let's check non-zero
-      rc: /^(?!0$)\d+$/,
+      rc: 1,
       // this error comes from node.js
       stderr: 'no such file or directory',
     });
@@ -144,7 +143,8 @@ describe('node.js jq parser', function () {
 
   it('should return file not found if specify a wrong file and try to redirect it as input', () => {
     testNodeJq([".name", "<", getResource('file-doesnot-exist.json')], {
-      rc: 1,
+      // seems rc varies based on OS. mac returns 1, but ubuntu returns 2, so let's check non-zero
+      rc: /^(?!0$)\d+$/,
       // this error comes from shell
       stderr: 'No such file or directory',
     });
