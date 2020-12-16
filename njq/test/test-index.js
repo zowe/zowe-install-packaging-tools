@@ -38,7 +38,18 @@ const execFormatConverter = (...args) => {
     expected = Object.assign({rc: 0, stdout: '', stderr: ''}, expected);
 
     // check result
-    expect(result.rc).to.equal(expected.rc);
+    if (exactMatch) {
+      expect(result.rc).to.equal(expected.rc);
+    } else {
+      if (expected.rc instanceof RegExp) {
+        expect(`${result.rc}`).to.match(expected.rc);
+      } else {
+        if (!Array.isArray(expected.rc)) {
+          expected.rc = [expected.rc];
+        }
+        expect(result.rc).to.be.oneOf(expected.rc);
+      }
+    }
     for (const key of ['stdout', 'stderr']) {
       if (exactMatch) {
         expect(result[key]).to.equal(expected[key]);
@@ -124,7 +135,8 @@ describe('node.js jq parser', function () {
 
   it('should return file not found if specify a wrong file as input', () => {
     testNodeJq(["-i", getResource('file-doesnot-exist.json'), ".name"], {
-      rc: 1,
+      // seems rc varies based on OS. mac returns 1, but ubuntu returns 2, so let's check non-zero
+      rc: /^(?!0$)\d+$/,
       // this error comes from node.js
       stderr: 'no such file or directory',
     });
