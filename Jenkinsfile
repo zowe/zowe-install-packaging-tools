@@ -27,7 +27,7 @@ node('zowe-jenkins-agent') {
     operation     : {
         sh './gradlew --info test coverage'
     },
-    junit         : '**/test-results/test/*.xml',
+    junit         : '**/.reports/junit.xml',
     htmlReports   : [
       [dir: "fconv/.reports/lcov-report", files: "index.html", name: "Format Converter: Code Coverage"],
       [dir: "fconv/.reports/unit-test", files: "index.html", name: "Format Converter: Unit Test"],
