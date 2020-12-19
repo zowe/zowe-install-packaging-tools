@@ -25,12 +25,14 @@ node('zowe-jenkins-agent') {
   pipeline.test(
     name          : 'Unit',
     operation     : {
-        sh './gradlew --info coverage'
+        sh './gradlew --info test coverage'
     },
-    junit         : '**/test-results/test/*.xml',
+    junit         : '**/.reports/junit.xml',
     htmlReports   : [
-      [dir: "build/reports/jacoco/jacocoFullReport/html", files: "index.html", name: "Report: Code Coverage"],
-      [dir: "format-converter/build/reports/tests/test", files: "index.html", name: "Report: Format Converter Unit Test"],
+      [dir: "fconv/.reports/lcov-report", files: "index.html", name: "Format Converter: Code Coverage"],
+      [dir: "fconv/.reports/unit-test", files: "index.html", name: "Format Converter: Unit Test"],
+      [dir: "njq/.reports/lcov-report", files: "index.html", name: "Node JQ: Code Coverage"],
+      [dir: "njq/.reports/unit-test", files: "index.html", name: "Node JQ: Unit Test"],
     ],
   )
 

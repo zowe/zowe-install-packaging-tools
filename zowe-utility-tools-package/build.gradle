@@ -3,28 +3,35 @@ ext {
 }
 
 configurations {
-    formatConverterJar
-    jacksonJq
+    fconvNpmPackage
+    njqNpmPackage
+    // formatConverterJar
+    // jacksonJq
     zip
 }
 
 dependencies {
-    formatConverterJar(project(path: ":format-converter", configuration: "archives"))
-    jacksonJq(project(path: ":jackson-jq", configuration: "archives"))
+    fconvNpmPackage fileTree(dir: '../fconv', include: "zowe-fconv-*.tgz")
+    njqNpmPackage fileTree(dir: '../njq', include: "zowe-njq-*.tgz")
+    // formatConverterJar(project(path: ":format-converter", configuration: "archives"))
+    // jacksonJq(project(path: ":jackson-jq", configuration: "archives"))
 }
 
 task packageZoweUtilityTools(type: Zip) {
     archiveName = artifactName + ".zip"
     includeEmptyDirs = true
 
-     into('/') {
-        from configurations.formatConverterJar,
-            configurations.jacksonJq
+    into('/') {
+        from configurations.fconvNpmPackage,
+             configurations.njqNpmPackage
+            //  configurations.formatConverterJar,
+            //  configurations.jacksonJq,
     }
 }
 
 jar.dependsOn(packageZoweUtilityTools)
 build.dependsOn(packageZoweUtilityTools)
+packageZoweUtilityTools.dependsOn tasks.findByPath(":npmPackAll")
 
 artifacts {
     zip packageZoweUtilityTools
@@ -37,3 +44,4 @@ publishing {
         }
     }
 }
+ 
