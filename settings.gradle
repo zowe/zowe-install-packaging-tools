@@ -2,6 +2,7 @@ rootProject.name = 'zowe-utility-tools'
 
 include 'fconv'
 include 'njq'
+include 'config-converter'
 include 'format-converter'
 include 'jackson-jq'
 include 'zowe-utility-tools-package'
