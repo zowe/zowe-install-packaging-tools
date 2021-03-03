@@ -62,6 +62,8 @@ const validateValue = (message, expected, actual, exactMatch = false) => {
         expect(actual, message).to.match(one);
       } else if (_.isUndefined(one)) {
         expect(actual, message).to.be.undefined;
+      } else if (_.isBoolean(one)) {
+        expect(actual, message).to.equal(one);
       } else {
         expect(actual, message).to.have.string(one);
       }

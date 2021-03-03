@@ -15,7 +15,7 @@ zowe:
     UNKNOWN_KEY: value
 components:
 - name: component-a
-  enabled: "true"
+  enabled: true
   not-override: value
   "@include": "api-catalog.yaml"
 - name: component-b

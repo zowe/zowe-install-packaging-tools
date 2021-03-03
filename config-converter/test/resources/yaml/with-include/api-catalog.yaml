@@ -8,4 +8,4 @@
 # Copyright IBM Corporation 2021
 #
 port: "1234"
-enabled: "false"
+enabled: false

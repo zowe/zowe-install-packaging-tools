@@ -12,6 +12,7 @@ const util = require('util');
 const path = require('path');
 const fs = require('fs');
 const YAML = require('yaml');
+const YAWN = require('yawn-yaml/cjs');
 const _ = require('lodash');
 const { VERBOSE_ENV, DEFAULT_YAML_INDENT } = require('../constants');
 const { INSTANCE_ENV_VAR_MAPPING } = require('../constants/instance-env-mapping');
@@ -99,8 +100,17 @@ const writeYaml = (data) => {
   }
 };
 
+// update YAML file without losing format
+const updateYaml = (yamlFile, objectPath, newValue) => {
+  const yamlText = fs.readFileSync(yamlFile).toString();
+  let yawn = new YAWN(yamlText);
+  yawn.json = _.set(yawn.json, objectPath, newValue);
+  fs.writeFileSync(yamlFile, yawn.yaml);
+};
+
 module.exports = {
   convertToYamlConfig,
   readYaml,
   writeYaml,
+  updateYaml,
 };

@@ -24,7 +24,7 @@ describe('test yaml utility method readYaml', function () {
 
     expect(result).to.be.an('object');
     expect(_.get(result, 'zowe.runtimeDirectory')).to.equal('/ZOWE/staging/zowe');
-    expect(_.get(result, 'components.discovery.debug')).to.equal('true');
+    expect(_.get(result, 'components.discovery.debug')).to.be.true;
   });
 
   it('should return object with included YAML file', () => {
@@ -33,7 +33,7 @@ describe('test yaml utility method readYaml', function () {
 
     expect(result).to.be.an('object');
     expect(_.get(result, 'zowe.runtimeDirectory')).to.equal('/ZOWE/staging/zowe');
-    expect(_.get(result, 'components.api-catalog.enabled')).to.equal('false');
+    expect(_.get(result, 'components.api-catalog.enabled')).to.be.false;
     expect(_.get(result, 'components.api-catalog.port')).to.equal('1234');
     expect(_.get(result, 'components.api-catalog.not-override')).to.equal('value');
   });
@@ -44,7 +44,7 @@ describe('test yaml utility method readYaml', function () {
 
     expect(result).to.be.an('object');
     expect(_.get(result, 'zowe.runtimeDirectory')).to.equal('/ZOWE/staging/zowe');
-    expect(_.get(result, 'components.0.enabled')).to.equal('false');
+    expect(_.get(result, 'components.0.enabled')).to.be.false;
     expect(_.get(result, 'components.1.port')).to.equal('1234');
     expect(_.get(result, 'components.0.not-override')).to.equal('value');
   });

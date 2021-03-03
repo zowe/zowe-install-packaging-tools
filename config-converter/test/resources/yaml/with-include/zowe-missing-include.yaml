@@ -15,5 +15,5 @@ zowe:
     UNKNOWN_KEY: value
 components:
   api-catalog:
-    enabled: "true"
+    enabled: true
     "@include": "does-not-exist.yaml"

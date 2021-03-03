@@ -48,9 +48,9 @@ describe('zcc instance-env to-yaml', function () {
       stdout: ['CLI arguments:', STDOUT_YAML_SEPARATOR, 'Ignore key SKIP_NODE with value "0"', 'Unknown key UNKNOWN_KEY with value "value"'],
       stderr: '',
       yaml: {
-        'components.gateway.debug': 'false',
-        'components.discovery.debug': 'false',
-        'components.api-catalog.debug': 'false',
+        'components.gateway.debug': false,
+        'components.discovery.debug': false,
+        'components.api-catalog.debug': false,
         'zowe.environments.UNKNOWN_KEY': 'value',
       }
     });
@@ -60,9 +60,9 @@ describe('zcc instance-env to-yaml', function () {
     testConfigConverter([...cliParams, '-v', getInstanceEnvResource('components-all')], {
       stderr: '',
       yaml: {
-        'components.app-server.enabled': 'true',
-        'components.gateway.enabled': 'true',
-        'components.explorer-jes.enabled': 'true',
+        'components.app-server.enabled': true,
+        'components.gateway.enabled': true,
+        'components.explorer-jes.enabled': true,
       }
     }, true);
   });
@@ -71,7 +71,7 @@ describe('zcc instance-env to-yaml', function () {
     testConfigConverter([...cliParams, '-v', getInstanceEnvResource('components-desktop')], {
       stderr: '',
       yaml: {
-        'components.app-server.enabled': 'true',
+        'components.app-server.enabled': true,
         'components.gateway.enabled': undefined,
         'components.explorer-jes.enabled': undefined,
       }
@@ -83,7 +83,7 @@ describe('zcc instance-env to-yaml', function () {
       stderr: '',
       yaml: {
         'components.app-server.enabled': undefined,
-        'components.gateway.enabled': 'true',
+        'components.gateway.enabled': true,
         'components.explorer-jes.enabled': undefined,
       }
     }, true);
@@ -96,8 +96,8 @@ describe('zcc instance-env to-yaml', function () {
         'components.app-server.enabled': undefined,
         'components.gateway.enabled': undefined,
         'components.explorer-jes.enabled': undefined,
-        'components.zss.enabled': 'true',
-        'components.abc.enabled': 'true',
+        'components.zss.enabled': true,
+        'components.abc.enabled': true,
       }
     }, true);
   });
@@ -107,8 +107,8 @@ describe('zcc instance-env to-yaml', function () {
       stdout: 'Unsupported component value "/path/to/a/component/bin"',
       stderr: '',
       yaml: {
-        'components.compname.enabled': 'true',
-        'components.extcomp.enabled': 'true',
+        'components.compname.enabled': true,
+        'components.extcomp.enabled': true,
       }
     });
   });
@@ -117,8 +117,8 @@ describe('zcc instance-env to-yaml', function () {
     testConfigConverter([...cliParams, getInstanceEnvResource('components-invalid')], {
       stderr: '',
       yaml: {
-        'components.compname.enabled': 'true',
-        'components.extcomp.enabled': 'true',
+        'components.compname.enabled': true,
+        'components.extcomp.enabled': true,
       }
     }, true);
   });

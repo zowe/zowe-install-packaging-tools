@@ -22,7 +22,7 @@ const enableComponents = (components, yamlConfig) => {
           process.stdout.write(util.format('Unsupported component value %j\n', one));
         }
       } else {
-        _.set(yamlConfig, `components.${one}.enabled`, 'true');
+        _.set(yamlConfig, `components.${one}.enabled`, true);
       }
     }
   });
@@ -45,6 +45,10 @@ const appendToArray = (val, path, yamlConfig, separator = ",") => {
   });
 };
 
+const stringToBoolean = (str) => {
+  return str.toLowerCase() === 'true';
+};
+
 /**
  * Environment variable to YAML config mapping
  *
@@ -64,16 +68,29 @@ const INSTANCE_ENV_VAR_MAPPING = {
   // ZOWE_IP_ADDRESS: "148.100.36.148",
   // ZWE_DISCOVERY_SERVICES_LIST: "https://zzow01.zowe.marist.cloud:7553/eureka/",
   // ZWED_*: "ZWETOKEN",
-  APIML_ALLOW_ENCODED_SLASHES: "components.gateway.allowEncodedSlashes",
-  APIML_CORS_ENABLED: "components.gateway.corsEnabled",
-  APIML_DEBUG_MODE_ENABLED: ["components.gateway.debug", "components.discovery.debug", "components.api-catalog.debug"],
-  PIML_ENABLE_SSO: false,
+  APIML_ALLOW_ENCODED_SLASHES: function(val, envs, yamlConfig) {
+    _.set(yamlConfig, 'components.gateway.allowEncodedSlashes', stringToBoolean(val));
+  },
+  APIML_CORS_ENABLED: function(val, envs, yamlConfig) {
+    _.set(yamlConfig, 'components.gateway.corsEnabled', stringToBoolean(val));
+  },
+  APIML_DEBUG_MODE_ENABLED:  function(val, envs, yamlConfig) {
+    const bVal = stringToBoolean(val);
+    _.set(yamlConfig, 'components.gateway.debug', bVal);
+    _.set(yamlConfig, 'components.discovery.debug', bVal);
+    _.set(yamlConfig, 'components.api-catalog.debug', bVal);
+  },
+  APIML_ENABLE_SSO: false,
   APIML_GATEWAY_TIMEOUT_MILLIS: "components.gateway.timeoutMillis",
   APIML_MAX_CONNECTIONS_PER_ROUTE: "components.gateway.maxConnectionsPerRoute",
   APIML_MAX_TOTAL_CONNECTIONS: "components.gateway.totalConnections",
-  APIML_PREFER_IP_ADDRESS: "components.api-catalog.preferIpAddress",
+  APIML_PREFER_IP_ADDRESS: function(val, envs, yamlConfig) {
+    _.set(yamlConfig, 'components.api-catalog.preferIpAddress', stringToBoolean(val));
+  },
   APIML_SECURITY_AUTH_PROVIDER: "components.gateway.auth.provider",
-  APIML_SECURITY_X509_ENABLED: "components.gateway.x509Enabled",
+  APIML_SECURITY_X509_ENABLED: function(val, envs, yamlConfig) {
+    _.set(yamlConfig, 'components.gateway.x509Enabled', stringToBoolean(val));
+  },
   APIML_SECURITY_ZOSMF_APPLID: "zOSMF.applId",
   CATALOG_PORT: "components.api-catalog.port",
   DISCOVERY_PORT: "components.discovery.port",
@@ -125,8 +142,12 @@ const INSTANCE_ENV_VAR_MAPPING = {
   USS_EXPLORER_UI_PORT: "components.explorer-uss.port",
   ZOSMF_HOST: "zOSMF.host",
   ZOSMF_PORT: "zOSMF.port",
-  ZOWE_APIM_VERIFY_CERTIFICATES: "components.gateway.verifyCertificates",
-  ZOWE_CACHING_SERVICE_START: "components.caching-service.enabled",
+  ZOWE_APIM_VERIFY_CERTIFICATES: function(val, envs, yamlConfig) {
+    _.set(yamlConfig, 'components.gateway.verifyCertificates', stringToBoolean(val));
+  },
+  ZOWE_CACHING_SERVICE_START: function(val, envs, yamlConfig) {
+    _.set(yamlConfig, 'components.caching-service.enabled', stringToBoolean(val));
+  },
   ZOWE_EXPLORER_FRAME_ANCESTORS: ["components.explorer-jes.frameAncestors", "components.explorer-mvs.frameAncestors", "components.explorer-uss.frameAncestors"],
   ZOWE_EXPLORER_HOST: function(val, envs, yamlConfig) {
     appendToArray(val, "zowe.externalDomains", yamlConfig);

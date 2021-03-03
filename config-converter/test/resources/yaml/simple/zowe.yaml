@@ -15,8 +15,8 @@ zowe:
     UNKNOWN_KEY: value
 components:
   gateway:
-    debug: "true"
+    debug: true
   discovery:
-    debug: "true"
+    debug: true
   api-catalog:
-    debug: "true"
+    debug: true

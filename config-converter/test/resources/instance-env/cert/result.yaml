@@ -43,24 +43,24 @@ zOSMF:
 components:
   api-catalog:
     port: "7552"
-    preferIpAddress: "true"
-    debug: "false"
+    preferIpAddress: true
+    debug: false
   discovery:
     port: "7553"
-    debug: "false"
+    debug: false
     alternativeStaticDefinitionsDirectories: ""
   gateway:
     port: "7554"
-    allowEncodedSlashes: "true"
-    corsEnabled: "false"
+    allowEncodedSlashes: true
+    corsEnabled: false
     timeoutMillis: "600000"
-    x509Enabled: "true"
+    x509Enabled: true
     auth:
       provider: zosmf
-    debug: "false"
+    debug: false
     maxConnectionsPerRoute: "100"
     totalConnections: "1000"
-    verifyCertificates: "false"
+    verifyCertificates: false
   caching-service:
     port: "7555"
     vsam:
@@ -68,7 +68,7 @@ components:
       dataset: ZOWEAD3.ZWE.CACHE1
     evictionStrategy: reject
     persistent: VSAM
-    enabled: "true"
+    enabled: true
   jobs-api:
     port: "8545"
   files-api:
@@ -87,7 +87,7 @@ components:
   zss:
     port: "8542"
     crossMemoryServerName: ZWESIS_STD
-    enabled: "true"
+    enabled: true
 externalCertificate:
   keystore:
     keyAlias: localhost
