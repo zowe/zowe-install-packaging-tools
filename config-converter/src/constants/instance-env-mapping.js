@@ -10,16 +10,7 @@
 
 const util = require('util');
 const _ = require('lodash');
-
-const VERBOSE_ENV = 'ZOWE_CONFIG_CONVERTER_VERBOSE';
-
-const DEFAULT_YAML_INDENT = 2;
-
-const DEFAULT_ZOWE_CORE_COMPONENTS = 'gateway,discovery,api-catalog,app-server,zss,jobs-api,files-api,explorer-jes,explorer-mvs,explorer-uss';
-const DEFAULT_ZOWE_COMPONENT_GROUPS = {
-  DESKTOP: 'app-server,zss',
-  GATEWAY: 'gateway,discovery,api-catalog,jobs-api,files-api',
-};
+const { VERBOSE_ENV, DEFAULT_ZOWE_COMPONENT_GROUPS, DEFAULT_ZOWE_CORE_COMPONENTS } = require('./index');
 
 const enableComponents = (components, yamlConfig) => {
   components.split(/,/).forEach((one) => {
@@ -168,9 +159,5 @@ const INSTANCE_ENV_VAR_MAPPING = {
 };
 
 module.exports = {
-  VERBOSE_ENV,
-  DEFAULT_YAML_INDENT,
-  DEFAULT_ZOWE_COMPONENT_GROUPS,
-  DEFAULT_ZOWE_CORE_COMPONENTS,
   INSTANCE_ENV_VAR_MAPPING,
 };

@@ -23,6 +23,9 @@
     "mochawesome": "^4.1.0",
     "nyc": "^15.1.0"
   },
+  "bin": {
+    "zcc": "src/cli.js"
+  },
   "scripts": {
     "lint": "eslint .",
     "test": "nyc mocha"

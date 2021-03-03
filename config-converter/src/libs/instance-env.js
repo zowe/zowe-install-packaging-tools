@@ -8,17 +8,9 @@
  * Copyright IBM Corporation 2021
  */
 
-const util = require('util');
 const fs = require('fs');
 const { spawnSync } = require("child_process");
-const YAML = require('yaml');
 const _ = require('lodash');
-const { INSTANCE_ENV_VAR_MAPPING, DEFAULT_YAML_INDENT, VERBOSE_ENV } = require('./constants');
-
-const exitWithError = (message) => {
-  process.stderr.write(`Error: ${message}\n`);
-  process.exit(1);
-};
 
 // convert output of "env" command to object
 const readEnvOutput = (envOutput) => {
@@ -92,7 +84,7 @@ const readEnvFile = (file) => {
 
     return finalEnvs;
   } catch (e) {
-    exitWithError(`Error reading file (${file}): ${e.message}`);
+    throw new Error(`Error reading file (${file}): ${e.message}`);
   }
 };
 
@@ -107,63 +99,12 @@ const loadCertificateEnv = (keystoreDir) => {
 
     return readEnvFile(certEnvFile);
   } catch (e) {
-    exitWithError(`Error loading keystore configs: ${e.message}`);
-  }
-};
-
-// convert instance.env object to YAML config object
-const convertToYamlConfig = (envs) => {
-  try {
-    const yamlConfig = {};
-
-    for (const k in envs) {
-      if (_.has(INSTANCE_ENV_VAR_MAPPING, k)) {
-        if (_.isArray(INSTANCE_ENV_VAR_MAPPING[k])) {
-          INSTANCE_ENV_VAR_MAPPING[k].forEach((mv) => {
-            _.set(yamlConfig, mv, envs[k]);
-          });
-        } else if (INSTANCE_ENV_VAR_MAPPING[k] === false) {
-          // ignore
-          if (process.env[VERBOSE_ENV]) {
-            process.stdout.write(util.format('Ignore key %s with value %j\n', k, envs[k]));
-          }
-        } else if (_.isFunction(INSTANCE_ENV_VAR_MAPPING[k])) {
-          INSTANCE_ENV_VAR_MAPPING[k](envs[k], envs, yamlConfig);
-        } else {
-          _.set(yamlConfig, INSTANCE_ENV_VAR_MAPPING[k], envs[k]);
-        }
-      } else {
-        if (process.env[VERBOSE_ENV]) {
-          process.stdout.write(util.format('Unknown key %s with value %j\n', k, envs[k]));
-        }
-        _.set(yamlConfig, `zowe.environments[${k}]`, envs[k]);
-      }
-    }
-
-    return yamlConfig;
-  } catch (e) {
-    exitWithError(`Error converting to YAML format: ${e.message}`);
-  }
-};
-
-// write object as YAML format
-const writeYaml = (data) => {
-  try {
-    let content;
-    content = YAML.stringify(data, {
-      indent: DEFAULT_YAML_INDENT,
-    });
-    process.stdout.write(content);
-  } catch (e) {
-    exitWithError(`Error writing to YAML format: ${e.message}`);
+    throw new Error(`Error loading keystore configs: ${e.message}`);
   }
 };
 
 module.exports = {
-  exitWithError,
   readEnvOutput,
   readEnvFile,
   loadCertificateEnv,
-  convertToYamlConfig,
-  writeYaml,
 };

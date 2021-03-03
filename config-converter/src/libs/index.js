@@ -8,5 +8,11 @@
  * Copyright IBM Corporation 2021
  */
 
+const exitWithError = (message) => {
+  process.stderr.write(`Error: ${message}\n`);
+  process.exit(1);
+};
+
 module.exports = {
+  exitWithError,
 };

@@ -8,5 +8,13 @@
  * Copyright IBM Corporation 2021
  */
 
+const builder = (yargs) => {
+  return yargs.commandDir('instance-env.commands').demandCommand().help();
+};
+
 module.exports = {
+  command: 'instance-env <command>',
+  aliases: ['env'],
+  description: 'Process Zowe instance.env file.',
+  builder,
 };
