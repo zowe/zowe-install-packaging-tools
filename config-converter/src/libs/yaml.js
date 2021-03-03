@@ -9,6 +9,8 @@
  */
 
 const util = require('util');
+const path = require('path');
+const fs = require('fs');
 const YAML = require('yaml');
 const _ = require('lodash');
 const { VERBOSE_ENV, DEFAULT_YAML_INDENT } = require('../constants');
@@ -49,6 +51,41 @@ const convertToYamlConfig = (envs) => {
   }
 };
 
+// Read Zowe YAML config and also process @include
+const readYaml = (file) => {
+  const baseFilePath = path.dirname(file);
+  const data = YAML.parse(fs.readFileSync(file).toString());
+
+  // @include is a special annotation which allows YAML to import another YAML file
+  const recursivelyInclude = (obj) => {
+    let result = null;
+    if (Array.isArray(obj)) {
+      result = [];
+      for (const item of obj) {
+        result.push(recursivelyInclude(item));
+      }
+    } else if (_.isObject(obj)) {
+      result = {};
+      for (const key in obj) {
+        if (key === '@include') {
+          const includeFilePath = path.resolve(baseFilePath, obj[key]);
+          const includeData = YAML.parse(fs.readFileSync(includeFilePath).toString());
+          result = {...result, ...includeData};
+        } else {
+          result[key] = recursivelyInclude(obj[key]);
+        }
+      }
+    } else {
+      result = obj;
+    }
+
+    return result;
+  };
+
+  const processedData = recursivelyInclude(data);
+  return processedData;
+};
+
 // write object as YAML format
 const writeYaml = (data) => {
   try {
@@ -64,5 +101,6 @@ const writeYaml = (data) => {
 
 module.exports = {
   convertToYamlConfig,
+  readYaml,
   writeYaml,
 };

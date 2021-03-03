@@ -1,0 +1,103 @@
+#
+# This program and the accompanying materials are made available under the terms of the
+# Eclipse Public License v2.0 which accompanies this distribution, and is available at
+# https://www.eclipse.org/legal/epl-v20.html
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Copyright IBM Corporation 2021
+#
+zowe:
+  runtimeDirectory: /ZOWE/staging/zowe
+  jobPrefix: ZWE1
+  identifier: "1"
+  externalDomains:
+    - zos.test-domain.com
+  environments:
+    ZOWE_IP_ADDRESS: 12.34.56.78
+    KEYSTORE_DIRECTORY: /Users/tiefengjia/projects/zowe-install-packaging-tools/config-converter/test/resources/zss
+    ZWE_DISCOVERY_SERVICES_LIST: https://zos.test-domain.com:7553/eureka/
+    ZOWE_ZLUX_SSH_PORT: "22"
+    ZOWE_ZLUX_TELNET_PORT: "623"
+    ZOWE_ZLUX_SECURITY_TYPE: ""
+    ZWED_agent_jwt_token_name: ZWETOKEN
+    ZWED_agent_jwt_token_label: jwtsecret
+    ZWED_agent_jwt_fallback: "true"
+    ZWED_agent_jwt_enabled: "true"
+    ZWED_agent_http_ipAddresses: 0.0.0.0
+    EXTERNAL_ROOT_CA: ""
+    SSO_FALLBACK_TO_NATIVE_AUTH: "true"
+  externalPort: "7554"
+  sso:
+    token:
+      name: ""
+      label: ""
+java:
+  home: /usr/lpp/java/J8.0_64
+node:
+  home: /ZOWE/node/node-v8.16.0-os390-s390x
+zOSMF:
+  port: "10443"
+  host: zos.test-domain.com
+  applId: izudflt
+components:
+  api-catalog:
+    port: "7552"
+    preferIpAddress: "true"
+    debug: "false"
+  discovery:
+    port: "7553"
+    debug: "false"
+    alternativeStaticDefinitionsDirectories: ""
+  gateway:
+    port: "7554"
+    allowEncodedSlashes: "true"
+    corsEnabled: "false"
+    timeoutMillis: "600000"
+    x509Enabled: "true"
+    auth:
+      provider: zosmf
+    debug: "false"
+    maxConnectionsPerRoute: "100"
+    totalConnections: "1000"
+    verifyCertificates: "false"
+  caching-service:
+    port: "7555"
+    vsam:
+      storageSize: "10000"
+      dataset: ZOWEAD3.ZWE.CACHE1
+    evictionStrategy: reject
+    persistent: VSAM
+    enabled: "true"
+  jobs-api:
+    port: "8545"
+  files-api:
+    port: "8547"
+  explorer-jes:
+    port: "8546"
+    frameAncestors: zos.test-domain.com:*,12.34.56.78:*
+  explorer-mvs:
+    port: "8548"
+    frameAncestors: zos.test-domain.com:*,12.34.56.78:*
+  explorer-uss:
+    port: "8550"
+    frameAncestors: zos.test-domain.com:*,12.34.56.78:*
+  app-server:
+    port: "8544"
+  zss:
+    port: "8542"
+    crossMemoryServerName: ZWESIS_STD
+    enabled: "true"
+externalCertificate:
+  keystore:
+    keyAlias: localhost
+    password: password
+    file: /var/zowe/keystore/localhost/localhost.keystore.p12
+    type: PKCS12
+  trustStore:
+    file: /var/zowe/keystore/localhost/localhost.truststore.p12
+    certificateAuthorities: ""
+  pem:
+    key: /var/zowe/keystore/localhost/localhost.keystore.key
+    certificate: /var/zowe/keystore/localhost/localhost.keystore.cer-ebcdic
+    certificateAuthority: /var/zowe/keystore/local_ca/localca.cer-ebcdic

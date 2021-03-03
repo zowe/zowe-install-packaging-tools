@@ -15,13 +15,7 @@ const { STDOUT_YAML_SEPARATOR } = require('../../constants');
 
 const builder = (yargs) => {
   yargs
-    .options({
-      // repository: {
-      //   alias: 'repo',
-      //   description: 'Repository name. List label(s) of this repository. Default value is the template repository.',
-      //   group: 'Milestone Options',
-      // },
-    });
+    .options({});
 };
 
 const handler = async (options) => {
@@ -41,7 +35,7 @@ const handler = async (options) => {
 
 module.exports = {
   command: 'to-yaml <instance-env-file>',
-  aliases: ['yml'],
+  aliases: ['yaml'],
   description: 'Convert instance.env to YAML format',
   builder,
   handler,

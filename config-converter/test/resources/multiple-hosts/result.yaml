@@ -1,7 +1,0 @@
-zowe:
-  runtimeDirectory: /ZOWE/staging/zowe
-  externalDomains:
-    - main-domain.com
-    - domain-a.com
-    - domain-b.com
-    - another-domain.com

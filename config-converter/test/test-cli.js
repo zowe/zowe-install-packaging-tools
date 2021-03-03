@@ -5,10 +5,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * Copyright IBM Corporation 2020
+ * Copyright IBM Corporation 2021
  */
 
-// const debug = require('debug')('config-converter:cli');
+// const debug = require('debug')('zcc-test:cli');
 
 const { testConfigConverter } = require('./utils');
 

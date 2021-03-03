@@ -5,7 +5,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * Copyright IBM Corporation 2020
+ * Copyright IBM Corporation 2021
  */
 
 const child_process = require('child_process');
@@ -14,7 +14,7 @@ const fs = require('fs');
 const expect = require('chai').expect;
 const _ = require('lodash');
 const YAML = require('yaml');
-const debug = require('debug')('config-converter:utils');
+const debug = require('debug')('zcc-test:utils');
 
 const { STDOUT_YAML_SEPARATOR, DEFAULT_YAML_INDENT } = require('../src/constants');
 
@@ -91,11 +91,15 @@ const testConfigConverter = (args = [], expected = {}, exactMatch = false) => {
   }
 };
 
-const getResource = (category, file = 'instance.env') => {
-  return path.resolve(RESOURCES_DIR, category, file);
+const getInstanceEnvResource = (category, file = 'instance.env') => {
+  return path.resolve(RESOURCES_DIR, 'instance-env', category, file);
 };
 
-const readYaml = (file) => {
+const getYamlResource = (category, file = 'zowe.yaml') => {
+  return path.resolve(RESOURCES_DIR, 'yaml', category, file);
+};
+
+const reformatYaml = (file) => {
   return YAML.stringify(YAML.parse(fs.readFileSync(file).toString()), {
     indent: DEFAULT_YAML_INDENT,
   });
@@ -109,6 +113,7 @@ module.exports = {
   execConfigConverter,
   validateValue,
   testConfigConverter,
-  getResource,
-  readYaml,
+  getInstanceEnvResource,
+  getYamlResource,
+  reformatYaml,
 };

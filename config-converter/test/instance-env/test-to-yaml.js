@@ -5,19 +5,19 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * Copyright IBM Corporation 2020
+ * Copyright IBM Corporation 2021
  */
 
-// const debug = require('debug')('config-converter:env-to-yaml');
+// const debug = require('debug')('zcc-test:env-to-yaml');
 
 const { STDOUT_YAML_SEPARATOR } = require('../../src/constants');
-const { getResource, testConfigConverter, readYaml } = require('../utils');
+const { getInstanceEnvResource, testConfigConverter, reformatYaml } = require('../utils');
 
 describe('zcc instance-env to-yaml', function () {
   const cliParams = ['instance-env', 'to-yaml'];
 
   it('should show error when input file doesn\'t exist', () => {
-    testConfigConverter([...cliParams, getResource('category-doesnot-exist')], {
+    testConfigConverter([...cliParams, getInstanceEnvResource('category-doesnot-exist')], {
       rc: 1,
       stdout: '',
       stderr: ['Error reading file', 'ENOENT: no such file or directory'],
@@ -25,8 +25,8 @@ describe('zcc instance-env to-yaml', function () {
   });
 
   it('should return converted YAML string with valid instance.env input', () => {
-    testConfigConverter([...cliParams, getResource('simple')], {
-      stdout: readYaml(getResource('simple', 'result.yaml')),
+    testConfigConverter([...cliParams, getInstanceEnvResource('simple')], {
+      stdout: reformatYaml(getInstanceEnvResource('simple', 'result.yaml')),
       stderr: '',
       yaml: {
         'zowe.runtimeDirectory': '/ZOWE/staging/zowe',
@@ -37,14 +37,14 @@ describe('zcc instance-env to-yaml', function () {
   });
 
   it('should show error if cannot source instance.env file', () => {
-    testConfigConverter([...cliParams, getResource('invalid')], {
+    testConfigConverter([...cliParams, getInstanceEnvResource('invalid')], {
       rc: 1,
       stderr: ['Error reading file', 'Invalid env line'],
     });
   });
 
   it('should show verbose information if -v is provided', () => {
-    testConfigConverter([...cliParams, '-v', getResource('simple')], {
+    testConfigConverter([...cliParams, '-v', getInstanceEnvResource('simple')], {
       stdout: ['CLI arguments:', STDOUT_YAML_SEPARATOR, 'Ignore key SKIP_NODE with value "0"', 'Unknown key UNKNOWN_KEY with value "value"'],
       stderr: '',
       yaml: {
@@ -57,7 +57,7 @@ describe('zcc instance-env to-yaml', function () {
   });
 
   it('should enable all components if LAUNCH_COMPONENT_GROUPS=DESKTOP,GATEWAY', () => {
-    testConfigConverter([...cliParams, '-v', getResource('components-all')], {
+    testConfigConverter([...cliParams, '-v', getInstanceEnvResource('components-all')], {
       stderr: '',
       yaml: {
         'components.app-server.enabled': 'true',
@@ -68,7 +68,7 @@ describe('zcc instance-env to-yaml', function () {
   });
 
   it('should enable only desktop components if LAUNCH_COMPONENT_GROUPS=DESKTOP', () => {
-    testConfigConverter([...cliParams, '-v', getResource('components-desktop')], {
+    testConfigConverter([...cliParams, '-v', getInstanceEnvResource('components-desktop')], {
       stderr: '',
       yaml: {
         'components.app-server.enabled': 'true',
@@ -79,7 +79,7 @@ describe('zcc instance-env to-yaml', function () {
   });
 
   it('should enable only gateway components if LAUNCH_COMPONENT_GROUPS=GATEWAY', () => {
-    testConfigConverter([...cliParams, '-v', getResource('components-gateway')], {
+    testConfigConverter([...cliParams, '-v', getInstanceEnvResource('components-gateway')], {
       stderr: '',
       yaml: {
         'components.app-server.enabled': undefined,
@@ -90,7 +90,7 @@ describe('zcc instance-env to-yaml', function () {
   });
 
   it('should ignore LAUNCH_COMPONENT_GROUPS if ZWE_LAUNCH_COMPONENTS is defined', () => {
-    testConfigConverter([...cliParams, getResource('components-custom')], {
+    testConfigConverter([...cliParams, getInstanceEnvResource('components-custom')], {
       stderr: '',
       yaml: {
         'components.app-server.enabled': undefined,
@@ -103,7 +103,7 @@ describe('zcc instance-env to-yaml', function () {
   });
 
   it('should show warning if component is path', () => {
-    testConfigConverter([...cliParams, '-v', getResource('components-invalid')], {
+    testConfigConverter([...cliParams, '-v', getInstanceEnvResource('components-invalid')], {
       stdout: 'Unsupported component value "/path/to/a/component/bin"',
       stderr: '',
       yaml: {
@@ -114,7 +114,7 @@ describe('zcc instance-env to-yaml', function () {
   });
 
   it('should ignore those components if component is path', () => {
-    testConfigConverter([...cliParams, getResource('components-invalid')], {
+    testConfigConverter([...cliParams, getInstanceEnvResource('components-invalid')], {
       stderr: '',
       yaml: {
         'components.compname.enabled': 'true',
@@ -124,14 +124,14 @@ describe('zcc instance-env to-yaml', function () {
   });
 
   it('should add all domains as array if ZWE_EXTERNAL_HOSTS is defined', () => {
-    testConfigConverter([...cliParams, getResource('multiple-hosts')], {
+    testConfigConverter([...cliParams, getInstanceEnvResource('multiple-hosts')], {
       stderr: '',
-      stdout: readYaml(getResource('multiple-hosts', 'result.yaml')),
+      stdout: reformatYaml(getInstanceEnvResource('multiple-hosts', 'result.yaml')),
     }, true);
   });
 
   it('should load keystore definition if KEYSTORE_DIRECTORY is defined', () => {
-    testConfigConverter([...cliParams, getResource('cert')], {
+    testConfigConverter([...cliParams, getInstanceEnvResource('cert')], {
       stderr: '',
       yaml: {
         'externalCertificate.keystore.file': '/var/zowe/keystore/localhost/localhost.keystore.p12',
@@ -140,7 +140,7 @@ describe('zcc instance-env to-yaml', function () {
   });
 
   it('should show error if KEYSTORE_DIRECTORY is invalid', () => {
-    testConfigConverter([...cliParams, getResource('cert-no-env')], {
+    testConfigConverter([...cliParams, getInstanceEnvResource('cert-no-env')], {
       rc: 1,
       stderr: ['Error loading keystore configs', 'doesn\'t have "zowe-certificates.env" file'],
     });
