@@ -8,25 +8,32 @@
  * Copyright IBM Corporation 2021
  */
 
-const { readYaml } = require('../../libs/yaml');
-const { DEFAULT_JSON_INDENT } = require('../../constants');
+const { readYaml, convertConfigs } = require('../../libs/yaml');
 
 const builder = (yargs) => {
   yargs
-    .options({});
+    .options({
+      workspaceDir: {
+        alias: 'wd',
+        description: 'Path to workspace directory.',
+      },
+    });
 };
 
 const handler = async (options) => {
-  if (options.vebose) {
+  if (options.verbose) {
     process.stdout.write(`Reading ${options.yamlFile} ...\n`);
   }
   const result = readYaml(options.yamlFile);
-  process.stdout.write(JSON.stringify(result, null, DEFAULT_JSON_INDENT) + '\n');
+  if (options.verbose) {
+    process.stdout.write(`Converting ${options.yamlFile} ...\n`);
+  }
+  convertConfigs(result, options.workspaceDir);
 };
 
 module.exports = {
-  command: 'read <yaml-file>',
-  description: 'Read YAML configuration',
+  command: 'convert [options] <yaml-file>',
+  description: 'Convert Zowe YAML configuration and save to workspace directory',
   builder,
   handler,
 };

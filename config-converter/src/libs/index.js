@@ -8,11 +8,18 @@
  * Copyright IBM Corporation 2021
  */
 
-const exitWithError = (message) => {
-  process.stderr.write(`Error: ${message}\n`);
-  process.exit(1);
-};
+const fs = require('fs');
+const YAML = require('yaml');
+
+const simpleReadYaml = (file) => {
+  return YAML.parse(fs.readFileSync(file).toString());
+}
+
+const simpleReadJson = (file) => {
+  return JSON.parse(fs.readFileSync(file).toString());
+}
 
 module.exports = {
-  exitWithError,
+  simpleReadYaml,
+  simpleReadJson,
 };

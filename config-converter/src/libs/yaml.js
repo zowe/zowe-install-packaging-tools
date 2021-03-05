@@ -15,8 +15,9 @@ const YAML = require('yaml');
 const YAWN = require('yawn-yaml/cjs');
 const _ = require('lodash');
 const merge = require('deepmerge');
-const { VERBOSE_ENV, DEFAULT_YAML_INDENT } = require('../constants');
+const { VERBOSE_ENV, DEFAULT_YAML_INDENT, DEFAULT_JSON_INDENT } = require('../constants');
 const { INSTANCE_ENV_VAR_MAPPING } = require('../constants/instance-env-mapping');
+const { simpleReadJson, simpleReadYaml } = require('./index');
 
 // convert instance.env object to YAML config object
 const convertToYamlConfig = (envs) => {
@@ -56,7 +57,7 @@ const convertToYamlConfig = (envs) => {
 // Read Zowe YAML config and also process @include
 const readYaml = (file) => {
   const baseFilePath = path.dirname(file);
-  const data = YAML.parse(fs.readFileSync(file).toString());
+  const data = simpleReadYaml(file);
 
   // @include is a special annotation which allows YAML to import another YAML file
   const recursivelyInclude = (obj) => {
@@ -78,10 +79,10 @@ const readYaml = (file) => {
       }
       for (const include of includes) {
         const includeFilePath = path.resolve(baseFilePath, include);
-        const includeData = YAML.parse(fs.readFileSync(includeFilePath).toString());
+        const includeData = simpleReadYaml(includeFilePath);
         result = merge(result, includeData);
       }
-} else {
+    } else {
       result = obj;
     }
 
@@ -92,16 +93,108 @@ const readYaml = (file) => {
   return processedData;
 };
 
-// write object as YAML format
-const writeYaml = (data) => {
+// consider all overrides based on HA-Instance-ID, save the converted configs
+const convertConfigs = (configObj, workspaceDir = null) => {
+  workspaceDir = workspaceDir ? workspaceDir : process.env.WORKSPACE_DIR;
+  if (!workspaceDir) {
+    throw new Error('Environment WORKSPACE_DIR is required');
+  }
+
+  const configObjCopy = merge({}, configObj);
+
+  // find components
+  const components = fs.readdirSync(workspaceDir).filter(file => {
+    return fs.statSync(path.resolve(workspaceDir, file)).isDirectory();
+  });
+  if (process.env[VERBOSE_ENV]) {
+    process.stdout.write(`- found ${components.length} components\n`);
+  }
+  // apply components configs as default values
+  components.forEach(component => {
+    if (!fs.existsSync(path.resolve(workspaceDir, component, '.manifest.json'))) {
+      if (process.env[VERBOSE_ENV]) {
+        process.stdout.write(`  - component ${component} doesn't have manifest\n`);
+      }
+      return;
+    }
+    if (process.env[VERBOSE_ENV]) {
+      process.stdout.write(`  - read ${component} manifest\n`);
+    }
+    const manifest = simpleReadJson(path.resolve(workspaceDir, component, '.manifest.json'));
+    if (manifest.configs) {
+      if (!configObjCopy.components) {
+        configObjCopy.components = {};
+      }
+      configObjCopy.components[component] = _.defaultsDeep(configObjCopy.components[component] || {}, manifest.configs);
+    }
+  });
+
+  // write workspace/.zowe.yaml
+  if (process.env[VERBOSE_ENV]) {
+    process.stdout.write(`- write <workspace-dir>/.zowe.yaml\n`);
+  }
+  writeYaml(configObjCopy, path.resolve(workspaceDir, '.zowe.yaml'));
+
+  // write workspace/.zowe-<ha-id>.yaml
+  const haInstanceIds = configObjCopy.haInstances ? _.keys(configObjCopy.haInstances) : 'default';
+  const haCopy = _.omit(merge({}, configObjCopy), ['haInstances']);
+  if (process.env[VERBOSE_ENV]) {
+    process.stdout.write(`- found ${haInstanceIds.length} HA instance(s)\n`);
+  }
+  haInstanceIds.forEach(haInstance => {
+    const haCopyMerged = merge(haCopy, configObjCopy.haInstances && configObjCopy.haInstances[haInstance] || {});
+    if (process.env[VERBOSE_ENV]) {
+      process.stdout.write(`  - write <workspace-dir>/.zowe-${haInstance}.yaml\n`);
+    }
+    writeYaml(haCopyMerged, path.resolve(workspaceDir, `.zowe-${haInstance}.yaml`));
+
+    // write component configurations
+    components.forEach(component => {
+      if (haCopyMerged.components && haCopyMerged.components[component]) {
+        if (process.env[VERBOSE_ENV]) {
+          process.stdout.write(`    - write <workspace-dir>/${component}/.configs-${haInstance}.json\n`);
+        }
+        writeJson(haCopyMerged.components[component], path.resolve(workspaceDir, component, `.configs-${haInstance}.json`));
+        // if (process.env[VERBOSE_ENV]) {
+        //   process.stdout.write(`    - write <workspace-dir>/${component}/.configs-${haInstance}.yaml\n`);
+        // }
+        // writeYaml(haCopyMerged.components[component], path.resolve(workspaceDir, component, `.configs-${haInstance}.yaml`));
+      }
+    });
+  });
+};
+
+// write object as YAML format to console or a file
+const writeYaml = (data, toFile = null) => {
   try {
     let content;
     content = YAML.stringify(data, {
       indent: DEFAULT_YAML_INDENT,
     });
-    process.stdout.write(content);
+
+    if (toFile) {
+      fs.writeFileSync(toFile, content);
+    } else {
+      process.stdout.write(content);
+    }
   } catch (e) {
     throw new Error(`Error writing to YAML format: ${e.message}`);
+  }
+};
+
+// write object as JSON format to console or a file
+const writeJson = (data, toFile = null) => {
+  try {
+    let content;
+    content = JSON.stringify(data, null, DEFAULT_JSON_INDENT);
+
+    if (toFile) {
+      fs.writeFileSync(toFile, content);
+    } else {
+      process.stdout.write(content);
+    }
+  } catch (e) {
+    throw new Error(`Error writing to JSON format: ${e.message}`);
   }
 };
 
@@ -116,6 +209,8 @@ const updateYaml = (yamlFile, objectPath, newValue) => {
 module.exports = {
   convertToYamlConfig,
   readYaml,
+  convertConfigs,
   writeYaml,
+  writeJson,
   updateYaml,
 };

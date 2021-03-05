@@ -16,6 +16,10 @@ const builder = (yargs) => {
 };
 
 const handler = async (options) => {
+  if (options.verbose) {
+    process.stdout.write(`Updating ${options.yamlFile} value of "${options.pathOfObject}" to "${options.newValue}"\n`);
+  }
+
   updateYaml(options.yamlFile, options.pathOfObject, options.newValue);
 };
 

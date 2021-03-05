@@ -1,0 +1,46 @@
+#
+# This program and the accompanying materials are made available under the terms of the
+# Eclipse Public License v2.0 which accompanies this distribution, and is available at
+# https://www.eclipse.org/legal/epl-v20.html
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Copyright IBM Corporation 2021
+#
+zowe:
+  runtimeDirectory: /ZOWE/staging/zowe
+  jobPrefix: ZWE
+  identifier: "1"
+  externalDomains:
+    - my-default-zos.com
+  environments:
+    UNKNOWN_KEY: value
+haInstances:
+  default:
+  first:
+    zowe:
+      domain: my-first-zos.com
+  second:
+    zowe:
+      domain: my-second-zos.com
+    components:
+      gateway:
+        enabled: false
+        port: 7554
+      discovery:
+        port: 7553
+  second-alt:
+    # we want to start another instance on same system
+    zowe:
+      domain: my-second-zos.com
+    components:
+      gateway:
+        port: 17554
+        anotherConfig: customized-value
+      discovery:
+        enabled: false
+        port: 17553
+components:
+  gateway:
+    enabled: true
+    port: 8888
