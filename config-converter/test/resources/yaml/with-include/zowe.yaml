@@ -17,6 +17,7 @@ components:
   api-catalog:
     enabled: true
     not-override: value
+    "@include": "api-catalog.yaml"
     keyObj:
       subkey1: val1
       subkey2: val2
@@ -28,4 +29,3 @@ components:
       subkey02: val02
     - subkey11: val11
       subkey12: val12
-    "@include": "api-catalog.yaml"

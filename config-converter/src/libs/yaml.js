@@ -68,16 +68,20 @@ const readYaml = (file) => {
       }
     } else if (_.isObject(obj)) {
       result = {};
+      const includes = [];
       for (const key in obj) {
         if (key === '@include') {
-          const includeFilePath = path.resolve(baseFilePath, obj[key]);
-          const includeData = YAML.parse(fs.readFileSync(includeFilePath).toString());
-          result = merge(result, includeData);
+          includes.push(obj[key]);
         } else {
           result[key] = recursivelyInclude(obj[key]);
         }
       }
-    } else {
+      for (const include of includes) {
+        const includeFilePath = path.resolve(baseFilePath, include);
+        const includeData = YAML.parse(fs.readFileSync(includeFilePath).toString());
+        result = merge(result, includeData);
+      }
+} else {
       result = obj;
     }
 
