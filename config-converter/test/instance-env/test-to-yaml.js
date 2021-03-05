@@ -30,7 +30,7 @@ describe('zcc instance-env to-yaml', function () {
       stderr: '',
       yaml: {
         'zowe.runtimeDirectory': '/ZOWE/staging/zowe',
-        'zowe.jobPrefix': 'ZWE1',
+        'zowe.jobPrefix': 'ZWE',
         'zowe.identifier': "1",
       }
     }, true);

@@ -9,3 +9,12 @@
 #
 port: "1234"
 enabled: false
+keyObj:
+  subkey2: val2-updated
+  subkey3: val3
+  subkeyObj1:
+    subkey2: val2-updated
+    subkey3: val3
+keyArray:
+- subkey21: val21
+  subkey22: val22

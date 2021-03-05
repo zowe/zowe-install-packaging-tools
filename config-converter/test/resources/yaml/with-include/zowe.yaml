@@ -9,7 +9,7 @@
 #
 zowe:
   runtimeDirectory: /ZOWE/staging/zowe
-  jobPrefix: ZWE1
+  jobPrefix: ZWE
   identifier: "1"
   environments:
     UNKNOWN_KEY: value
@@ -17,4 +17,15 @@ components:
   api-catalog:
     enabled: true
     not-override: value
+    keyObj:
+      subkey1: val1
+      subkey2: val2
+      subkeyObj1:
+        subkey1: val1
+        subkey2: val2
+    keyArray:
+    - subkey01: val01
+      subkey02: val02
+    - subkey11: val11
+      subkey12: val12
     "@include": "api-catalog.yaml"

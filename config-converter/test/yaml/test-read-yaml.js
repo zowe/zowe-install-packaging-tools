@@ -20,7 +20,7 @@ describe('test yaml utility method readYaml', function () {
 
   it('should return object with simple YAML file (without include)', () => {
     const result = readYaml(getYamlResource('simple'));
-    debug(result);
+    debug(JSON.stringify(result, null, 2));
 
     expect(result).to.be.an('object');
     expect(_.get(result, 'zowe.runtimeDirectory')).to.equal('/ZOWE/staging/zowe');
@@ -29,18 +29,27 @@ describe('test yaml utility method readYaml', function () {
 
   it('should return object with included YAML file', () => {
     const result = readYaml(getYamlResource('with-include'));
-    debug(result);
+    debug(JSON.stringify(result, null, 2));
 
     expect(result).to.be.an('object');
     expect(_.get(result, 'zowe.runtimeDirectory')).to.equal('/ZOWE/staging/zowe');
     expect(_.get(result, 'components.api-catalog.enabled')).to.be.false;
     expect(_.get(result, 'components.api-catalog.port')).to.equal('1234');
-    expect(_.get(result, 'components.api-catalog.not-override')).to.equal('value');
+    // verify object merge
+    expect(_.get(result, 'components.api-catalog.keyObj.subkey1')).to.equal('val1');
+    expect(_.get(result, 'components.api-catalog.keyObj.subkey2')).to.equal('val2-updated');
+    expect(_.get(result, 'components.api-catalog.keyObj.subkey3')).to.equal('val3');
+    expect(_.get(result, 'components.api-catalog.keyObj.subkeyObj1.subkey1')).to.equal('val1');
+    expect(_.get(result, 'components.api-catalog.keyObj.subkeyObj1.subkey2')).to.equal('val2-updated');
+    expect(_.get(result, 'components.api-catalog.keyObj.subkeyObj1.subkey3')).to.equal('val3');
+    // verify array merge
+    expect(_.get(result, 'components.api-catalog.keyArray.0.subkey01')).to.equal('val01');
+    expect(_.get(result, 'components.api-catalog.keyArray.2.subkey21')).to.equal('val21');
   });
 
   it('should return correct array if same YAML file is included multiple times', () => {
     const result = readYaml(getYamlResource('with-include', 'array-of-objects.yaml'));
-    debug(result);
+    debug(JSON.stringify(result, null, 2));
 
     expect(result).to.be.an('object');
     expect(_.get(result, 'zowe.runtimeDirectory')).to.equal('/ZOWE/staging/zowe');

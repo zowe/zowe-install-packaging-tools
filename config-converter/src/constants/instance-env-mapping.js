@@ -154,9 +154,7 @@ const INSTANCE_ENV_VAR_MAPPING = {
   },
   ZWE_EXTENSION_DIR: "zowe.extensionDirectory",
   ZOWE_INSTANCE: "zowe.identifier",
-  ZOWE_PREFIX: function(val, envs, yamlConfig) {
-    _.set(yamlConfig, 'zowe.jobPrefix', `${val}${envs['ZOWE_INSTANCE']}`);
-  },
+  ZOWE_PREFIX: 'zowe.jobPrefix',
   // ZOWE_ZLUX_SECURITY_TYPE: "components.app-server.plugins.tn3270.security",
   ZOWE_ZLUX_SERVER_HTTPS_PORT: "components.app-server.port",
   // ZOWE_ZLUX_SSH_PORT: "components.app-server.plugins.vt-term.port",

@@ -4,6 +4,7 @@
   "description": "Convert Zowe instance.env to YAML format",
   "main": "src/index.js",
   "dependencies": {
+    "deepmerge": "^4.2.2",
     "lodash": "^4.17.21",
     "yaml": "^1.10.0",
     "yargs": "^15.4.0",

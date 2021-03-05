@@ -9,7 +9,7 @@
 #
 zowe:
   runtimeDirectory: /ZOWE/staging/zowe
-  jobPrefix: ZWE1
+  jobPrefix: ZWE
   identifier: "1"
   environments:
     UNKNOWN_KEY: value

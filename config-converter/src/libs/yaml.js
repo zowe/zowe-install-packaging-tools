@@ -14,6 +14,7 @@ const fs = require('fs');
 const YAML = require('yaml');
 const YAWN = require('yawn-yaml/cjs');
 const _ = require('lodash');
+const merge = require('deepmerge');
 const { VERBOSE_ENV, DEFAULT_YAML_INDENT } = require('../constants');
 const { INSTANCE_ENV_VAR_MAPPING } = require('../constants/instance-env-mapping');
 
@@ -71,7 +72,7 @@ const readYaml = (file) => {
         if (key === '@include') {
           const includeFilePath = path.resolve(baseFilePath, obj[key]);
           const includeData = YAML.parse(fs.readFileSync(includeFilePath).toString());
-          result = {...result, ...includeData};
+          result = merge(result, includeData);
         } else {
           result[key] = recursivelyInclude(obj[key]);
         }
