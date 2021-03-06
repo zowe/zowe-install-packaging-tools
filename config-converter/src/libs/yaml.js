@@ -16,8 +16,9 @@ const YAWN = require('yawn-yaml/cjs');
 const _ = require('lodash');
 const merge = require('deepmerge');
 const { VERBOSE_ENV, DEFAULT_YAML_INDENT, DEFAULT_JSON_INDENT } = require('../constants');
-const { INSTANCE_ENV_VAR_MAPPING } = require('../constants/instance-env-mapping');
+const { ENV_TO_YAML_MAPPING } = require('../constants/env2yaml-map');
 const { simpleReadJson, simpleReadYaml } = require('./index');
+const { YAML_TO_ENV_MAPPING } = require('../constants/yaml2env-map');
 
 // convert instance.env object to YAML config object
 const convertToYamlConfig = (envs) => {
@@ -25,20 +26,20 @@ const convertToYamlConfig = (envs) => {
     const yamlConfig = {};
 
     for (const k in envs) {
-      if (_.has(INSTANCE_ENV_VAR_MAPPING, k)) {
-        if (_.isArray(INSTANCE_ENV_VAR_MAPPING[k])) {
-          INSTANCE_ENV_VAR_MAPPING[k].forEach((mv) => {
+      if (_.has(ENV_TO_YAML_MAPPING, k)) {
+        if (_.isArray(ENV_TO_YAML_MAPPING[k])) {
+          ENV_TO_YAML_MAPPING[k].forEach((mv) => {
             _.set(yamlConfig, mv, envs[k]);
           });
-        } else if (INSTANCE_ENV_VAR_MAPPING[k] === false) {
+        } else if (ENV_TO_YAML_MAPPING[k] === false) {
           // ignore
           if (process.env[VERBOSE_ENV]) {
             process.stdout.write(util.format('Ignore key %s with value %j\n', k, envs[k]));
           }
-        } else if (_.isFunction(INSTANCE_ENV_VAR_MAPPING[k])) {
-          INSTANCE_ENV_VAR_MAPPING[k](envs[k], envs, yamlConfig);
+        } else if (_.isFunction(ENV_TO_YAML_MAPPING[k])) {
+          ENV_TO_YAML_MAPPING[k](envs[k], envs, yamlConfig);
         } else {
-          _.set(yamlConfig, INSTANCE_ENV_VAR_MAPPING[k], envs[k]);
+          _.set(yamlConfig, ENV_TO_YAML_MAPPING[k], envs[k]);
         }
       } else {
         if (process.env[VERBOSE_ENV]) {
@@ -136,7 +137,7 @@ const convertConfigs = (configObj, workspaceDir = null) => {
   writeYaml(configObjCopy, path.resolve(workspaceDir, '.zowe.yaml'));
 
   // write workspace/.zowe-<ha-id>.yaml
-  const haInstanceIds = configObjCopy.haInstances ? _.keys(configObjCopy.haInstances) : 'default';
+  const haInstanceIds = configObjCopy.haInstances ? _.keys(configObjCopy.haInstances) : ['default'];
   const haCopy = _.omit(merge({}, configObjCopy), ['haInstances']);
   if (process.env[VERBOSE_ENV]) {
     process.stdout.write(`- found ${haInstanceIds.length} HA instance(s)\n`);
@@ -161,6 +162,83 @@ const convertConfigs = (configObj, workspaceDir = null) => {
         // writeYaml(haCopyMerged.components[component], path.resolve(workspaceDir, component, `.configs-${haInstance}.yaml`));
       }
     });
+  });
+};
+
+// convert one YAML config to old instance.env format
+const convertYamlToEnv = (zoweYaml, instanceEnv) => {
+  const configObj = simpleReadYaml(zoweYaml);
+  const zoweYamlBaseName = path.basename(zoweYaml);
+  const envContent = ['#!/bin/sh', ''];
+  const escapeEnvValue = (val) => {
+    val = `${val}`;
+    if (val.indexOf('"') > -1) {
+      return `"${val.replace('"', '\\"')}"`;
+    } else {
+      return val;
+    }
+  };
+  const pushKeyValue = (key, val) => {
+    envContent.push([key, escapeEnvValue(val)].join('='));
+  };
+
+  for (const key in YAML_TO_ENV_MAPPING) {
+    if (YAML_TO_ENV_MAPPING[key] === false) {
+      continue;
+    } else if (_.isString(YAML_TO_ENV_MAPPING[key])) {
+      const val = _.get(configObj, YAML_TO_ENV_MAPPING[key]);
+      if (!_.isUndefined(val)) {
+        pushKeyValue(key, val);
+      }
+    } else if (_.isArray(YAML_TO_ENV_MAPPING[key])) {
+      let lastVal = null;
+      YAML_TO_ENV_MAPPING[key].forEach(k => {
+        const thisVal = _.get(configObj, `${k}`);
+        if (lastVal !== null && lastVal !== thisVal) {
+          process.stderr.write(`WARNING: <workspace-dir>/${zoweYamlBaseName} value of ${k} is not same as other sibling configs\n`);
+        }
+        lastVal = thisVal;
+      });
+      if (lastVal !== null && !_.isUndefined(lastVal)) {
+        pushKeyValue(key, lastVal);
+      }
+    } else if (_.isFunction(YAML_TO_ENV_MAPPING[key])) {
+      const val = YAML_TO_ENV_MAPPING[key](zoweYamlBaseName, configObj);
+      pushKeyValue(key, val);
+    }
+  }
+
+  envContent.push('');
+  envContent.push('# other environments kept as-is');
+  if (configObj && configObj.zowe && configObj.zowe.environments) {
+    for (const key in configObj.zowe.environments) {
+      pushKeyValue(key, configObj.zowe.environments[key]);
+    }
+  }
+
+  fs.writeFileSync(instanceEnv, envContent.join('\n') + '\n');
+};
+
+// convert YAML configs of all HA instances to old instance.env format
+const convertAllHAYamlsToEnv = (zoweYaml) => {
+  const workspaceDir = path.dirname(zoweYaml);
+  const configObj = simpleReadYaml(zoweYaml);
+  const haInstanceIds = configObj.haInstances ? _.keys(configObj.haInstances) : ['default'];
+  if (process.env[VERBOSE_ENV]) {
+    process.stdout.write(`- found ${haInstanceIds.length} HA instance(s)\n`);
+  }
+  haInstanceIds.forEach(haInstance => {
+    // should have <workspace-dir>/.zowe-<ha-id>.yaml
+    const haZoweYaml = path.resolve(workspaceDir, `.zowe-${haInstance}.yaml`);
+    const haInstanceEnv = path.resolve(workspaceDir, `.instance-${haInstance}.env`);
+    if (fs.existsSync(haZoweYaml)) {
+      if (process.env[VERBOSE_ENV]) {
+        process.stdout.write(`  - write .instance-${haInstance}.env\n`);
+      }
+      convertYamlToEnv(haZoweYaml, haInstanceEnv);
+    } else {
+      process.stderr.write(`WARNING: <workspace-dir>/.zowe-${haInstance}.yaml doesn't exist\n`);
+    }
   });
 };
 
@@ -210,6 +288,7 @@ module.exports = {
   convertToYamlConfig,
   readYaml,
   convertConfigs,
+  convertAllHAYamlsToEnv,
   writeYaml,
   writeJson,
   updateYaml,

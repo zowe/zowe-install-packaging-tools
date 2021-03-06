@@ -14,10 +14,11 @@ const DEFAULT_JSON_INDENT = 2;
 const DEFAULT_YAML_INDENT = 2;
 const STDOUT_YAML_SEPARATOR = '========== Converted YAML configuration ==========';
 
-const DEFAULT_ZOWE_CORE_COMPONENTS = 'gateway,discovery,api-catalog,app-server,zss,jobs-api,files-api,explorer-jes,explorer-mvs,explorer-uss';
+const DEFAULT_ZOWE_CORE_COMPONENTS = ['gateway', 'discovery', 'api-catalog', 'app-server', 'zss', 'jobs-api', 'files-api', 'explorer-jes', 'explorer-mvs', 'explorer-uss'];
+const DEFAULT_ZOWE_CORE_COMPONENT_CANDIDATES = ['caching-service'];
 const DEFAULT_ZOWE_COMPONENT_GROUPS = {
-  DESKTOP: 'app-server,zss',
-  GATEWAY: 'gateway,discovery,api-catalog,jobs-api,files-api',
+  DESKTOP: ['app-server', 'zss'],
+  GATEWAY: ['gateway', 'discovery', 'api-catalog', 'jobs-api', 'files-api', 'explorer-jes', 'explorer-mvs', 'explorer-uss'],
 };
 
 module.exports = {
@@ -27,4 +28,5 @@ module.exports = {
   STDOUT_YAML_SEPARATOR,
   DEFAULT_ZOWE_COMPONENT_GROUPS,
   DEFAULT_ZOWE_CORE_COMPONENTS,
+  DEFAULT_ZOWE_CORE_COMPONENT_CANDIDATES,
 };
