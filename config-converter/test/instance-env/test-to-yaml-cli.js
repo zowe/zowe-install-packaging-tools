@@ -91,7 +91,7 @@ describe('zcc instance-env to-yaml', function () {
       yaml: {
         'components.app-server.enabled': undefined,
         'components.gateway.enabled': true,
-        'components.explorer-jes.enabled': undefined,
+        'components.explorer-jes.enabled': true,
       }
     }, true);
   });

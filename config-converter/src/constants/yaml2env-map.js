@@ -8,45 +8,12 @@
  * Copyright IBM Corporation 2021
  */
 
-const util = require('util');
 const _ = require('lodash');
-const { VERBOSE_ENV, DEFAULT_ZOWE_COMPONENT_GROUPS, DEFAULT_ZOWE_CORE_COMPONENTS, DEFAULT_ZOWE_CORE_COMPONENT_CANDIDATES } = require('./index');
+const { DEFAULT_ZOWE_CORE_COMPONENTS, DEFAULT_ZOWE_CORE_COMPONENT_CANDIDATES } = require('./index');
 
-const enableComponents = (components, yamlConfig) => {
-  components.split(/,/).forEach((one) => {
-    one = one.trim();
-    if (one !== '') {
-      if (one.indexOf('/') > -1 || one.indexOf('\\') > -1) {
-        // path to the component
-        if (process.env[VERBOSE_ENV]) {
-          process.stdout.write(util.format('Unsupported component value %j\n', one));
-        }
-      } else {
-        _.set(yamlConfig, `components.${one}.enabled`, true);
-      }
-    }
-  });
-};
-
-const appendToArray = (val, path, yamlConfig, separator = ",") => {
-  if (!_.has(yamlConfig, path)) {
-    _.set(yamlConfig, path, []);
-  }
-
-  val.split(separator).forEach((one) => {
-    one = one.trim();
-
-    if (one !== '') {
-      const arr = _.get(yamlConfig, path);
-      if (arr.indexOf(one) === -1) {
-        _.set(yamlConfig, `${path}[${arr.length}]`, one);
-      }
-    }
-  });
-};
-
-const stringToBoolean = (str) => {
-  return str.toLowerCase() === 'true';
+const getBooleanVal = (obj, path) => {
+  const val = _.get(obj, path);
+  return _.isUndefined(val) ? val : `${val}`;
 };
 
 /**
@@ -69,10 +36,10 @@ const YAML_TO_ENV_MAPPING = {
   // ZWE_DISCOVERY_SERVICES_LIST: "https://zzow01.zowe.marist.cloud:7553/eureka/",
   // ZWED_*: "ZWETOKEN",
   APIML_ALLOW_ENCODED_SLASHES: function(zoweYaml, yamlConfig) {
-    return '' + _.get(yamlConfig, 'components.gateway.allowEncodedSlashes');
+    return getBooleanVal(yamlConfig, 'components.gateway.allowEncodedSlashes');
   },
   APIML_CORS_ENABLED: function(zoweYaml, yamlConfig) {
-    return '' + _.get(yamlConfig, 'components.gateway.corsEnabled');
+    return getBooleanVal(yamlConfig, 'components.gateway.corsEnabled');
   },
   APIML_DEBUG_MODE_ENABLED:  function(zoweYaml, yamlConfig) {
     const bVal = _.get(yamlConfig, 'components.gateway.debug');
@@ -89,11 +56,11 @@ const YAML_TO_ENV_MAPPING = {
   APIML_MAX_CONNECTIONS_PER_ROUTE: "components.gateway.maxConnectionsPerRoute",
   APIML_MAX_TOTAL_CONNECTIONS: "components.gateway.totalConnections",
   APIML_PREFER_IP_ADDRESS: function(zoweYaml, yamlConfig) {
-    return '' + _.get(yamlConfig, 'components.api-catalog.preferIpAddress');
+    return getBooleanVal(yamlConfig, 'components.api-catalog.preferIpAddress');
   },
   APIML_SECURITY_AUTH_PROVIDER: "components.gateway.auth.provider",
   APIML_SECURITY_X509_ENABLED: function(zoweYaml, yamlConfig) {
-    return '' + _.get(yamlConfig, 'components.gateway.x509Enabled');
+    return getBooleanVal(yamlConfig, 'components.gateway.x509Enabled');
   },
   APIML_SECURITY_ZOSMF_APPLID: "zOSMF.applId",
   CATALOG_PORT: "components.api-catalog.port",
@@ -125,7 +92,7 @@ const YAML_TO_ENV_MAPPING = {
   KEYSTORE_PASSWORD: "externalCertificate.keystore.password",
   KEYSTORE_TYPE: "externalCertificate.keystore.type",
   KEYSTORE: "externalCertificate.keystore.file",
-  LAUNCH_COMPONENT_GROUPS: function(zoweYaml, yamlConfig) {
+  LAUNCH_COMPONENT_GROUPS: function() {
     // will use ZWE_LAUNCH_COMPONENTS
     return 'dummy';
   },
@@ -142,10 +109,10 @@ const YAML_TO_ENV_MAPPING = {
   ZOSMF_HOST: "zOSMF.host",
   ZOSMF_PORT: "zOSMF.port",
   ZOWE_APIM_VERIFY_CERTIFICATES: function(zoweYaml, yamlConfig) {
-    return '' + _.get(yamlConfig, 'components.gateway.verifyCertificates');
+    return getBooleanVal(yamlConfig, 'components.gateway.verifyCertificates');
   },
   ZOWE_CACHING_SERVICE_START: function(zoweYaml, yamlConfig) {
-    return '' + _.get(yamlConfig, 'components.caching-service.enabled');
+    return getBooleanVal(yamlConfig, 'components.caching-service.enabled');
   },
   ZOWE_EXPLORER_FRAME_ANCESTORS: ["components.explorer-jes.frameAncestors", "components.explorer-mvs.frameAncestors", "components.explorer-uss.frameAncestors"],
   ZOWE_EXPLORER_HOST: function(zoweYaml, yamlConfig) {

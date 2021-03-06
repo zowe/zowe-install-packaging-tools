@@ -204,7 +204,9 @@ const convertYamlToEnv = (zoweYaml, instanceEnv) => {
       }
     } else if (_.isFunction(YAML_TO_ENV_MAPPING[key])) {
       const val = YAML_TO_ENV_MAPPING[key](zoweYamlBaseName, configObj);
-      pushKeyValue(key, val);
+      if (!_.isUndefined(val)) {
+        pushKeyValue(key, val);
+      }
     }
   }
 
