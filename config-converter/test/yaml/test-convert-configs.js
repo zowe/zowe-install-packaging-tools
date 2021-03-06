@@ -18,39 +18,13 @@ const tmp = require('tmp');
 
 const { convertConfigs } = require('../../src/libs/yaml');
 const { simpleReadJson, simpleReadYaml } = require('../../src/libs/index');
-const { RESOURCES_DIR, getYamlResource } = require('../utils');
+const { RESOURCES_DIR, getYamlResource, showFiles, deleteAllFiles } = require('../utils');
 
 describe('test yaml utility method convertConfigs', function () {
   const resourceCategory = 'ha-instances';
   let obj = null;
   let workspaceDirObj = null;
   let workspaceDir = null;
-
-  const showFiles = (dir) => {
-    fs.readdirSync(dir).forEach(file => {
-      debug(`- ${file}`);
-      const absPath = path.resolve(dir, file);
-      if (fs.statSync(absPath).isDirectory()) {
-        fs.readdirSync(absPath).forEach(subfile => {
-          debug(`  - ${subfile}`);
-        });
-      }
-    });
-  };
-
-  const deleteAllFiles = (dir) => {
-    fs.readdirSync(dir).forEach(file => {
-      const absPath = path.resolve(dir, file);
-      if (fs.statSync(absPath).isDirectory()) {
-        fs.readdirSync(absPath).forEach(subfile => {
-          fs.unlinkSync(path.resolve(absPath, subfile));
-        });
-        fs.rmdirSync(absPath);
-      } else {
-        fs.unlinkSync(absPath);
-      }
-    });
-  };
 
   before(() => {
     obj = simpleReadYaml(getYamlResource(resourceCategory));
@@ -79,6 +53,14 @@ describe('test yaml utility method convertConfigs', function () {
       deleteAllFiles(workspaceDirObj.name);
       workspaceDirObj.removeCallback();
     }
+  });
+
+  it('should throw error if workspace directory doesn\'t have a value', () => {
+    const testFunction = () => {
+      convertConfigs(obj);
+    };
+
+    expect(testFunction).to.throw('Environment WORKSPACE_DIR is required');
   });
 
   it('should generate .zowe.yaml and components default configs should be applied', () => {

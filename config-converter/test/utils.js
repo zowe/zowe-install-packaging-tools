@@ -31,7 +31,8 @@ const extractYamlFromOutput = (stdout) => {
       return YAML.parse(stdout.substr(idx + STDOUT_YAML_SEPARATOR.length));
     }
   } catch (e) {
-    expect(e, 'invalid YAML output').to.be.null;
+    debug('Output is not in YAML format');
+    return null;
   }
 };
 
@@ -107,6 +108,32 @@ const reformatYaml = (file) => {
   });
 };
 
+const showFiles = (dir) => {
+  fs.readdirSync(dir).forEach(file => {
+    debug(`- ${file}`);
+    const absPath = path.resolve(dir, file);
+    if (fs.statSync(absPath).isDirectory()) {
+      fs.readdirSync(absPath).forEach(subfile => {
+        debug(`  - ${subfile}`);
+      });
+    }
+  });
+};
+
+const deleteAllFiles = (dir) => {
+  fs.readdirSync(dir).forEach(file => {
+    const absPath = path.resolve(dir, file);
+    if (fs.statSync(absPath).isDirectory()) {
+      fs.readdirSync(absPath).forEach(subfile => {
+        fs.unlinkSync(path.resolve(absPath, subfile));
+      });
+      fs.rmdirSync(absPath);
+    } else {
+      fs.unlinkSync(absPath);
+    }
+  });
+};
+
 module.exports = {
   ROOT_DIR,
   CONFIG_CONVERTER_CLI,
@@ -118,4 +145,6 @@ module.exports = {
   getInstanceEnvResource,
   getYamlResource,
   reformatYaml,
+  showFiles,
+  deleteAllFiles,
 };

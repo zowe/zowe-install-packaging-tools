@@ -16,7 +16,16 @@ zowe:
 components:
   gateway:
     debug: false
+    verifyCertificates: true
+    auth:
+      provider: zosmf
+    x509Enabled: false
+    corsEnabled: false
+    allowEncodedSlashes: true
   discovery:
     debug: false
   api-catalog:
     debug: false
+    preferIpAddress: true
+  caching-service:
+    enabled: true

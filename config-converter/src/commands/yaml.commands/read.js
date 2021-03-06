@@ -17,7 +17,7 @@ const builder = (yargs) => {
 };
 
 const handler = async (options) => {
-  if (options.vebose) {
+  if (options.verbose) {
     process.stdout.write(`Reading ${options.yamlFile} ...\n`);
   }
   const result = readYaml(options.yamlFile);
