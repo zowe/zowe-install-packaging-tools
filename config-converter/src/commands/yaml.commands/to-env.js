@@ -8,22 +8,49 @@
  * Copyright IBM Corporation 2021
  */
 
-const { convertAllHAYamlsToEnv } = require('../../libs/yaml');
+const { convertComponentYamlToEnv, convertAllComponentYamlsToEnv } = require('../../libs/yaml');
+const { getSysname } = require('../../libs');
 
 const builder = (yargs) => {
   yargs
-    .options({});
+    .options({
+      workspaceDir: {
+        alias: 'wd',
+        description: 'Path to workspace directory.',
+      },
+      haInstanceId: {
+        alias: 'ha',
+        default: '',
+        description: 'High-availability instance ID. Default value is &SYSNAME.',
+      },
+      componentId: {
+        alias: 'c',
+        default: '',
+        description: 'Component ID. If leave it empty, the command will convert for all components in workspace directory.',
+      }
+    });
 };
 
 const handler = async (options) => {
   if (options.verbose) {
-    process.stdout.write(`Converting ${options.yamlFile} ...\n`);
+    if (options.componentId) {
+      process.stdout.write(`Converting configurations for component ${options.componentId} of instance ${options.haInstanceId} ...\n`);
+    } else {
+      process.stdout.write(`Converting configurations for all components of instance ${options.haInstanceId} ...\n`);
+    }
   }
-  convertAllHAYamlsToEnv(options.yamlFile);
+  if (!options.haInstanceId) {
+    options.haInstanceId = getSysname();
+  }
+  if (options.componentId) {
+    convertComponentYamlToEnv(options.workspaceDir, options.haInstanceId, options.componentId);
+  } else {
+    convertAllComponentYamlsToEnv(options.workspaceDir, options.haInstanceId);
+  }
 };
 
 module.exports = {
-  command: 'to-env <yaml-file>',
+  command: 'to-env',
   aliases: ['env'],
   description: 'Convert YAML configuration to instance env file',
   builder,

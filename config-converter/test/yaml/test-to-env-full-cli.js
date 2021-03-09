@@ -17,11 +17,12 @@ const tmp = require('tmp');
 
 const { convertConfigs } = require('../../src/libs/yaml');
 const { simpleReadYaml } = require('../../src/libs/index');
-const { getYamlResource, testConfigConverter, showFiles, deleteAllFiles } = require('../utils');
+const { RESOURCES_DIR, getYamlResource, testConfigConverter, showFiles, deleteAllFiles } = require('../utils');
 
 describe('test zcc yaml to-env <yaml-with-full>', function () {
   const cliParams = ['yaml', 'to-env'];
   const resourceCategory = 'full';
+  const componentId = 'discovery';
   let obj = null;
   let workspaceDirObj = null;
   let workspaceDir = null;
@@ -34,7 +35,12 @@ describe('test zcc yaml to-env <yaml-with-full>', function () {
     workspaceDir = workspaceDirObj.name;
     debug(`workspace directory: ${workspaceDir}`);
 
-    convertConfigs(obj, workspaceDir);
+    fs.mkdirSync(path.resolve(workspaceDir, componentId));
+    fs.copyFileSync(path.resolve(RESOURCES_DIR, 'yaml', resourceCategory, componentId, '.manifest.json'), path.resolve(workspaceDir, componentId, '.manifest.json'));
+    debug('workspace directory prepared');
+    showFiles(workspaceDir);
+
+    convertConfigs(obj, 'default', workspaceDir);
     debug('workspace directory after converted');
     showFiles(workspaceDir);
   });
@@ -47,21 +53,21 @@ describe('test zcc yaml to-env <yaml-with-full>', function () {
   });
 
   it('should convert YAML config to instance env files', () => {
-    testConfigConverter([...cliParams, path.resolve(workspaceDir, '.zowe.yaml')], {
+    testConfigConverter([...cliParams, '--workspace-dir', workspaceDir, '--ha-instance-id', 'default'], {
       rc: 0,
       stdout: '',
       stderr: '',
     });
 
-    const fileToCheck = path.resolve(workspaceDir, '.instance-default.env');
+    const fileToCheck = path.resolve(workspaceDir, componentId, '.instance-default.env');
     debug(`checking ${fileToCheck}`);
 
     const existence = fs.existsSync(fileToCheck);
     expect(existence).to.be.true;
 
-    let content = fs.readFileSync(path.resolve(workspaceDir, '.instance-default.env')).toString();
+    let content = fs.readFileSync(path.resolve(workspaceDir, componentId, '.instance-default.env')).toString();
     expect(content).to.include('GATEWAY_PORT=7554');
-    expect(content).to.include('LAUNCH_COMPONENT_GROUPS=dummy');
+    expect(content).to.include('LAUNCH_COMPONENT_GROUPS=deprecated');
     expect(content).to.include('ZWE_LAUNCH_COMPONENTS=zss');
     expect(content).to.include('ZOWE_EXPLORER_HOST=zos.test-domain.com');
     expect(content).to.include('APIML_SECURITY_X509_ENABLED=true');

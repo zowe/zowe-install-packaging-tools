@@ -46,7 +46,11 @@ yargs
       console.error(msg);
     }
     if (err) {
-      console.error(`${err}`);
+      if (err.stack && process.env[VERBOSE_ENV]) {
+        console.error(err.stack);
+      } else {
+        console.error(`${err}`);
+      }
     }
     console.error(`Try --help to get usage information, or use --verbose option to display more details.`);
     process.exit(1);

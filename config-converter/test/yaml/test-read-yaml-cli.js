@@ -21,7 +21,7 @@ describe('test zcc yaml read', function () {
       rc: 0,
       stdout: [
         '"runtimeDirectory": "/ZOWE/staging/zowe"',
-        '"domain": "my-first-zos.com"',
+        '"hostname": "my-first-zos.com"',
       ],
       stderr: '',
     });
@@ -34,7 +34,7 @@ describe('test zcc yaml read', function () {
         'CLI arguments',
         'Reading',
         '"runtimeDirectory": "/ZOWE/staging/zowe"',
-        '"domain": "my-first-zos.com"',
+        '"hostname": "my-first-zos.com"',
       ],
       stderr: '',
     });

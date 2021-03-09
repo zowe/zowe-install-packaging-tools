@@ -22,6 +22,7 @@ const { RESOURCES_DIR, getYamlResource, testConfigConverter, showFiles, deleteAl
 describe('test zcc yaml to-env <yaml-with-ha-instances>', function () {
   const cliParams = ['yaml', 'to-env'];
   const resourceCategory = 'ha-instances';
+  const componentId = 'discovery';
   let obj = null;
   let workspaceDirObj = null;
   let workspaceDir = null;
@@ -43,7 +44,10 @@ describe('test zcc yaml to-env <yaml-with-ha-instances>', function () {
     debug('workspace directory prepared');
     showFiles(workspaceDir);
 
-    convertConfigs(obj, workspaceDir);
+    convertConfigs(obj, 'default', workspaceDir);
+    convertConfigs(obj, 'first', workspaceDir);
+    convertConfigs(obj, 'second', workspaceDir);
+    convertConfigs(obj, 'second-alt', workspaceDir);
     debug('workspace directory after converted');
     showFiles(workspaceDir);
   });
@@ -56,39 +60,39 @@ describe('test zcc yaml to-env <yaml-with-ha-instances>', function () {
   });
 
   it('should convert YAML config to instance env files', () => {
-    testConfigConverter([...cliParams, path.resolve(workspaceDir, '.zowe.yaml')], {
-      rc: 0,
-      stdout: '',
-      stderr: '',
-    });
+    ['default', 'first', 'second', 'second-alt'].forEach(haInstanceId => {
+      testConfigConverter([...cliParams, '--workspace-dir', workspaceDir, '--ha-instance-id', haInstanceId], {
+        rc: 0,
+        stdout: '',
+        stderr: '',
+      });
 
-    ['.instance-default.env', '.instance-first.env', '.instance-second.env', '.instance-second-alt.env'].forEach(env => {
-      const fileToCheck = path.resolve(workspaceDir, env);
+      const fileToCheck = path.resolve(workspaceDir, componentId, `.instance-${haInstanceId}.env`);
       debug(`checking ${fileToCheck}`);
   
       const existence = fs.existsSync(fileToCheck);
       expect(existence).to.be.true;
     });
 
-    let content = fs.readFileSync(path.resolve(workspaceDir, '.instance-default.env')).toString();
+    let content = fs.readFileSync(path.resolve(workspaceDir, componentId, '.instance-default.env')).toString();
     expect(content).to.include('DISCOVERY_PORT=12346');
     expect(content).to.include('GATEWAY_PORT=8888');
     // expect(content).to.include('ZOWE_EXPLORER_HOST=my-default-zos.com');
     expect(content).to.include('UNKNOWN_KEY=value');
 
-    content = fs.readFileSync(path.resolve(workspaceDir, '.instance-first.env')).toString();
+    content = fs.readFileSync(path.resolve(workspaceDir, componentId, '.instance-first.env')).toString();
     expect(content).to.include('DISCOVERY_PORT=12346');
     expect(content).to.include('GATEWAY_PORT=8888');
     // expect(content).to.include('ZOWE_EXPLORER_HOST=my-first-zos.com');
     expect(content).to.include('UNKNOWN_KEY=value');
 
-    content = fs.readFileSync(path.resolve(workspaceDir, '.instance-second.env')).toString();
+    content = fs.readFileSync(path.resolve(workspaceDir, componentId, '.instance-second.env')).toString();
     expect(content).to.include('DISCOVERY_PORT=7553');
     expect(content).to.include('GATEWAY_PORT=7554');
     // expect(content).to.include('ZOWE_EXPLORER_HOST=my-second-zos.com');
     expect(content).to.include('UNKNOWN_KEY=value');
 
-    content = fs.readFileSync(path.resolve(workspaceDir, '.instance-second-alt.env')).toString();
+    content = fs.readFileSync(path.resolve(workspaceDir, componentId, '.instance-second-alt.env')).toString();
     expect(content).to.include('DISCOVERY_PORT=17553');
     expect(content).to.include('GATEWAY_PORT=17554');
     // expect(content).to.include('ZOWE_EXPLORER_HOST=my-second-zos.com');

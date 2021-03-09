@@ -86,7 +86,7 @@ const YAML_TO_ENV_MAPPING = {
   JOBS_API_PORT: "components.jobs-api.port",
   LAUNCH_COMPONENT_GROUPS: function() {
     // will use ZWE_LAUNCH_COMPONENTS
-    return 'dummy';
+    return 'deprecated-in-favor-of-ZWE_LAUNCH_COMPONENTS';
   },
   MVS_EXPLORER_UI_PORT: "components.explorer-mvs.port",
   NODE_HOME: "node.home",
