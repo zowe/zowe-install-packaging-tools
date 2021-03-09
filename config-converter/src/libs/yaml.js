@@ -158,16 +158,17 @@ const convertConfigs = (configObj, haInstance, workspaceDir = null) => {
   // IMPORTANT: these configs will be used to generate component runtime environment
   components.forEach(component => {
     if (haCopyMerged.components && haCopyMerged.components[component]) {
+      const componentCopy = merge({}, haCopyMerged);
+      _.set(componentCopy, 'configs', haCopyMerged.components[component]);
+
       if (process.env[VERBOSE_ENV]) {
         process.stdout.write(`    - write <workspace-dir>/${component}/.configs-${haInstance}.json\n`);
       }
-      const componentCopy = merge({}, haCopyMerged);
-      _.set(componentCopy, 'configs', haCopyMerged.components[component]);
       writeJson(componentCopy, path.resolve(workspaceDir, component, `.configs-${haInstance}.json`));
-      if (process.env[VERBOSE_ENV]) {
-        process.stdout.write(`    - write <workspace-dir>/${component}/.configs-${haInstance}.yaml\n`);
-      }
-      writeYaml(componentCopy, path.resolve(workspaceDir, component, `.configs-${haInstance}.yaml`));
+      // if (process.env[VERBOSE_ENV]) {
+      //   process.stdout.write(`    - write <workspace-dir>/${component}/.configs-${haInstance}.yaml\n`);
+      // }
+      // writeYaml(componentCopy, path.resolve(workspaceDir, component, `.configs-${haInstance}.yaml`));
     }
   });
 };
