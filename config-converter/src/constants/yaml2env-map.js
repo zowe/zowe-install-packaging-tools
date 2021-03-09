@@ -16,6 +16,13 @@ const getBooleanVal = (obj, path) => {
   return _.isUndefined(val) ? val : `${val}`;
 };
 
+const getCertificateConfig = (configObj) => {
+  return (configObj.configs && configObj.configs.certificate) ||
+    (configObj.zowe && configObj.zowe.internalCertificate) ||
+    (configObj.zowe && configObj.zowe.externalCertificate) ||
+    null;
+};
+
 /**
  * YAML config to instance env mapping
  *
@@ -29,106 +36,24 @@ const getBooleanVal = (obj, path) => {
  *             - target YAML config object
  */
 const YAML_TO_ENV_MAPPING = {
-  // EXTERNAL_ROOT_CA: ""
-  // KEYSTORE_DIRECTORY: "/ZOWE/tmp/keystore",
-  // SSO_FALLBACK_TO_NATIVE_AUTH: "true"
-  // ZOWE_IP_ADDRESS: "148.100.36.148",
-  // ZWE_DISCOVERY_SERVICES_LIST: "https://zzow01.zowe.marist.cloud:7553/eureka/",
-  // ZWED_*: "ZWETOKEN",
-  APIML_ALLOW_ENCODED_SLASHES: function(zoweYaml, yamlConfig) {
-    return getBooleanVal(yamlConfig, 'components.gateway.allowEncodedSlashes');
-  },
-  APIML_CORS_ENABLED: function(zoweYaml, yamlConfig) {
-    return getBooleanVal(yamlConfig, 'components.gateway.corsEnabled');
-  },
-  APIML_DEBUG_MODE_ENABLED:  function(zoweYaml, yamlConfig) {
-    const bVal = _.get(yamlConfig, 'components.gateway.debug');
-    if (_.get(yamlConfig, 'components.discovery.debug') !== bVal) {
-      process.stderr.write(`WARNING: <workspace-dir>/${zoweYaml} value of components.discovery.debug is not same as other sibling configs\n`);
-    }
-    if (_.get(yamlConfig, 'components.api-catalog.debug') !== bVal) {
-      process.stderr.write(`WARNING: <workspace-dir>/${zoweYaml} value of components.api-catalog.debug is not same as other sibling configs\n`);
-    }
-    return bVal;
-  },
-  APIML_ENABLE_SSO: false,
-  APIML_GATEWAY_TIMEOUT_MILLIS: "components.gateway.timeoutMillis",
-  APIML_MAX_CONNECTIONS_PER_ROUTE: "components.gateway.maxConnectionsPerRoute",
-  APIML_MAX_TOTAL_CONNECTIONS: "components.gateway.totalConnections",
-  APIML_PREFER_IP_ADDRESS: function(zoweYaml, yamlConfig) {
-    return getBooleanVal(yamlConfig, 'components.api-catalog.preferIpAddress');
-  },
-  APIML_SECURITY_AUTH_PROVIDER: "components.gateway.auth.provider",
-  APIML_SECURITY_X509_ENABLED: function(zoweYaml, yamlConfig) {
-    return getBooleanVal(yamlConfig, 'components.gateway.x509Enabled');
-  },
-  APIML_SECURITY_ZOSMF_APPLID: "zOSMF.applId",
-  CATALOG_PORT: "components.api-catalog.port",
-  DISCOVERY_PORT: "components.discovery.port",
-  EXTERNAL_COMPONENTS: function(zoweYaml, yamlConfig) {
-    const val = [];
-    if (yamlConfig.components) {
-      for (const component in yamlConfig.components) {
-        if (DEFAULT_ZOWE_CORE_COMPONENTS.indexOf(component) === -1 && DEFAULT_ZOWE_CORE_COMPONENT_CANDIDATES.indexOf(component) === -1) {
-          if (yamlConfig.components[component].enabled) {
-            val.push(component);
-          }
-        }
-      }
-    }
-    return val.join(',');
-  },
-  FILES_API_PORT: "components.files-api.port",
-  GATEWAY_PORT: ["zowe.externalPort", "components.gateway.port"],
-  JAVA_HOME: "java.home",
-  JAVA_OPTIONS: "java.options",
-  JES_EXPLORER_UI_PORT: "components.explorer-jes.port",
-  JOBS_API_PORT: "components.jobs-api.port",
+  separator_10: '\n',
+  comment_10: '# global config',
+  ROOT_DIR: 'zowe.runtimeDirectory',
+  ZOWE_PREFIX: 'zowe.jobPrefix',
+  ZOWE_INSTANCE: "zowe.identifier",
+
+  separator_20: '\n',
+  comment_20: '# Comma separated list of components should start from [GATEWAY,DESKTOP]',
   LAUNCH_COMPONENT_GROUPS: function() {
     // will use ZWE_LAUNCH_COMPONENTS
     return 'deprecated-in-favor-of-ZWE_LAUNCH_COMPONENTS';
   },
-  MVS_EXPLORER_UI_PORT: "components.explorer-mvs.port",
-  NODE_HOME: "node.home",
-  NODE_OPTIONS: "node.options",
-  PKCS11_TOKEN_LABEL: "zowe.sso.token.label",
-  PKCS11_TOKEN_NAME: "zowe.sso.token.name",
-  ROOT_DIR: 'zowe.runtimeDirectory',
-  SKIP_NODE: false,
-  STATIC_DEF_CONFIG_DIR: "components.discovery.staticDefinitionsDirectories",
-  USS_EXPLORER_UI_PORT: "components.explorer-uss.port",
-  ZOSMF_HOST: "zOSMF.host",
-  ZOSMF_PORT: "zOSMF.port",
-  ZOWE_APIM_VERIFY_CERTIFICATES: function(zoweYaml, yamlConfig) {
-    return getBooleanVal(yamlConfig, 'components.gateway.verifyCertificates');
-  },
-  ZOWE_CACHING_SERVICE_START: function(zoweYaml, yamlConfig) {
-    return getBooleanVal(yamlConfig, 'components.caching-service.enabled');
-  },
-  ZOWE_EXPLORER_FRAME_ANCESTORS: ["components.explorer-jes.frameAncestors", "components.explorer-mvs.frameAncestors", "components.explorer-uss.frameAncestors"],
-  ZOWE_EXPLORER_HOST: function(zoweYaml, yamlConfig) {
-    return _.get(yamlConfig, 'zowe.externalDomains.0') || '';
-  },
-  ZWE_EXTENSION_DIR: "zowe.extensionDirectory",
-  ZOWE_INSTANCE: "zowe.identifier",
-  ZOWE_PREFIX: 'zowe.jobPrefix',
-  // ZOWE_ZLUX_SECURITY_TYPE: "components.app-server.plugins.tn3270.security",
-  ZOWE_ZLUX_SERVER_HTTPS_PORT: "components.app-server.port",
-  // ZOWE_ZLUX_SSH_PORT: "components.app-server.plugins.vt-term.port",
-  // ZOWE_ZLUX_TELNET_PORT: "components.app-server.plugins.tn3270.port",
-  ZOWE_ZSS_SERVER_PORT: "components.zss.port",
-  ZOWE_ZSS_XMEM_SERVER_NAME: "components.zss.crossMemoryServerName",
-  ZWE_CACHING_EVICTION_STRATEGY: "components.caching-service.evictionStrategy",
-  ZWE_CACHING_SERVICE_PERSISTENT: "components.caching-service.persistent",
-  ZWE_CACHING_SERVICE_PORT: "components.caching-service.port",
-  ZWE_CACHING_SERVICE_VSAM_DATASET: "components.caching-service.vsam.dataset",
-  ZWE_CACHING_STORAGE_SIZE: "components.caching-service.vsam.storageSize",
-  ZWE_LAUNCH_COMPONENTS: function(zoweYaml, yamlConfig) {
+  ZWE_LAUNCH_COMPONENTS: function(yamlConfigObj) {
     const val = [];
-    if (yamlConfig.components) {
-      for (const component in yamlConfig.components) {
+    if (yamlConfigObj.components) {
+      for (const component in yamlConfigObj.components) {
         if (DEFAULT_ZOWE_CORE_COMPONENTS.indexOf(component) > -1) {
-          if (yamlConfig.components[component].enabled) {
+          if (yamlConfigObj.components[component].enabled) {
             val.push(component);
           }
         }
@@ -136,24 +61,216 @@ const YAML_TO_ENV_MAPPING = {
     }
     return val.join(',');
   },
-  ZWE_ENVIRONMENT_PREPARED: false,
-  // ZWE_EXTERNAL_HOSTS: function(zoweYaml, yamlConfig) {
-  //   const val = _.get(yamlConfig, 'zowe.externalDomains') || [];
+
+  separator_30: '\n',
+  comment_30: '# language configs',
+  JAVA_HOME: "java.home",
+  JAVA_OPTIONS: "java.options",
+  NODE_HOME: "node.home",
+  NODE_OPTIONS: "node.options",
+
+  separator_40: '\n',
+  comment_40: '# Set to 1 to skip using nodejs. This can only be done if the zowe components used have no nodejs dependency',
+  SKIP_NODE: false,
+
+  separator_50: '\n',
+  comment_50: '# z/OS MF config',
+  ZOSMF_HOST: "zOSMF.host",
+  ZOSMF_PORT: "zOSMF.port",
+
+  ZOWE_EXPLORER_HOST: function(yamlConfigObj) {
+    return _.get(yamlConfigObj, 'zowe.externalDomains.0') || '';
+  },
+  // ZOWE_IP_ADDRESS: "148.100.36.148",
+
+  separator_100: '\n',
+  comment_100: '# APIML variables',
+  CATALOG_PORT: "components.api-catalog.port",
+  DISCOVERY_PORT: "components.discovery.port",
+  GATEWAY_PORT: ["zowe.externalPort", "components.gateway.port"],
+  APIML_ALLOW_ENCODED_SLASHES: function(yamlConfigObj) {
+    return getBooleanVal(yamlConfigObj, 'components.gateway.allowEncodedSlashes');
+  },
+  APIML_CORS_ENABLED: function(yamlConfigObj) {
+    return getBooleanVal(yamlConfigObj, 'components.gateway.corsEnabled');
+  },
+  APIML_PREFER_IP_ADDRESS: function(yamlConfigObj) {
+    return getBooleanVal(yamlConfigObj, 'components.api-catalog.preferIpAddress');
+  },
+  APIML_GATEWAY_TIMEOUT_MILLIS: "components.gateway.timeoutMillis",
+  APIML_SECURITY_X509_ENABLED: function(yamlConfigObj) {
+    return getBooleanVal(yamlConfigObj, 'components.gateway.x509Enabled');
+  },
+  APIML_SECURITY_ZOSMF_APPLID: "zOSMF.applId",
+  APIML_SECURITY_AUTH_PROVIDER: "components.gateway.auth.provider",
+  // List of discovery service URLs separated by comma
+  // ZWE_DISCOVERY_SERVICES_LIST=https://${ZOWE_EXPLORER_HOST}:${DISCOVERY_PORT}/eureka/
+  comment_120: '# Enable debug logging for Api Mediation Layer services',
+  APIML_DEBUG_MODE_ENABLED:  function(yamlConfigObj, haInstance, componentId) {
+    const bVal = _.get(yamlConfigObj, 'components.gateway.debug');
+    if (_.get(yamlConfigObj, 'components.discovery.debug') !== bVal) {
+      process.stderr.write(`WARNING: <workspace-dir>/${componentId}/.configs-${haInstance}.json value of components.discovery.debug is not same as other sibling configs\n`);
+    }
+    if (_.get(yamlConfigObj, 'components.api-catalog.debug') !== bVal) {
+      process.stderr.write(`WARNING: <workspace-dir>/${componentId}/.configs-${haInstance}.json value of components.api-catalog.debug is not same as other sibling configs\n`);
+    }
+    return bVal;
+  },
+  APIML_MAX_CONNECTIONS_PER_ROUTE: "components.gateway.maxConnectionsPerRoute",
+  APIML_MAX_TOTAL_CONNECTIONS: "components.gateway.totalConnections",
+  // ####################
+  comment_140: '# caching service',
+  // TCP port of caching service
+  ZWE_CACHING_SERVICE_PORT: "components.caching-service.port",
+  // specify amount of records before eviction strategies start evicting
+  ZWE_CACHING_STORAGE_SIZE: "components.caching-service.vsam.storageSize",
+  // specify eviction strategy to be used when the storage size is achieved
+  ZWE_CACHING_EVICTION_STRATEGY: "components.caching-service.evictionStrategy",
+  // specify persistent method of caching service
+  // currently VSAM is the only option
+  ZWE_CACHING_SERVICE_PERSISTENT: "components.caching-service.persistent",
+  // specify the data set name of the caching service VSAM
+  ZWE_CACHING_SERVICE_VSAM_DATASET: "components.caching-service.vsam.dataset",
+
+  separator_200: '\n',
+  comment_200: '# explorer variables',
+  JOBS_API_PORT: "components.jobs-api.port",
+  FILES_API_PORT: "components.files-api.port",
+  JES_EXPLORER_UI_PORT: "components.explorer-jes.port",
+  MVS_EXPLORER_UI_PORT: "components.explorer-mvs.port",
+  USS_EXPLORER_UI_PORT: "components.explorer-uss.port",
+  ZOWE_EXPLORER_FRAME_ANCESTORS: ["components.explorer-jes.frameAncestors", "components.explorer-mvs.frameAncestors", "components.explorer-uss.frameAncestors"],
+  
+  separator_300: '\n',
+  comment_300: '# Zowe Desktop/app framework variables',
+  ZOWE_ZLUX_SERVER_HTTPS_PORT: "components.app-server.port",
+  ZOWE_ZSS_SERVER_PORT: "components.zss.port",
+  ZOWE_ZSS_XMEM_SERVER_NAME: "components.zss.crossMemoryServerName",
+  // ZOWE_ZLUX_SSH_PORT: "components.app-server.plugins.vt-term.port",
+  // ZOWE_ZLUX_TELNET_PORT: "components.app-server.plugins.tn3270.port",
+  // ZOWE_ZLUX_SECURITY_TYPE: "components.app-server.plugins.tn3270.security",
+
+  separator_400: '\n',
+  comment_400: '# Extender variables',
+  ZWEAD_EXTERNAL_STATIC_DEF_DIRECTORIES: "components.discovery.alternativeStaticDefinitionsDirectories",
+  EXTERNAL_COMPONENTS: function(yamlConfigObj) {
+    const val = [];
+    if (yamlConfigObj.components) {
+      for (const component in yamlConfigObj.components) {
+        if (DEFAULT_ZOWE_CORE_COMPONENTS.indexOf(component) === -1 && DEFAULT_ZOWE_CORE_COMPONENT_CANDIDATES.indexOf(component) === -1) {
+          if (yamlConfigObj.components[component].enabled) {
+            val.push(component);
+          }
+        }
+      }
+    }
+    return val.join(',');
+  },
+
+  separator_430: '\n',
+  comment_430: '# other variables',
+  ZWE_LOG_LEVEL_ZWELS: "zowe.launchScript.logLevel",
+  ZOWE_CACHING_SERVICE_START: function(yamlConfigObj) {
+    return getBooleanVal(yamlConfigObj, 'components.caching-service.enabled');
+  },
+  STATIC_DEF_CONFIG_DIR: "components.discovery.staticDefinitionsDirectories",
+  ZOWE_APIM_VERIFY_CERTIFICATES: function(yamlConfigObj) {
+    return getBooleanVal(yamlConfigObj, 'components.gateway.verifyCertificates');
+  },
+  // ZWE_EXTERNAL_HOSTS: function(yamlConfigObj) {
+  //   const val = _.get(yamlConfigObj, 'zowe.externalDomains') || [];
   //   return val.join(',');
   // },
-  ZWE_LOG_LEVEL_ZWELS: "zowe.launchScript.logLevel",
-  ZWEAD_EXTERNAL_STATIC_DEF_DIRECTORIES: "components.discovery.alternativeStaticDefinitionsDirectories",
+  // SSO_FALLBACK_TO_NATIVE_AUTH: false,
+  // deprecated/abandoned variables
+  APIML_ENABLE_SSO: false,
+  // variables should be ignored
+  ZWE_ENVIRONMENT_PREPARED: false,
 
-  // certificate
-  EXTERNAL_CERTIFICATE_AUTHORITIES: "externalCertificate.trustStore.certificateAuthorities",
-  KEY_ALIAS: "externalCertificate.keystore.keyAlias",
-  KEYSTORE_CERTIFICATE_AUTHORITY: "externalCertificate.pem.certificateAuthority",
-  KEYSTORE_CERTIFICATE: "externalCertificate.pem.certificate",
-  KEYSTORE_KEY: "externalCertificate.pem.key",
-  KEYSTORE_PASSWORD: "externalCertificate.keystore.password",
-  KEYSTORE_TYPE: "externalCertificate.keystore.type",
-  KEYSTORE: "externalCertificate.keystore.file",
-  TRUSTSTORE: "externalCertificate.trustStore.file",
+  separator_500: '\n',
+  comment_500: '# ========== certificate =============',
+  comment_501: '# keystore config',
+  // KEYSTORE_DIRECTORY: "/ZOWE/tmp/keystore",
+  ZWE_EXTENSION_DIR: "zowe.extensionDirectory",
+  comment_510: '# keystore',
+  KEYSTORE_TYPE: function(yamlConfigObj) {
+    const certObj = getCertificateConfig(yamlConfigObj);
+    if (!certObj) {
+      return undefined;
+    }
+
+    return _.get(certObj, 'keystore.type');
+  },
+  KEYSTORE: function(yamlConfigObj) {
+    const certObj = getCertificateConfig(yamlConfigObj);
+    if (!certObj) {
+      return undefined;
+    }
+
+    return _.get(certObj, 'keystore.file');
+  },
+  KEYSTORE_PASSWORD: function(yamlConfigObj) {
+    const certObj = getCertificateConfig(yamlConfigObj);
+    if (!certObj) {
+      return undefined;
+    }
+
+    return _.get(certObj, 'keystore.password');
+  },
+  KEY_ALIAS: function(yamlConfigObj) {
+    const certObj = getCertificateConfig(yamlConfigObj);
+    if (!certObj) {
+      return undefined;
+    }
+
+    return _.get(certObj, 'keystore.keyAlias');
+  },
+  comment_540: '# truststore',
+  TRUSTSTORE: function(yamlConfigObj) {
+    const certObj = getCertificateConfig(yamlConfigObj);
+    if (!certObj) {
+      return undefined;
+    }
+
+    return _.get(certObj, 'trustStore.file');
+  },
+  EXTERNAL_CERTIFICATE_AUTHORITIES: function(yamlConfigObj) {
+    const certObj = getCertificateConfig(yamlConfigObj);
+    if (!certObj) {
+      return undefined;
+    }
+
+    return _.get(certObj, 'trustStore.certificateAuthorities');
+  },
+  comment_560: '# pem format',
+  KEYSTORE_KEY: function(yamlConfigObj) {
+    const certObj = getCertificateConfig(yamlConfigObj);
+    if (!certObj) {
+      return undefined;
+    }
+
+    return _.get(certObj, 'pem.key');
+  },
+  KEYSTORE_CERTIFICATE: function(yamlConfigObj) {
+    const certObj = getCertificateConfig(yamlConfigObj);
+    if (!certObj) {
+      return undefined;
+    }
+
+    return _.get(certObj, 'pem.certificate');
+  },
+  KEYSTORE_CERTIFICATE_AUTHORITY: function(yamlConfigObj) {
+    const certObj = getCertificateConfig(yamlConfigObj);
+    if (!certObj) {
+      return undefined;
+    }
+
+    return _.get(certObj, 'pem.certificateAuthority');
+  },
+  // EXTERNAL_ROOT_CA: ""
+  comment_580: '# token',
+  PKCS11_TOKEN_LABEL: "zowe.sso.token.label",
+  PKCS11_TOKEN_NAME: "zowe.sso.token.name",
 };
 
 module.exports = {

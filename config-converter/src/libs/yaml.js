@@ -211,9 +211,15 @@ const convertComponentYamlToEnv = (workspaceDir, haInstance, componentId) => {
     if (YAML_TO_ENV_MAPPING[key] === false) {
       continue;
     } else if (_.isString(YAML_TO_ENV_MAPPING[key])) {
-      const val = _.get(configObj, YAML_TO_ENV_MAPPING[key]);
-      if (!_.isUndefined(val)) {
-        pushKeyValue(key, val);
+      if (YAML_TO_ENV_MAPPING[key].startsWith('# ')) { // comments
+        envContent.push(YAML_TO_ENV_MAPPING[key]);
+      } else if (YAML_TO_ENV_MAPPING[key] === '\n') { // separator
+        envContent.push('');
+      } else {
+        const val = _.get(configObj, YAML_TO_ENV_MAPPING[key]);
+        if (!_.isUndefined(val)) {
+          pushKeyValue(key, val);
+        }
       }
     } else if (_.isArray(YAML_TO_ENV_MAPPING[key])) {
       let lastVal = null;
@@ -228,7 +234,7 @@ const convertComponentYamlToEnv = (workspaceDir, haInstance, componentId) => {
         pushKeyValue(key, lastVal);
       }
     } else if (_.isFunction(YAML_TO_ENV_MAPPING[key])) {
-      const val = YAML_TO_ENV_MAPPING[key](componentConfigFile, configObj);
+      const val = YAML_TO_ENV_MAPPING[key](configObj, haInstance, componentId);
       if (!_.isUndefined(val)) {
         pushKeyValue(key, val);
       }
