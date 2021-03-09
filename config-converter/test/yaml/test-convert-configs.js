@@ -42,10 +42,6 @@ describe('test yaml utility method convertConfigs', function () {
     fs.copyFileSync(path.resolve(RESOURCES_DIR, 'yaml', resourceCategory, 'dummy', '.keep'), path.resolve(workspaceDir, 'dummy', '.keep'));
     debug('workspace directory prepared');
     showFiles(workspaceDir);
-
-    convertConfigs(obj, workspaceDir);
-    debug('workspace directory after converted');
-    showFiles(workspaceDir);
   });
 
   after(() => {
@@ -57,13 +53,17 @@ describe('test yaml utility method convertConfigs', function () {
 
   it('should throw error if workspace directory doesn\'t have a value', () => {
     const testFunction = () => {
-      convertConfigs(obj);
+      convertConfigs(obj, '');
     };
 
     expect(testFunction).to.throw('Environment WORKSPACE_DIR is required');
   });
 
   it('should generate .zowe.yaml and components default configs should be applied', () => {
+    convertConfigs(obj, '', workspaceDir);
+    debug('workspace directory after converted');
+    showFiles(workspaceDir);
+
     const fileToCheck = path.resolve(workspaceDir, '.zowe.yaml');
     debug(`checking ${fileToCheck}`);
 
@@ -81,87 +81,11 @@ describe('test yaml utility method convertConfigs', function () {
     expect(_.get(result, 'components.discovery.discoverySpecialConfig')).to.equal('default-value');
   });
 
-  it('should generate .zowe-default.yaml', () => {
-    const fileToCheck = path.resolve(workspaceDir, '.zowe-default.yaml');
-    debug(`checking ${fileToCheck}`);
-
-    const existence = fs.existsSync(fileToCheck);
-    expect(existence).to.be.true;
-
-    const result = simpleReadYaml(fileToCheck);
-    debug(JSON.stringify(result, null, 2));
-    expect(result).to.be.an('object');
-
-    expect(_.get(result, 'haInstances')).to.be.undefined;
-    expect(_.get(result, 'components.gateway.enabled')).to.be.true;
-    expect(_.get(result, 'components.gateway.port')).to.equal(8888);
-    expect(_.get(result, 'components.gateway.anotherConfig')).to.equal('default-value');
-    expect(_.get(result, 'components.discovery.port')).to.equal(12346);
-    expect(_.get(result, 'components.discovery.discoverySpecialConfig')).to.equal('default-value');
-  });
-
-  it('should generate .zowe-first.yaml', () => {
-    const fileToCheck = path.resolve(workspaceDir, '.zowe-first.yaml');
-    debug(`checking ${fileToCheck}`);
-
-    const existence = fs.existsSync(fileToCheck);
-    expect(existence).to.be.true;
-
-    const result = simpleReadYaml(fileToCheck);
-    debug(JSON.stringify(result, null, 2));
-    expect(result).to.be.an('object');
-
-    expect(_.get(result, 'haInstances')).to.be.undefined;
-    expect(_.get(result, 'zowe.domain')).to.equal('my-first-zos.com');
-    expect(_.get(result, 'components.gateway.enabled')).to.be.true;
-    expect(_.get(result, 'components.gateway.port')).to.equal(8888);
-    expect(_.get(result, 'components.gateway.anotherConfig')).to.equal('default-value');
-    expect(_.get(result, 'components.discovery.port')).to.equal(12346);
-    expect(_.get(result, 'components.discovery.discoverySpecialConfig')).to.equal('default-value');
-  });
-
-  it('should generate .zowe-second.yaml', () => {
-    const fileToCheck = path.resolve(workspaceDir, '.zowe-second.yaml');
-    debug(`checking ${fileToCheck}`);
-
-    const existence = fs.existsSync(fileToCheck);
-    expect(existence).to.be.true;
-
-    const result = simpleReadYaml(fileToCheck);
-    debug(JSON.stringify(result, null, 2));
-    expect(result).to.be.an('object');
-
-    expect(_.get(result, 'haInstances')).to.be.undefined;
-    expect(_.get(result, 'zowe.domain')).to.equal('my-second-zos.com');
-    expect(_.get(result, 'components.gateway.enabled')).to.be.false;
-    expect(_.get(result, 'components.gateway.port')).to.equal(7554);
-    expect(_.get(result, 'components.gateway.anotherConfig')).to.equal('default-value');
-    expect(_.get(result, 'components.discovery.port')).to.equal(7553);
-    expect(_.get(result, 'components.discovery.discoverySpecialConfig')).to.equal('default-value');
-  });
-
-  it('should generate .zowe-second-alt.yaml', () => {
-    const fileToCheck = path.resolve(workspaceDir, '.zowe-second-alt.yaml');
-    debug(`checking ${fileToCheck}`);
-
-    const existence = fs.existsSync(fileToCheck);
-    expect(existence).to.be.true;
-
-    const result = simpleReadYaml(fileToCheck);
-    debug(JSON.stringify(result, null, 2));
-    expect(result).to.be.an('object');
-
-    expect(_.get(result, 'haInstances')).to.be.undefined;
-    expect(_.get(result, 'zowe.domain')).to.equal('my-second-zos.com');
-    expect(_.get(result, 'components.gateway.enabled')).to.be.true;
-    expect(_.get(result, 'components.gateway.port')).to.equal(17554);
-    expect(_.get(result, 'components.gateway.anotherConfig')).to.equal('customized-value');
-    expect(_.get(result, 'components.discovery.enabled')).to.be.false;
-    expect(_.get(result, 'components.discovery.port')).to.equal(17553);
-    expect(_.get(result, 'components.discovery.discoverySpecialConfig')).to.equal('default-value');
-  });
-
   it('should generate discovery/.configs-default.json', () => {
+    convertConfigs(obj, 'default', workspaceDir);
+    debug('workspace directory after converted');
+    showFiles(workspaceDir);
+
     const fileToCheck = path.resolve(workspaceDir, 'discovery', '.configs-default.json');
     debug(`checking ${fileToCheck}`);
 
@@ -172,11 +96,50 @@ describe('test yaml utility method convertConfigs', function () {
     debug(JSON.stringify(result, null, 2));
     expect(result).to.be.an('object');
 
-    expect(_.get(result, 'port')).to.equal(12346);
-    expect(_.get(result, 'discoverySpecialConfig')).to.equal('default-value');
+    expect(_.get(result, 'haInstance.id')).to.equal('default');
+    expect(_.get(result, 'haInstance.hostname')).to.equal('my-default-zos.com');
+    expect(_.get(result, 'components.gateway.enabled')).to.be.true;
+    expect(_.get(result, 'components.gateway.port')).to.equal(8888);
+    expect(_.get(result, 'components.gateway.anotherConfig')).to.equal('default-value');
+    expect(_.get(result, 'components.discovery.port')).to.equal(12346);
+    expect(_.get(result, 'components.discovery.discoverySpecialConfig')).to.equal('default-value');
+
+    expect(_.get(result, 'configs.port')).to.equal(12346);
+    expect(_.get(result, 'configs.discoverySpecialConfig')).to.equal('default-value');
+  });
+
+  it('should generate discovery/.configs-first.json', () => {
+    convertConfigs(obj, 'first', workspaceDir);
+    debug('workspace directory after converted');
+    showFiles(workspaceDir);
+
+    const fileToCheck = path.resolve(workspaceDir, 'discovery', '.configs-first.json');
+    debug(`checking ${fileToCheck}`);
+
+    const existence = fs.existsSync(fileToCheck);
+    expect(existence).to.be.true;
+
+    const result = simpleReadJson(fileToCheck);
+    debug(JSON.stringify(result, null, 2));
+    expect(result).to.be.an('object');
+
+    expect(_.get(result, 'haInstance.id')).to.equal('first');
+    expect(_.get(result, 'haInstance.hostname')).to.equal('my-first-zos.com');
+    expect(_.get(result, 'components.gateway.enabled')).to.be.true;
+    expect(_.get(result, 'components.gateway.port')).to.equal(8888);
+    expect(_.get(result, 'components.gateway.anotherConfig')).to.equal('default-value');
+    expect(_.get(result, 'components.discovery.port')).to.equal(12346);
+    expect(_.get(result, 'components.discovery.discoverySpecialConfig')).to.equal('default-value');
+
+    expect(_.get(result, 'configs.port')).to.equal(12346);
+    expect(_.get(result, 'configs.discoverySpecialConfig')).to.equal('default-value');
   });
 
   it('should generate discovery/.configs-second.json', () => {
+    convertConfigs(obj, 'second', workspaceDir);
+    debug('workspace directory after converted');
+    showFiles(workspaceDir);
+
     const fileToCheck = path.resolve(workspaceDir, 'discovery', '.configs-second.json');
     debug(`checking ${fileToCheck}`);
 
@@ -187,11 +150,23 @@ describe('test yaml utility method convertConfigs', function () {
     debug(JSON.stringify(result, null, 2));
     expect(result).to.be.an('object');
 
-    expect(_.get(result, 'port')).to.equal(7553);
-    expect(_.get(result, 'discoverySpecialConfig')).to.equal('default-value');
+    expect(_.get(result, 'haInstance.id')).to.equal('second');
+    expect(_.get(result, 'haInstance.hostname')).to.equal('my-second-zos.com');
+    expect(_.get(result, 'components.gateway.enabled')).to.be.false;
+    expect(_.get(result, 'components.gateway.port')).to.equal(7554);
+    expect(_.get(result, 'components.gateway.anotherConfig')).to.equal('default-value');
+    expect(_.get(result, 'components.discovery.port')).to.equal(7553);
+    expect(_.get(result, 'components.discovery.discoverySpecialConfig')).to.equal('default-value');
+
+    expect(_.get(result, 'configs.port')).to.equal(7553);
+    expect(_.get(result, 'configs.discoverySpecialConfig')).to.equal('default-value');
   });
 
   it('should generate discovery/.configs-second-alt.json', () => {
+    convertConfigs(obj, 'second-alt', workspaceDir);
+    debug('workspace directory after converted');
+    showFiles(workspaceDir);
+
     const fileToCheck = path.resolve(workspaceDir, 'discovery', '.configs-second-alt.json');
     debug(`checking ${fileToCheck}`);
 
@@ -202,9 +177,18 @@ describe('test yaml utility method convertConfigs', function () {
     debug(JSON.stringify(result, null, 2));
     expect(result).to.be.an('object');
 
-    expect(_.get(result, 'enabled')).to.be.false;
-    expect(_.get(result, 'port')).to.equal(17553);
-    expect(_.get(result, 'discoverySpecialConfig')).to.equal('default-value');
+    expect(_.get(result, 'haInstance.id')).to.equal('second-alt');
+    expect(_.get(result, 'haInstance.hostname')).to.equal('my-second-zos.com');
+    expect(_.get(result, 'components.gateway.enabled')).to.be.true;
+    expect(_.get(result, 'components.gateway.port')).to.equal(17554);
+    expect(_.get(result, 'components.gateway.anotherConfig')).to.equal('customized-value');
+    expect(_.get(result, 'components.discovery.enabled')).to.be.false;
+    expect(_.get(result, 'components.discovery.port')).to.equal(17553);
+    expect(_.get(result, 'components.discovery.discoverySpecialConfig')).to.equal('default-value');
+
+    expect(_.get(result, 'configs.enabled')).to.be.false;
+    expect(_.get(result, 'configs.port')).to.equal(17553);
+    expect(_.get(result, 'configs.discoverySpecialConfig')).to.equal('default-value');
   });
 
 });

@@ -21,6 +21,8 @@ const DEFAULT_ZOWE_COMPONENT_GROUPS = {
   GATEWAY: ['gateway', 'discovery', 'api-catalog', 'jobs-api', 'files-api', 'explorer-jes', 'explorer-mvs', 'explorer-uss'],
 };
 
+const DEFAULT_HA_INSTANCE_ID = 'default';
+
 module.exports = {
   VERBOSE_ENV,
   DEFAULT_JSON_INDENT,
@@ -29,4 +31,5 @@ module.exports = {
   DEFAULT_ZOWE_COMPONENT_GROUPS,
   DEFAULT_ZOWE_CORE_COMPONENTS,
   DEFAULT_ZOWE_CORE_COMPONENT_CANDIDATES,
+  DEFAULT_HA_INSTANCE_ID,
 };

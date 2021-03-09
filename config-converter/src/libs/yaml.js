@@ -95,7 +95,7 @@ const readYaml = (file) => {
 };
 
 // consider all overrides based on HA-Instance-ID, save the converted configs
-const convertConfigs = (configObj, workspaceDir = null) => {
+const convertConfigs = (configObj, haInstance, workspaceDir = null) => {
   workspaceDir = workspaceDir ? workspaceDir : process.env.WORKSPACE_DIR;
   if (!workspaceDir) {
     throw new Error('Environment WORKSPACE_DIR is required');
@@ -134,34 +134,41 @@ const convertConfigs = (configObj, workspaceDir = null) => {
   if (process.env[VERBOSE_ENV]) {
     process.stdout.write(`- write <workspace-dir>/.zowe.yaml\n`);
   }
+  // FIXME: will we have issue of competing write with multiple ha instance starting at same time?
+  //        but anyway this file is for reference purpose (showing how @include are handled), no
+  //        real usage on runtime.
   writeYaml(configObjCopy, path.resolve(workspaceDir, '.zowe.yaml'));
 
-  // write workspace/.zowe-<ha-id>.yaml
-  const haInstanceIds = configObjCopy.haInstances ? _.keys(configObjCopy.haInstances) : ['default'];
-  const haCopy = _.omit(merge({}, configObjCopy), ['haInstances']);
+  // prepare haInstance.id and haInstance.hostname
   if (process.env[VERBOSE_ENV]) {
-    process.stdout.write(`- found ${haInstanceIds.length} HA instance(s)\n`);
+    process.stdout.write(`- process HA instance "${haInstance}"\n`);
   }
-  haInstanceIds.forEach(haInstance => {
-    const haCopyMerged = merge(haCopy, configObjCopy.haInstances && configObjCopy.haInstances[haInstance] || {});
-    if (process.env[VERBOSE_ENV]) {
-      process.stdout.write(`  - write <workspace-dir>/.zowe-${haInstance}.yaml\n`);
-    }
-    writeYaml(haCopyMerged, path.resolve(workspaceDir, `.zowe-${haInstance}.yaml`));
+  const haCopy = merge({}, configObjCopy);
+  const haCopyMerged = merge(haCopy, _.omit(configObjCopy.haInstances && configObjCopy.haInstances[haInstance] || {}, ['id', 'hostname']));
+  _.set(haCopyMerged, 'haInstance.id', haInstance);
+  _.set(haCopyMerged, 'haInstance.hostname', 
+    (
+      (configObjCopy.haInstances && configObjCopy.haInstances[haInstance] && configObjCopy.haInstances[haInstance].hostname) || 
+      (configObjCopy.zowe && configObjCopy.zowe.externalDomains && configObjCopy.zowe.externalDomains[0]) ||
+      ''
+    )
+  );
 
-    // write component configurations
-    components.forEach(component => {
-      if (haCopyMerged.components && haCopyMerged.components[component]) {
-        if (process.env[VERBOSE_ENV]) {
-          process.stdout.write(`    - write <workspace-dir>/${component}/.configs-${haInstance}.json\n`);
-        }
-        writeJson(haCopyMerged.components[component], path.resolve(workspaceDir, component, `.configs-${haInstance}.json`));
-        // if (process.env[VERBOSE_ENV]) {
-        //   process.stdout.write(`    - write <workspace-dir>/${component}/.configs-${haInstance}.yaml\n`);
-        // }
-        // writeYaml(haCopyMerged.components[component], path.resolve(workspaceDir, component, `.configs-${haInstance}.yaml`));
+  // prepare component configs and write component configurations
+  // IMPORTANT: these configs will be used to generate component runtime environment
+  components.forEach(component => {
+    if (haCopyMerged.components && haCopyMerged.components[component]) {
+      if (process.env[VERBOSE_ENV]) {
+        process.stdout.write(`    - write <workspace-dir>/${component}/.configs-${haInstance}.json\n`);
       }
-    });
+      const componentCopy = merge({}, haCopyMerged);
+      _.set(componentCopy, 'configs', haCopyMerged.components[component]);
+      writeJson(componentCopy, path.resolve(workspaceDir, component, `.configs-${haInstance}.json`));
+      if (process.env[VERBOSE_ENV]) {
+        process.stdout.write(`    - write <workspace-dir>/${component}/.configs-${haInstance}.yaml\n`);
+      }
+      writeYaml(componentCopy, path.resolve(workspaceDir, component, `.configs-${haInstance}.yaml`));
+    }
   });
 };
 

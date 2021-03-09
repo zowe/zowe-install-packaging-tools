@@ -9,6 +9,7 @@
  */
 
 const { readYaml, convertConfigs } = require('../../libs/yaml');
+const { getSysname } = require('../../libs');
 
 const builder = (yargs) => {
   yargs
@@ -16,6 +17,11 @@ const builder = (yargs) => {
       workspaceDir: {
         alias: 'wd',
         description: 'Path to workspace directory.',
+      },
+      haInstanceId: {
+        alias: 'ha',
+        default: '',
+        description: 'High-availability instance ID. Default value is &SYSNAME.',
       },
     });
 };
@@ -28,7 +34,10 @@ const handler = async (options) => {
   if (options.verbose) {
     process.stdout.write(`Converting ${options.yamlFile} ...\n`);
   }
-  convertConfigs(result, options.workspaceDir);
+  if (!options.haInstanceId) {
+    options.haInstanceId = getSysname();
+  }
+  convertConfigs(result, options.haInstanceId, options.workspaceDir);
 };
 
 module.exports = {

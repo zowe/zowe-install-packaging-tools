@@ -81,16 +81,16 @@ describe('test zcc yaml convert', function () {
   });
 
   it('should show verbose information if -v is specified', () => {
-    testConfigConverter([...cliParams, '--workspace-dir', workspaceDir, '-v', getYamlResource(resourceCategory)], {
+    testConfigConverter([...cliParams, '--workspace-dir', workspaceDir, '--ha-instance-id', 'first', '-v', getYamlResource(resourceCategory)], {
       rc: 0,
       stdout: [
         'CLI arguments',
         'Reading',
         'Converting',
         /found \d+ components/,
-        /found \d+ HA instance\(s\)/,
-        'write <workspace-dir>/.zowe-default.yaml',
-        'write <workspace-dir>/discovery/.configs-default.json',
+        /process HA instance "first"/,
+        'write <workspace-dir>/.zowe.yaml',
+        'write <workspace-dir>/discovery/.configs-first.json',
       ],
       stderr: '',
     });

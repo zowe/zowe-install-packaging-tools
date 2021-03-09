@@ -94,7 +94,6 @@ const ENV_TO_YAML_MAPPING = {
   APIML_SECURITY_ZOSMF_APPLID: "zOSMF.applId",
   CATALOG_PORT: "components.api-catalog.port",
   DISCOVERY_PORT: "components.discovery.port",
-  EXTERNAL_CERTIFICATE_AUTHORITIES: "externalCertificate.trustStore.certificateAuthorities",
   EXTERNAL_COMPONENTS: function(val, envs, yamlConfig) {
     enableComponents(val, yamlConfig);
   },
@@ -104,13 +103,6 @@ const ENV_TO_YAML_MAPPING = {
   JAVA_OPTIONS: "java.options",
   JES_EXPLORER_UI_PORT: "components.explorer-jes.port",
   JOBS_API_PORT: "components.jobs-api.port",
-  KEY_ALIAS: "externalCertificate.keystore.keyAlias",
-  KEYSTORE_CERTIFICATE_AUTHORITY: "externalCertificate.pem.certificateAuthority",
-  KEYSTORE_CERTIFICATE: "externalCertificate.pem.certificate",
-  KEYSTORE_KEY: "externalCertificate.pem.key",
-  KEYSTORE_PASSWORD: "externalCertificate.keystore.password",
-  KEYSTORE_TYPE: "externalCertificate.keystore.type",
-  KEYSTORE: "externalCertificate.keystore.file",
   LAUNCH_COMPONENT_GROUPS: function(val, envs, yamlConfig) {
     if (envs['ZWE_LAUNCH_COMPONENTS']) {
       // prefer to use ZWE_LAUNCH_COMPONENTS
@@ -138,7 +130,6 @@ const ENV_TO_YAML_MAPPING = {
   ROOT_DIR: 'zowe.runtimeDirectory',
   SKIP_NODE: false,
   STATIC_DEF_CONFIG_DIR: "components.discovery.staticDefinitionsDirectories",
-  TRUSTSTORE: "externalCertificate.trustStore.file",
   USS_EXPLORER_UI_PORT: "components.explorer-uss.port",
   ZOSMF_HOST: "zOSMF.host",
   ZOSMF_PORT: "zOSMF.port",
@@ -175,6 +166,17 @@ const ENV_TO_YAML_MAPPING = {
   },
   ZWE_LOG_LEVEL_ZWELS: "zowe.launchScript.logLevel",
   ZWEAD_EXTERNAL_STATIC_DEF_DIRECTORIES: "components.discovery.alternativeStaticDefinitionsDirectories",
+
+  // certificate
+  EXTERNAL_CERTIFICATE_AUTHORITIES: "externalCertificate.trustStore.certificateAuthorities",
+  KEY_ALIAS: "externalCertificate.keystore.keyAlias",
+  KEYSTORE_CERTIFICATE_AUTHORITY: "externalCertificate.pem.certificateAuthority",
+  KEYSTORE_CERTIFICATE: "externalCertificate.pem.certificate",
+  KEYSTORE_KEY: "externalCertificate.pem.key",
+  KEYSTORE_PASSWORD: "externalCertificate.keystore.password",
+  KEYSTORE_TYPE: "externalCertificate.keystore.type",
+  KEYSTORE: "externalCertificate.keystore.file",
+  TRUSTSTORE: "externalCertificate.trustStore.file",
 };
 
 module.exports = {
