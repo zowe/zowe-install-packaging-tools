@@ -168,15 +168,15 @@ const ENV_TO_YAML_MAPPING = {
   ZWEAD_EXTERNAL_STATIC_DEF_DIRECTORIES: "components.discovery.alternativeStaticDefinitionsDirectories",
 
   // certificate
-  EXTERNAL_CERTIFICATE_AUTHORITIES: "externalCertificate.trustStore.certificateAuthorities",
-  KEY_ALIAS: "externalCertificate.keystore.keyAlias",
-  KEYSTORE_CERTIFICATE_AUTHORITY: "externalCertificate.pem.certificateAuthority",
-  KEYSTORE_CERTIFICATE: "externalCertificate.pem.certificate",
-  KEYSTORE_KEY: "externalCertificate.pem.key",
-  KEYSTORE_PASSWORD: "externalCertificate.keystore.password",
-  KEYSTORE_TYPE: "externalCertificate.keystore.type",
-  KEYSTORE: "externalCertificate.keystore.file",
-  TRUSTSTORE: "externalCertificate.trustStore.file",
+  EXTERNAL_CERTIFICATE_AUTHORITIES: "zowe.externalCertificate.trustStore.certificateAuthorities",
+  KEY_ALIAS: "zowe.externalCertificate.keystore.keyAlias",
+  KEYSTORE_CERTIFICATE_AUTHORITY: "zowe.externalCertificate.pem.certificateAuthority",
+  KEYSTORE_CERTIFICATE: "zowe.externalCertificate.pem.certificate",
+  KEYSTORE_KEY: "zowe.externalCertificate.pem.key",
+  KEYSTORE_PASSWORD: "zowe.externalCertificate.keystore.password",
+  KEYSTORE_TYPE: "zowe.externalCertificate.keystore.type",
+  KEYSTORE: "zowe.externalCertificate.keystore.file",
+  TRUSTSTORE: "zowe.externalCertificate.trustStore.file",
 };
 
 module.exports = {
