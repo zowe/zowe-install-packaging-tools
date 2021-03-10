@@ -153,6 +153,7 @@ const convertConfigs = (configObj, haInstance, workspaceDir = null) => {
       ''
     )
   );
+  writeJson(configObjCopy, path.resolve(workspaceDir, `.zowe-${haInstance}.json`));
 
   // prepare component configs and write component configurations
   // IMPORTANT: these configs will be used to generate component runtime environment
@@ -173,27 +174,26 @@ const convertConfigs = (configObj, haInstance, workspaceDir = null) => {
   });
 };
 
-// convert one component YAML config to old instance.env format
-const convertComponentYamlToEnv = (workspaceDir, haInstance, componentId) => {
+// convert Zowe YAML config to old instance.env format
+const convertZoweYamlToEnv = (workspaceDir, haInstance, yamlConfigFile, instanceEnvFile) => {
   workspaceDir = workspaceDir ? workspaceDir : process.env.WORKSPACE_DIR;
   if (!workspaceDir) {
     throw new Error('Environment WORKSPACE_DIR is required');
   }
 
   // should have <workspace-dir>/<component-id>/.configs-<ha-id>.json
-  const haComponentConfig = path.resolve(workspaceDir, componentId, `.configs-${haInstance}.json`);
-  const haInstanceEnv = path.resolve(workspaceDir, componentId, `.instance-${haInstance}.env`);
+  const haComponentConfig = path.resolve(workspaceDir, yamlConfigFile);
+  const haInstanceEnv = path.resolve(workspaceDir, instanceEnvFile);
   if (!fs.existsSync(haComponentConfig)) {
-    process.stderr.write(`WARNING: <workspace-dir>/${componentId}/.configs-${haInstance}.json doesn't exist\n`);
+    process.stderr.write(`WARNING: <workspace-dir>/${yamlConfigFile} doesn't exist\n`);
     return;
   }
 
   if (process.env[VERBOSE_ENV]) {
-    process.stdout.write(`  - write <workspace-dir>/${componentId}/.instance-${haInstance}.env\n`);
+    process.stdout.write(`  - write <workspace-dir>/${instanceEnvFile}\n`);
   }
 
   const configObj = simpleReadJson(haComponentConfig);
-  const componentConfigFile = `${componentId}/.configs-${haInstance}.json`;
   const envContent = ['#!/bin/sh', ''];
   const escapeEnvValue = (val) => {
     val = `${val}`;
@@ -226,7 +226,7 @@ const convertComponentYamlToEnv = (workspaceDir, haInstance, componentId) => {
       YAML_TO_ENV_MAPPING[key].forEach(k => {
         const thisVal = _.get(configObj, `${k}`);
         if (lastVal !== null && lastVal !== thisVal) {
-          process.stderr.write(`WARNING: <workspace-dir>/${componentConfigFile} value of ${k} is not same as other sibling configs\n`);
+          process.stderr.write(`WARNING: <workspace-dir>/${yamlConfigFile} value of ${k} is not same as other sibling configs\n`);
         }
         lastVal = thisVal;
       });
@@ -234,7 +234,7 @@ const convertComponentYamlToEnv = (workspaceDir, haInstance, componentId) => {
         pushKeyValue(key, lastVal);
       }
     } else if (_.isFunction(YAML_TO_ENV_MAPPING[key])) {
-      const val = YAML_TO_ENV_MAPPING[key](configObj, haInstance, componentId);
+      const val = YAML_TO_ENV_MAPPING[key](configObj, haInstance, null);
       if (!_.isUndefined(val)) {
         pushKeyValue(key, val);
       }
@@ -250,6 +250,20 @@ const convertComponentYamlToEnv = (workspaceDir, haInstance, componentId) => {
   }
 
   fs.writeFileSync(haInstanceEnv, envContent.join('\n') + '\n');
+};
+
+// convert a HA instance YAML config to old instance.env format
+const convertHaInstanceYamlToEnv = (workspaceDir, haInstance) => {
+  const haConfigFile = `.zowe-${haInstance}.json`;
+  const haInstanceEnvFile = `.instance-${haInstance}.env`;
+  convertZoweYamlToEnv(workspaceDir, haInstance, haConfigFile, haInstanceEnvFile);
+};
+
+// convert one component YAML config to old instance.env format
+const convertComponentYamlToEnv = (workspaceDir, haInstance, componentId) => {
+  const componentConfigFile = `${componentId}/.configs-${haInstance}.json`;
+  const componentInstanceEnvFile = `${componentId}/.instance-${haInstance}.env`;
+  convertZoweYamlToEnv(workspaceDir, haInstance, componentConfigFile, componentInstanceEnvFile);
 };
 
 // convert YAML configs of all HA instances to old instance.env format
@@ -318,6 +332,7 @@ module.exports = {
   convertToYamlConfig,
   readYaml,
   convertConfigs,
+  convertHaInstanceYamlToEnv,
   convertComponentYamlToEnv,
   convertAllComponentYamlsToEnv,
   writeYaml,
