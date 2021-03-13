@@ -15,7 +15,7 @@ const YAML = require('yaml');
 const YAWN = require('yawn-yaml/cjs');
 const _ = require('lodash');
 const merge = require('deepmerge');
-const { VERBOSE_ENV, DEFAULT_YAML_INDENT, DEFAULT_JSON_INDENT } = require('../constants');
+const { VERBOSE_ENV, DEFAULT_YAML_INDENT, DEFAULT_JSON_INDENT, DEFAULT_NEW_FILE_MODE } = require('../constants');
 const { ENV_TO_YAML_MAPPING } = require('../constants/env2yaml-map');
 const { simpleReadJson, simpleReadYaml } = require('./index');
 const { YAML_TO_ENV_MAPPING } = require('../constants/yaml2env-map');
@@ -153,7 +153,7 @@ const convertConfigs = (configObj, haInstance, workspaceDir = null) => {
       ''
     )
   );
-  writeJson(configObjCopy, path.resolve(workspaceDir, `.zowe-${haInstance}.json`));
+  writeJson(haCopyMerged, path.resolve(workspaceDir, `.zowe-${haInstance}.json`));
 
   // prepare component configs and write component configurations
   // IMPORTANT: these configs will be used to generate component runtime environment
@@ -249,7 +249,9 @@ const convertZoweYamlToEnv = (workspaceDir, haInstance, yamlConfigFile, instance
     }
   }
 
-  fs.writeFileSync(haInstanceEnv, envContent.join('\n') + '\n');
+  fs.writeFileSync(haInstanceEnv, envContent.join('\n') + '\n', {
+    mode: DEFAULT_NEW_FILE_MODE,
+  });
 };
 
 // convert a HA instance YAML config to old instance.env format
@@ -295,7 +297,9 @@ const writeYaml = (data, toFile = null) => {
     });
 
     if (toFile) {
-      fs.writeFileSync(toFile, content);
+      fs.writeFileSync(toFile, content, {
+        mode: DEFAULT_NEW_FILE_MODE,
+      });
     } else {
       process.stdout.write(content);
     }
@@ -311,7 +315,9 @@ const writeJson = (data, toFile = null) => {
     content = JSON.stringify(data, null, DEFAULT_JSON_INDENT);
 
     if (toFile) {
-      fs.writeFileSync(toFile, content);
+      fs.writeFileSync(toFile, content, {
+        mode: DEFAULT_NEW_FILE_MODE,
+      });
     } else {
       process.stdout.write(content);
     }
@@ -325,7 +331,9 @@ const updateYaml = (yamlFile, objectPath, newValue) => {
   const yamlText = fs.readFileSync(yamlFile).toString();
   let yawn = new YAWN(yamlText);
   yawn.json = _.set(yawn.json, objectPath, newValue);
-  fs.writeFileSync(yamlFile, yawn.yaml);
+  fs.writeFileSync(yamlFile, yawn.yaml, {
+    mode: DEFAULT_NEW_FILE_MODE,
+  });
 };
 
 module.exports = {

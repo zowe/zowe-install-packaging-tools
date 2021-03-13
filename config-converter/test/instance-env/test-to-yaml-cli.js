@@ -141,7 +141,7 @@ describe('zcc instance-env to-yaml', function () {
     testConfigConverter([...cliParams, getInstanceEnvResource('cert')], {
       stderr: '',
       yaml: {
-        'externalCertificate.keystore.file': '/var/zowe/keystore/localhost/localhost.keystore.p12',
+        'zowe.externalCertificate.keystore.file': '/var/zowe/keystore/localhost/localhost.keystore.p12',
       }
     }, true);
   });
