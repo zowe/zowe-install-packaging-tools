@@ -44,9 +44,20 @@ const YAML_TO_ENV_MAPPING = {
 
   separator_20: '\n',
   comment_20: '# Comma separated list of components should start from [GATEWAY,DESKTOP]',
-  LAUNCH_COMPONENT_GROUPS: function() {
-    // will use ZWE_LAUNCH_COMPONENTS
-    return 'deprecated-in-favor-of-ZWE_LAUNCH_COMPONENTS';
+  LAUNCH_COMPONENT_GROUPS: function(yamlConfigObj) {
+    // IMPORTANT: this value is not accurate anymore since we are more flexible to control what components can be started
+    // component should check ZWE_LAUNCH_COMPONENTS instead
+    let groups = [];
+    if (_.get(yamlConfigObj, 'components.gateway.enabled')) {
+      groups.push('GATEWAY');
+    }
+    if (_.get(yamlConfigObj, 'components.app-server.enabled')) {
+      groups.push('DESKTOP');
+    }
+    if (_.get(yamlConfigObj, 'components.zss.enabled')) {
+      groups.push('ZSS');
+    }
+    return groups.join(',');
   },
   ZWE_LAUNCH_COMPONENTS: function(yamlConfigObj) {
     const val = [];
@@ -79,7 +90,7 @@ const YAML_TO_ENV_MAPPING = {
   ZOSMF_PORT: "zOSMF.port",
 
   ZOWE_EXPLORER_HOST: function(yamlConfigObj) {
-    return _.get(yamlConfigObj, 'zowe.externalDomains.0') || '';
+    return _.get(yamlConfigObj, 'haInstance.hostname') || _.get(yamlConfigObj, 'zowe.externalDomains.0') || '';
   },
   // ZOWE_IP_ADDRESS: "148.100.36.148",
 
@@ -104,7 +115,35 @@ const YAML_TO_ENV_MAPPING = {
   APIML_SECURITY_ZOSMF_APPLID: "zOSMF.applId",
   APIML_SECURITY_AUTH_PROVIDER: "components.gateway.auth.provider",
   // List of discovery service URLs separated by comma
-  // ZWE_DISCOVERY_SERVICES_LIST=https://${ZOWE_EXPLORER_HOST}:${DISCOVERY_PORT}/eureka/
+  ZWE_DISCOVERY_SERVICES_LIST: function(yamlConfigObj) {
+    const val = [];
+    const defaultEnabled = _.get(yamlConfigObj, 'components.discovery.enabled');
+    const defaultPort = _.get(yamlConfigObj, 'components.discovery.port');
+    const defaultExternalDomain = _.get(yamlConfigObj, 'zowe.externalDomains.0') || '';
+    if (yamlConfigObj.haInstances) {
+      for (const haInstanceId in yamlConfigObj.haInstances) {
+        const haInstanceConfig = yamlConfigObj.haInstances[haInstanceId];
+        const haInstanceHostname = haInstanceConfig.hostname || defaultExternalDomain;
+        let hasDiscoveryInThisInstance = false;
+        if (haInstanceConfig.discovery && _.has(haInstanceConfig.discovery, 'enabled')) {
+          hasDiscoveryInThisInstance = _.get(haInstanceConfig.discovery, 'enabled');
+        } else {
+          hasDiscoveryInThisInstance = defaultEnabled;
+        }
+
+        let discoveryPort = defaultPort;
+        if (haInstanceConfig.discovery && _.has(haInstanceConfig.discovery, 'port')) {
+          discoveryPort = _.get(haInstanceConfig.discovery, 'port');
+        }
+        if (hasDiscoveryInThisInstance) {
+          val.push(`https://${haInstanceHostname}:${discoveryPort}/eureka/`.toLowerCase());
+        }
+      }
+    } else if (defaultEnabled) { // any chance it's not enabled in this case?
+      val.push(`https://${defaultExternalDomain}:${defaultPort}/eureka/`.toLowerCase());
+    }
+    return _.uniq(val).join(',');
+  },
   comment_120: '# Enable debug logging for Api Mediation Layer services',
   APIML_DEBUG_MODE_ENABLED:  function(yamlConfigObj, haInstance, componentId) {
     const bVal = _.get(yamlConfigObj, 'components.gateway.debug');
