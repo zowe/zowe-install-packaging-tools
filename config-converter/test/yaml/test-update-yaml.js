@@ -8,7 +8,7 @@
  * Copyright IBM Corporation 2021
  */
 
-const debug = require('debug')('zcc-test:update-yaml');
+const debug = require('debug')('zcc-test:yaml:update-yaml');
 
 const fs = require('fs');
 const { expect } = require('chai');

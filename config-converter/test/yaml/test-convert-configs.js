@@ -8,7 +8,7 @@
  * Copyright IBM Corporation 2021
  */
 
-const debug = require('debug')('zcc-test:convert-configs');
+const debug = require('debug')('zcc-test:yaml:convert-configs');
 
 const { expect } = require('chai');
 const path = require('path');

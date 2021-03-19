@@ -8,7 +8,7 @@
  * Copyright IBM Corporation 2021
  */
 
-const debug = require('debug')('zcc-test:convert-configs');
+const debug = require('debug')('zcc-test:yaml:to-env-hainstances-cli');
 
 const { expect } = require('chai');
 const path = require('path');
@@ -61,7 +61,7 @@ describe('test zcc yaml to-env <yaml-with-ha-instances>', function () {
 
   it('should convert YAML config to instance env files', () => {
     ['default', 'first', 'second', 'second-alt'].forEach(haInstanceId => {
-      testConfigConverter([...cliParams, '--workspace-dir', workspaceDir, '--ha-instance-id', haInstanceId], {
+      testConfigConverter([...cliParams, '-v', '--workspace-dir', workspaceDir, '--ha-instance-id', haInstanceId], {
         rc: 0,
         stdout: '',
         stderr: '',

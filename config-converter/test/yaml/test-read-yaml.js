@@ -8,7 +8,7 @@
  * Copyright IBM Corporation 2021
  */
 
-const debug = require('debug')('zcc-test:read-yaml');
+const debug = require('debug')('zcc-test:yaml:read-yaml');
 
 const { expect } = require('chai');
 const _ = require('lodash');

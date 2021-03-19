@@ -8,7 +8,7 @@
  * Copyright IBM Corporation 2021
  */
 
-// const debug = require('debug')('zcc-test:convert-configs');
+// const debug = require('debug')('zcc-test:yaml:update-yaml-cli');
 
 const fs = require('fs');
 const { expect } = require('chai');

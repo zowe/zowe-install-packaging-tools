@@ -123,16 +123,16 @@ const YAML_TO_ENV_MAPPING = {
     if (yamlConfigObj.haInstances) {
       for (const haInstanceId in yamlConfigObj.haInstances) {
         const haInstanceConfig = yamlConfigObj.haInstances[haInstanceId];
-        const haInstanceHostname = haInstanceConfig.hostname || defaultExternalDomain;
+        const haInstanceHostname = (haInstanceConfig && haInstanceConfig.hostname) || defaultExternalDomain;
         let hasDiscoveryInThisInstance = false;
-        if (haInstanceConfig.discovery && _.has(haInstanceConfig.discovery, 'enabled')) {
+        if (haInstanceConfig && haInstanceConfig.discovery && _.has(haInstanceConfig.discovery, 'enabled')) {
           hasDiscoveryInThisInstance = _.get(haInstanceConfig.discovery, 'enabled');
         } else {
           hasDiscoveryInThisInstance = defaultEnabled;
         }
 
         let discoveryPort = defaultPort;
-        if (haInstanceConfig.discovery && _.has(haInstanceConfig.discovery, 'port')) {
+        if (haInstanceConfig && haInstanceConfig.discovery && _.has(haInstanceConfig.discovery, 'port')) {
           discoveryPort = _.get(haInstanceConfig.discovery, 'port');
         }
         if (hasDiscoveryInThisInstance) {

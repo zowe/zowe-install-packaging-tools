@@ -8,7 +8,7 @@
  * Copyright IBM Corporation 2021
  */
 
-// const debug = require('debug')('zcc-test:env-to-yaml');
+// const debug = require('debug')('zcc-test:instance-env:to-yaml-cli');
 
 const { STDOUT_YAML_SEPARATOR } = require('../../src/constants');
 const { getInstanceEnvResource, testConfigConverter, reformatYaml } = require('../utils');

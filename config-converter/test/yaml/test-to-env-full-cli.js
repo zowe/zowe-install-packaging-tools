@@ -8,7 +8,7 @@
  * Copyright IBM Corporation 2021
  */
 
-const debug = require('debug')('zcc-test:convert-configs');
+const debug = require('debug')('zcc-test:yaml:to-env-full-cli');
 
 const { expect } = require('chai');
 const path = require('path');
@@ -67,7 +67,7 @@ describe('test zcc yaml to-env <yaml-with-full>', function () {
 
     let content = fs.readFileSync(path.resolve(workspaceDir, componentId, '.instance-default.env')).toString();
     expect(content).to.include('GATEWAY_PORT=7554');
-    expect(content).to.include('LAUNCH_COMPONENT_GROUPS=deprecated');
+    expect(content).to.include('LAUNCH_COMPONENT_GROUPS=ZSS');
     expect(content).to.include('ZWE_LAUNCH_COMPONENTS=zss');
     expect(content).to.include('ZOWE_EXPLORER_HOST=zos.test-domain.com');
     expect(content).to.include('APIML_SECURITY_X509_ENABLED=true');
