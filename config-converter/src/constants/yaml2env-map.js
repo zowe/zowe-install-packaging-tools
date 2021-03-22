@@ -123,17 +123,18 @@ const YAML_TO_ENV_MAPPING = {
     if (yamlConfigObj.haInstances) {
       for (const haInstanceId in yamlConfigObj.haInstances) {
         const haInstanceConfig = yamlConfigObj.haInstances[haInstanceId];
-        const haInstanceHostname = (haInstanceConfig && haInstanceConfig.hostname) || defaultExternalDomain;
+        const haInstanceDiscoveryConfig = haInstanceConfig && haInstanceConfig.components && haInstanceConfig.components.discovery;
+        const haInstanceHostname = haInstanceConfig.hostname || defaultExternalDomain;
         let hasDiscoveryInThisInstance = false;
-        if (haInstanceConfig && haInstanceConfig.discovery && _.has(haInstanceConfig.discovery, 'enabled')) {
-          hasDiscoveryInThisInstance = _.get(haInstanceConfig.discovery, 'enabled');
+        if (haInstanceDiscoveryConfig && _.has(haInstanceDiscoveryConfig, 'enabled')) {
+          hasDiscoveryInThisInstance = _.get(haInstanceDiscoveryConfig, 'enabled');
         } else {
           hasDiscoveryInThisInstance = defaultEnabled;
         }
 
         let discoveryPort = defaultPort;
-        if (haInstanceConfig && haInstanceConfig.discovery && _.has(haInstanceConfig.discovery, 'port')) {
-          discoveryPort = _.get(haInstanceConfig.discovery, 'port');
+        if (haInstanceDiscoveryConfig && _.has(haInstanceDiscoveryConfig, 'port')) {
+          discoveryPort = _.get(haInstanceDiscoveryConfig, 'port');
         }
         if (hasDiscoveryInThisInstance) {
           val.push(`https://${haInstanceHostname}:${discoveryPort}/eureka/`.toLowerCase());
