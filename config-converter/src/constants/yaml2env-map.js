@@ -124,7 +124,7 @@ const YAML_TO_ENV_MAPPING = {
       for (const haInstanceId in yamlConfigObj.haInstances) {
         const haInstanceConfig = yamlConfigObj.haInstances[haInstanceId];
         const haInstanceDiscoveryConfig = haInstanceConfig && haInstanceConfig.components && haInstanceConfig.components.discovery;
-        const haInstanceHostname = haInstanceConfig.hostname || defaultExternalDomain;
+        const haInstanceHostname = (haInstanceConfig && haInstanceConfig.hostname) || defaultExternalDomain;
         let hasDiscoveryInThisInstance = false;
         if (haInstanceDiscoveryConfig && _.has(haInstanceDiscoveryConfig, 'enabled')) {
           hasDiscoveryInThisInstance = _.get(haInstanceDiscoveryConfig, 'enabled');
