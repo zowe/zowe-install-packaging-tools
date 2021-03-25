@@ -205,7 +205,7 @@ const convertZoweYamlToEnv = (workspaceDir, haInstance, yamlConfigFile, instance
   const escapeEnvValue = (val) => {
     val = `${val}`;
     if (val.indexOf('"') > -1) {
-      return `"${val.replace('"', '\\"')}"`;
+      return `"${val.replaceAll('"', '\\"')}"`;
     } else {
       return val;
     }
