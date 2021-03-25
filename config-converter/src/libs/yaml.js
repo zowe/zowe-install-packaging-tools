@@ -139,17 +139,24 @@ const convertConfigs = (configObj, haInstance, workspaceDir = null) => {
   //        real usage on runtime.
   writeYaml(configObjCopy, path.resolve(workspaceDir, '.zowe.yaml'));
 
-  // prepare haInstance.id and haInstance.hostname
+  // prepare haInstance.id, haInstance.hostname and haInstance.ip
   if (process.env[VERBOSE_ENV]) {
     process.stdout.write(`- process HA instance "${haInstance}"\n`);
   }
   const haCopy = merge({}, configObjCopy);
-  const haCopyMerged = merge(haCopy, _.omit(configObjCopy.haInstances && configObjCopy.haInstances[haInstance] || {}, ['id', 'hostname']));
+  const haCopyMerged = merge(haCopy, _.omit(configObjCopy.haInstances && configObjCopy.haInstances[haInstance] || {}, ['id', 'hostname', 'ip']));
   _.set(haCopyMerged, 'haInstance.id', haInstance);
   _.set(haCopyMerged, 'haInstance.hostname', 
     (
       (configObjCopy.haInstances && configObjCopy.haInstances[haInstance] && configObjCopy.haInstances[haInstance].hostname) || 
       (configObjCopy.zowe && configObjCopy.zowe.externalDomains && configObjCopy.zowe.externalDomains[0]) ||
+      ''
+    )
+  );
+  _.set(haCopyMerged, 'haInstance.ip', 
+    (
+      (configObjCopy.haInstances && configObjCopy.haInstances[haInstance] && configObjCopy.haInstances[haInstance].ip) || 
+      (configObjCopy.zowe && configObjCopy.zowe.environments && configObjCopy.zowe.environments['ZOWE_IP_ADDRESS']) ||
       ''
     )
   );
@@ -245,6 +252,11 @@ const convertZoweYamlToEnv = (workspaceDir, haInstance, yamlConfigFile, instance
   envContent.push('# other environments kept as-is');
   if (configObj && configObj.zowe && configObj.zowe.environments) {
     for (const key in configObj.zowe.environments) {
+      if (key === 'ZOWE_IP_ADDRESS') {
+        // we didn't define a YAML entry for ip address, but spread it to haInstances.<instance-id>.ip
+        // this should have been handled by yaml2env mapping
+        continue;
+      }
       pushKeyValue(key, configObj.zowe.environments[key]);
     }
   }

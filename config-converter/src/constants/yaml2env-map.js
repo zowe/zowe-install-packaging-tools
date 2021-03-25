@@ -92,7 +92,9 @@ const YAML_TO_ENV_MAPPING = {
   ZOWE_EXPLORER_HOST: function(yamlConfigObj) {
     return _.get(yamlConfigObj, 'haInstance.hostname') || _.get(yamlConfigObj, 'zowe.externalDomains.0') || '';
   },
-  // ZOWE_IP_ADDRESS: "148.100.36.148",
+  ZOWE_IP_ADDRESS: function(yamlConfigObj) {
+    return _.get(yamlConfigObj, 'haInstance.ip') || _.get(yamlConfigObj, 'zowe.environments.ZOWE_IP_ADDRESS') || '';
+  },
 
   separator_100: '\n',
   comment_100: '# APIML variables',
