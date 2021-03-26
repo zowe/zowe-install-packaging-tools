@@ -204,10 +204,12 @@ const convertZoweYamlToEnv = (workspaceDir, haInstance, yamlConfigFile, instance
   const envContent = ['#!/bin/sh', ''];
   const escapeEnvValue = (val) => {
     val = `${val}`;
-    if (val.indexOf('"') > -1) {
+    if (val.startsWith('"') && val.endsWith('"')) {
+      return val;
+    } else if (val.indexOf('"') > -1) {
       return `"${val.replaceAll('"', '\\"')}"`;
     } else {
-      return val;
+      return `"${val}"`;
     }
   };
   const pushKeyValue = (key, val) => {
