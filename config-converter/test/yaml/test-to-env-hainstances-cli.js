@@ -75,28 +75,28 @@ describe('test zcc yaml to-env <yaml-with-ha-instances>', function () {
     });
 
     let content = fs.readFileSync(path.resolve(workspaceDir, componentId, '.instance-default.env')).toString();
-    expect(content).to.include('DISCOVERY_PORT=12346');
-    expect(content).to.include('GATEWAY_PORT=8888');
-    // expect(content).to.include('ZOWE_EXPLORER_HOST=my-default-zos.com');
-    expect(content).to.include('UNKNOWN_KEY=value');
+    expect(content).to.include('DISCOVERY_PORT="12346"');
+    expect(content).to.include('GATEWAY_PORT="8888"');
+    // expect(content).to.include('ZOWE_EXPLORER_HOST="my-default-zos.com"');
+    expect(content).to.include('UNKNOWN_KEY="value"');
 
     content = fs.readFileSync(path.resolve(workspaceDir, componentId, '.instance-first.env')).toString();
-    expect(content).to.include('DISCOVERY_PORT=12346');
-    expect(content).to.include('GATEWAY_PORT=8888');
-    // expect(content).to.include('ZOWE_EXPLORER_HOST=my-first-zos.com');
-    expect(content).to.include('UNKNOWN_KEY=value');
+    expect(content).to.include('DISCOVERY_PORT="12346"');
+    expect(content).to.include('GATEWAY_PORT="8888"');
+    // expect(content).to.include('ZOWE_EXPLORER_HOST="my-first-zos.com"');
+    expect(content).to.include('UNKNOWN_KEY="value"');
 
     content = fs.readFileSync(path.resolve(workspaceDir, componentId, '.instance-second.env')).toString();
-    expect(content).to.include('DISCOVERY_PORT=7553');
-    expect(content).to.include('GATEWAY_PORT=7554');
-    // expect(content).to.include('ZOWE_EXPLORER_HOST=my-second-zos.com');
-    expect(content).to.include('UNKNOWN_KEY=value');
+    expect(content).to.include('DISCOVERY_PORT="7553"');
+    expect(content).to.include('GATEWAY_PORT="7554"');
+    // expect(content).to.include('ZOWE_EXPLORER_HOST="my-second-zos.com"');
+    expect(content).to.include('UNKNOWN_KEY="value"');
 
     content = fs.readFileSync(path.resolve(workspaceDir, componentId, '.instance-second-alt.env')).toString();
-    expect(content).to.include('DISCOVERY_PORT=17553');
-    expect(content).to.include('GATEWAY_PORT=17554');
-    // expect(content).to.include('ZOWE_EXPLORER_HOST=my-second-zos.com');
-    expect(content).to.include('UNKNOWN_KEY=value');
+    expect(content).to.include('DISCOVERY_PORT="17553"');
+    expect(content).to.include('GATEWAY_PORT="17554"');
+    // expect(content).to.include('ZOWE_EXPLORER_HOST="my-second-zos.com"');
+    expect(content).to.include('UNKNOWN_KEY="value"');
   });
 
 });

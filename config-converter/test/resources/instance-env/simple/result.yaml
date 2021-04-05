@@ -27,5 +27,3 @@ components:
   api-catalog:
     debug: false
     preferIpAddress: true
-  caching-service:
-    enabled: true

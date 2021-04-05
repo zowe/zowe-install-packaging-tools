@@ -68,7 +68,6 @@ components:
       dataset: ZOWEAD3.ZWE.CACHE1
     evictionStrategy: reject
     persistent: VSAM
-    enabled: true
   jobs-api:
     port: "8545"
   files-api:

@@ -212,9 +212,6 @@ const YAML_TO_ENV_MAPPING = {
   separator_430: '\n',
   comment_430: '# other variables',
   ZWE_LOG_LEVEL_ZWELS: "zowe.launchScript.logLevel",
-  ZOWE_CACHING_SERVICE_START: function(yamlConfigObj) {
-    return getBooleanVal(yamlConfigObj, 'components.caching-service.enabled');
-  },
   STATIC_DEF_CONFIG_DIR: "components.discovery.staticDefinitionsDirectories",
   ZOWE_APIM_VERIFY_CERTIFICATES: function(yamlConfigObj) {
     return getBooleanVal(yamlConfigObj, 'components.gateway.verifyCertificates');

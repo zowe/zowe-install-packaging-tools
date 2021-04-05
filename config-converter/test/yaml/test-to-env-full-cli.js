@@ -66,11 +66,11 @@ describe('test zcc yaml to-env <yaml-with-full>', function () {
     expect(existence).to.be.true;
 
     let content = fs.readFileSync(path.resolve(workspaceDir, componentId, '.instance-default.env')).toString();
-    expect(content).to.include('GATEWAY_PORT=7554');
-    expect(content).to.include('LAUNCH_COMPONENT_GROUPS=ZSS');
-    expect(content).to.include('ZWE_LAUNCH_COMPONENTS=zss');
-    expect(content).to.include('ZOWE_EXPLORER_HOST=zos.test-domain.com');
-    expect(content).to.include('APIML_SECURITY_X509_ENABLED=true');
+    expect(content).to.include('GATEWAY_PORT="7554"');
+    expect(content).to.include('LAUNCH_COMPONENT_GROUPS="ZSS"');
+    expect(content).to.include('ZWE_LAUNCH_COMPONENTS="zss"');
+    expect(content).to.include('ZOWE_EXPLORER_HOST="zos.test-domain.com"');
+    expect(content).to.include('APIML_SECURITY_X509_ENABLED="true"');
   });
 
 });

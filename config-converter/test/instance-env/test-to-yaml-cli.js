@@ -58,7 +58,6 @@ describe('zcc instance-env to-yaml', function () {
         'components.api-catalog.debug': false,
         'components.api-catalog.preferIpAddress': true,
         'zowe.environments.UNKNOWN_KEY': 'value',
-        'components.caching-service.enabled': true,
       }
     });
   });
