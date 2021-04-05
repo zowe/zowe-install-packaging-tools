@@ -92,6 +92,9 @@ const ENV_TO_YAML_MAPPING = {
     _.set(yamlConfig, 'components.gateway.x509Enabled', stringToBoolean(val));
   },
   APIML_SECURITY_ZOSMF_APPLID: "zOSMF.applId",
+  // added by https://github.com/zowe/zowe-install-packaging/pull/2021
+  APIML_GATEWAY_EXTERNAL_MAPPER: "components.gateway.auth.clientCertificateMapper",
+  APIML_SECURITY_AUTHORIZATION_ENDPOINT_URL: "components.gateway.auth.externalUrl",
   CATALOG_PORT: "components.api-catalog.port",
   DISCOVERY_PORT: "components.discovery.port",
   EXTERNAL_COMPONENTS: function(val, envs, yamlConfig) {

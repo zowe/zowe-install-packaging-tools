@@ -95,12 +95,14 @@ const YAML_TO_ENV_MAPPING = {
   ZOWE_IP_ADDRESS: function(yamlConfigObj) {
     return _.get(yamlConfigObj, 'haInstance.ip') || _.get(yamlConfigObj, 'zowe.environments.ZOWE_IP_ADDRESS') || '';
   },
+  ZOWE_LOOPBACK_ADDRESS: "zowe.loopbackIp",
 
   separator_100: '\n',
   comment_100: '# APIML variables',
   CATALOG_PORT: "components.api-catalog.port",
   DISCOVERY_PORT: "components.discovery.port",
   GATEWAY_PORT: ["zowe.externalPort", "components.gateway.port"],
+  APIML_GATEWAY_INTERNAL_PORT: "zowe.internalPort",
   APIML_ALLOW_ENCODED_SLASHES: function(yamlConfigObj) {
     return getBooleanVal(yamlConfigObj, 'components.gateway.allowEncodedSlashes');
   },
@@ -116,6 +118,9 @@ const YAML_TO_ENV_MAPPING = {
   },
   APIML_SECURITY_ZOSMF_APPLID: "zOSMF.applId",
   APIML_SECURITY_AUTH_PROVIDER: "components.gateway.auth.provider",
+  // added by https://github.com/zowe/zowe-install-packaging/pull/2021
+  APIML_GATEWAY_EXTERNAL_MAPPER: "components.gateway.auth.clientCertificateMapper",
+  APIML_SECURITY_AUTHORIZATION_ENDPOINT_URL: "components.gateway.auth.externalUrl",
   // List of discovery service URLs separated by comma
   ZWE_DISCOVERY_SERVICES_LIST: function(yamlConfigObj) {
     const val = [];
