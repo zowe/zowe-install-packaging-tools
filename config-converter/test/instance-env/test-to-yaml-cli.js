@@ -50,7 +50,7 @@ describe('zcc instance-env to-yaml', function () {
       yaml: {
         'components.gateway.verifyCertificates': true,
         'components.gateway.debug': false,
-        'components.gateway.x509Enabled': false,
+        'components.gateway.auth.x509Enabled': false,
         'components.gateway.auth.provider': 'zosmf',
         'components.gateway.allowEncodedSlashes': true,
         'components.gateway.corsEnabled': false,

@@ -95,14 +95,14 @@ const YAML_TO_ENV_MAPPING = {
   ZOWE_IP_ADDRESS: function(yamlConfigObj) {
     return _.get(yamlConfigObj, 'haInstance.ip') || _.get(yamlConfigObj, 'zowe.environments.ZOWE_IP_ADDRESS') || '';
   },
-  ZOWE_LOOPBACK_ADDRESS: "zowe.loopbackIp",
 
   separator_100: '\n',
   comment_100: '# APIML variables',
   CATALOG_PORT: "components.api-catalog.port",
   DISCOVERY_PORT: "components.discovery.port",
   GATEWAY_PORT: ["zowe.externalPort", "components.gateway.port"],
-  APIML_GATEWAY_INTERNAL_PORT: "zowe.internalPort",
+  APIML_GATEWAY_INTERNAL_HOST: "zowe.gatewayInternalHost",
+  APIML_GATEWAY_INTERNAL_PORT: ["zowe.gatewayInternalPort", "components.gateway.internalPort"],
   APIML_ALLOW_ENCODED_SLASHES: function(yamlConfigObj) {
     return getBooleanVal(yamlConfigObj, 'components.gateway.allowEncodedSlashes');
   },
@@ -114,7 +114,7 @@ const YAML_TO_ENV_MAPPING = {
   },
   APIML_GATEWAY_TIMEOUT_MILLIS: "components.gateway.timeoutMillis",
   APIML_SECURITY_X509_ENABLED: function(yamlConfigObj) {
-    return getBooleanVal(yamlConfigObj, 'components.gateway.x509Enabled');
+    return getBooleanVal(yamlConfigObj, 'components.gateway.auth.x509Enabled');
   },
   APIML_SECURITY_ZOSMF_APPLID: "zOSMF.applId",
   APIML_SECURITY_AUTH_PROVIDER: "components.gateway.auth.provider",
@@ -221,10 +221,15 @@ const YAML_TO_ENV_MAPPING = {
   ZOWE_APIM_VERIFY_CERTIFICATES: function(yamlConfigObj) {
     return getBooleanVal(yamlConfigObj, 'components.gateway.verifyCertificates');
   },
-  // ZWE_EXTERNAL_HOSTS: function(yamlConfigObj) {
-  //   const val = _.get(yamlConfigObj, 'zowe.externalDomains') || [];
-  //   return val.join(',');
-  // },
+  ZWE_EXTERNAL_HOSTS: function(yamlConfigObj) {
+    const val = _.get(yamlConfigObj, 'zowe.externalDomains') || [];
+    return val.join(',');
+  },
+  ZWE_REFERRER_HOSTS: function(yamlConfigObj) {
+    const val = _.get(yamlConfigObj, 'zowe.referrerHosts') || _.get(yamlConfigObj, 'zowe.externalDomains') || [];
+    return val.join(',');
+  },
+  ZOWE_LOOPBACK_ADDRESS: "zowe.loopbackIp",
   // SSO_FALLBACK_TO_NATIVE_AUTH: false,
   // deprecated/abandoned variables
   APIML_ENABLE_SSO: false,

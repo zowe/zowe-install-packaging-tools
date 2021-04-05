@@ -80,21 +80,23 @@ const ENV_TO_YAML_MAPPING = {
     _.set(yamlConfig, 'components.api-catalog.debug', bVal);
   },
   APIML_ENABLE_SSO: false,
-  APIML_GATEWAY_INTERNAL_PORT: "zowe.internalPort",
+  APIML_GATEWAY_INTERNAL_HOST: "zowe.gatewayInternalHost",
+  APIML_GATEWAY_INTERNAL_PORT: ["zowe.gatewayInternalPort", "components.gateway.internalPort"],
   APIML_GATEWAY_TIMEOUT_MILLIS: "components.gateway.timeoutMillis",
+  // added by https://github.com/zowe/zowe-install-packaging/pull/2021
+  APIML_GATEWAY_EXTERNAL_MAPPER: "components.gateway.auth.clientCertificateMapper",
   APIML_MAX_CONNECTIONS_PER_ROUTE: "components.gateway.maxConnectionsPerRoute",
   APIML_MAX_TOTAL_CONNECTIONS: "components.gateway.totalConnections",
   APIML_PREFER_IP_ADDRESS: function(val, envs, yamlConfig) {
     _.set(yamlConfig, 'components.api-catalog.preferIpAddress', stringToBoolean(val));
   },
   APIML_SECURITY_AUTH_PROVIDER: "components.gateway.auth.provider",
+  // added by https://github.com/zowe/zowe-install-packaging/pull/2021
+  APIML_SECURITY_AUTHORIZATION_ENDPOINT_URL: "components.gateway.auth.externalUrl",
   APIML_SECURITY_X509_ENABLED: function(val, envs, yamlConfig) {
-    _.set(yamlConfig, 'components.gateway.x509Enabled', stringToBoolean(val));
+    _.set(yamlConfig, 'components.gateway.auth.x509Enabled', stringToBoolean(val));
   },
   APIML_SECURITY_ZOSMF_APPLID: "zOSMF.applId",
-  // added by https://github.com/zowe/zowe-install-packaging/pull/2021
-  APIML_GATEWAY_EXTERNAL_MAPPER: "components.gateway.auth.clientCertificateMapper",
-  APIML_SECURITY_AUTHORIZATION_ENDPOINT_URL: "components.gateway.auth.externalUrl",
   CATALOG_PORT: "components.api-catalog.port",
   DISCOVERY_PORT: "components.discovery.port",
   EXTERNAL_COMPONENTS: function(val, envs, yamlConfig) {
@@ -166,6 +168,9 @@ const ENV_TO_YAML_MAPPING = {
   ZWE_ENVIRONMENT_PREPARED: false,
   ZWE_EXTERNAL_HOSTS: function(val, envs, yamlConfig) {
     appendToArray(val, "zowe.externalDomains", yamlConfig);
+  },
+  ZWE_REFERRER_HOSTS: function(val, envs, yamlConfig) {
+    appendToArray(val, "zowe.referrerHosts", yamlConfig);
   },
   ZWE_LOG_LEVEL_ZWELS: "zowe.launchScript.logLevel",
   ZWEAD_EXTERNAL_STATIC_DEF_DIRECTORIES: "components.discovery.alternativeStaticDefinitionsDirectories",

@@ -19,7 +19,7 @@ components:
     verifyCertificates: true
     auth:
       provider: zosmf
-    x509Enabled: false
+      x509Enabled: false
     corsEnabled: false
     allowEncodedSlashes: true
   discovery:

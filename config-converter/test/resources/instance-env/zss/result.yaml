@@ -54,8 +54,8 @@ components:
     allowEncodedSlashes: true
     corsEnabled: false
     timeoutMillis: "600000"
-    x509Enabled: true
     auth:
+      x509Enabled: true
       provider: zosmf
     debug: false
     maxConnectionsPerRoute: "100"
