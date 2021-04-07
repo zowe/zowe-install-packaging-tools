@@ -48,15 +48,15 @@ describe('zcc instance-env to-yaml', function () {
       stdout: ['CLI arguments:', STDOUT_YAML_SEPARATOR, 'Ignore key SKIP_NODE with value "0"', 'Unknown key UNKNOWN_KEY with value "value"'],
       stderr: '',
       yaml: {
-        'components.gateway.verifyCertificates': true,
+        'components.gateway.apiml.security.ssl.verifySslCertificatesOfServices': true,
         'components.gateway.debug': false,
-        'components.gateway.auth.x509Enabled': false,
-        'components.gateway.auth.provider': 'zosmf',
-        'components.gateway.allowEncodedSlashes': true,
-        'components.gateway.corsEnabled': false,
+        'components.gateway.apiml.security.x509.enabled': false,
+        'components.gateway.apiml.security.auth.provider': 'zosmf',
+        'components.gateway.apiml.service.allowEncodedSlashes': true,
+        'components.gateway.apiml.service.corsEnabled': false,
         'components.discovery.debug': false,
         'components.api-catalog.debug': false,
-        'components.api-catalog.preferIpAddress': true,
+        'components.api-catalog.environment.preferIpAddress': true,
         'zowe.environments.UNKNOWN_KEY': 'value',
       }
     });

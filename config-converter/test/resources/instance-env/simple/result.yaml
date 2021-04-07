@@ -16,14 +16,34 @@ zowe:
 components:
   gateway:
     debug: false
-    verifyCertificates: true
-    auth:
-      provider: zosmf
-      x509Enabled: false
-    corsEnabled: false
-    allowEncodedSlashes: true
+    apiml:
+      security:
+        ssl:
+          verifySslCertificatesOfServices: true
+        auth:
+          provider: zosmf
+        x509:
+          enabled: false
+      service:
+        preferIpAddress: true
+        corsEnabled: false
+        allowEncodedSlashes: true
   discovery:
     debug: false
+    apiml:
+      security:
+        ssl:
+          verifySslCertificatesOfServices: true
+      service:
+        preferIpAddress: true
   api-catalog:
     debug: false
-    preferIpAddress: true
+    environment:
+      preferIpAddress: true
+  caching-service:
+    apiml:
+      security:
+        ssl:
+          verifySslCertificatesOfServices: true
+    environment:
+      preferIpAddress: true

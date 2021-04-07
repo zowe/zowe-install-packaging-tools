@@ -16,8 +16,20 @@ const getBooleanVal = (obj, path) => {
   return _.isUndefined(val) ? val : `${val}`;
 };
 
+// normal components (except for gateway) use `certificate` to define what certificate it will use
 const getCertificateConfig = (configObj) => {
   return (configObj.configs && configObj.configs.certificate) ||
+    (configObj.zowe && configObj.zowe.internalCertificate) ||
+    (configObj.zowe && configObj.zowe.externalCertificate) ||
+    null;
+};
+
+// gateway uses
+// - `certificate` to define certificate used for external connector
+// - `internalCertificate` to define certificate used for internal connector
+const getGatewayInternalCertificateConfig = (configObj) => {
+  return (configObj.configs && configObj.configs.internalCertificate) ||
+    (configObj.configs && configObj.configs.certificate) ||
     (configObj.zowe && configObj.zowe.internalCertificate) ||
     (configObj.zowe && configObj.zowe.externalCertificate) ||
     null;
@@ -104,23 +116,31 @@ const YAML_TO_ENV_MAPPING = {
   APIML_GATEWAY_INTERNAL_HOST: "zowe.gatewayInternalHost",
   APIML_GATEWAY_INTERNAL_PORT: ["zowe.gatewayInternalPort", "components.gateway.internalPort"],
   APIML_ALLOW_ENCODED_SLASHES: function(yamlConfigObj) {
-    return getBooleanVal(yamlConfigObj, 'components.gateway.allowEncodedSlashes');
+    return getBooleanVal(yamlConfigObj, 'components.gateway.apiml.service.allowEncodedSlashes');
   },
   APIML_CORS_ENABLED: function(yamlConfigObj) {
-    return getBooleanVal(yamlConfigObj, 'components.gateway.corsEnabled');
+    return getBooleanVal(yamlConfigObj, 'components.gateway.apiml.service.corsEnabled');
   },
-  APIML_PREFER_IP_ADDRESS: function(yamlConfigObj) {
-    return getBooleanVal(yamlConfigObj, 'components.api-catalog.preferIpAddress');
+  APIML_PREFER_IP_ADDRESS: function(yamlConfigObj, haInstance, componentId) {
+    let val = getBooleanVal(yamlConfigObj, `components.${componentId}.environment.preferIpAddress`);
+    if (_.isUndefined(val)) {
+      // discovery and gateway are defined as apiml.service.preferIpAddress
+      val = getBooleanVal(yamlConfigObj, `components.${componentId}.apiml.service.preferIpAddress`);
+      if (_.isUndefined(val)) {
+        val = false;
+      }
+    }
+    return val;
   },
-  APIML_GATEWAY_TIMEOUT_MILLIS: "components.gateway.timeoutMillis",
+  APIML_GATEWAY_TIMEOUT_MILLIS: "components.gateway.apiml.gateway.timeoutMillis",
   APIML_SECURITY_X509_ENABLED: function(yamlConfigObj) {
-    return getBooleanVal(yamlConfigObj, 'components.gateway.auth.x509Enabled');
+    return getBooleanVal(yamlConfigObj, 'components.gateway.apiml.security.x509.enabled');
   },
-  APIML_SECURITY_ZOSMF_APPLID: "zOSMF.applId",
-  APIML_SECURITY_AUTH_PROVIDER: "components.gateway.auth.provider",
+  APIML_SECURITY_ZOSMF_APPLID: ["zOSMF.applId", "components.gateway.apiml.security.zosmf.applid"],
+  APIML_SECURITY_AUTH_PROVIDER: "components.gateway.apiml.security.auth.provider",
   // added by https://github.com/zowe/zowe-install-packaging/pull/2021
-  APIML_GATEWAY_EXTERNAL_MAPPER: "components.gateway.auth.clientCertificateMapper",
-  APIML_SECURITY_AUTHORIZATION_ENDPOINT_URL: "components.gateway.auth.externalUrl",
+  APIML_GATEWAY_EXTERNAL_MAPPER: "components.gateway.apiml.security.x509.externalMapperUrl",
+  APIML_SECURITY_AUTHORIZATION_ENDPOINT_URL: "components.gateway.apiml.security.authorization.endpoint.url",
   // List of discovery service URLs separated by comma
   ZWE_DISCOVERY_SERVICES_LIST: function(yamlConfigObj) {
     const val = [];
@@ -154,30 +174,27 @@ const YAML_TO_ENV_MAPPING = {
   },
   comment_120: '# Enable debug logging for Api Mediation Layer services',
   APIML_DEBUG_MODE_ENABLED:  function(yamlConfigObj, haInstance, componentId) {
-    const bVal = _.get(yamlConfigObj, 'components.gateway.debug');
-    if (_.get(yamlConfigObj, 'components.discovery.debug') !== bVal) {
-      process.stderr.write(`WARNING: <workspace-dir>/${componentId}/.configs-${haInstance}.json value of components.discovery.debug is not same as other sibling configs\n`);
+    let val = getBooleanVal(yamlConfigObj, `components.${componentId}.debug`);
+    if (_.isUndefined(val)) {
+      val = false;
     }
-    if (_.get(yamlConfigObj, 'components.api-catalog.debug') !== bVal) {
-      process.stderr.write(`WARNING: <workspace-dir>/${componentId}/.configs-${haInstance}.json value of components.api-catalog.debug is not same as other sibling configs\n`);
-    }
-    return bVal;
+    return val;
   },
-  APIML_MAX_CONNECTIONS_PER_ROUTE: "components.gateway.maxConnectionsPerRoute",
-  APIML_MAX_TOTAL_CONNECTIONS: "components.gateway.totalConnections",
+  APIML_MAX_CONNECTIONS_PER_ROUTE: "components.gateway.server.maxConnectionsPerRoute",
+  APIML_MAX_TOTAL_CONNECTIONS: "components.gateway.server.maxTotalConnections",
   // ####################
   comment_140: '# caching service',
   // TCP port of caching service
   ZWE_CACHING_SERVICE_PORT: "components.caching-service.port",
   // specify amount of records before eviction strategies start evicting
-  ZWE_CACHING_STORAGE_SIZE: "components.caching-service.vsam.storageSize",
+  ZWE_CACHING_STORAGE_SIZE: "components.caching-service.storage.size",
   // specify eviction strategy to be used when the storage size is achieved
-  ZWE_CACHING_EVICTION_STRATEGY: "components.caching-service.evictionStrategy",
+  ZWE_CACHING_EVICTION_STRATEGY: "components.caching-service.storage.evictionStrategy",
   // specify persistent method of caching service
   // currently VSAM is the only option
-  ZWE_CACHING_SERVICE_PERSISTENT: "components.caching-service.persistent",
+  ZWE_CACHING_SERVICE_PERSISTENT: "components.caching-service.storage.mode",
   // specify the data set name of the caching service VSAM
-  ZWE_CACHING_SERVICE_VSAM_DATASET: "components.caching-service.vsam.dataset",
+  ZWE_CACHING_SERVICE_VSAM_DATASET: "components.caching-service.storage.vsam.name",
 
   separator_200: '\n',
   comment_200: '# explorer variables',
@@ -199,7 +216,7 @@ const YAML_TO_ENV_MAPPING = {
 
   separator_400: '\n',
   comment_400: '# Extender variables',
-  ZWEAD_EXTERNAL_STATIC_DEF_DIRECTORIES: "components.discovery.alternativeStaticDefinitionsDirectories",
+  ZWEAD_EXTERNAL_STATIC_DEF_DIRECTORIES: "components.discovery.alternativeStaticApiDefinitionsDirectories",
   EXTERNAL_COMPONENTS: function(yamlConfigObj) {
     const val = [];
     if (yamlConfigObj.components) {
@@ -217,9 +234,13 @@ const YAML_TO_ENV_MAPPING = {
   separator_430: '\n',
   comment_430: '# other variables',
   ZWE_LOG_LEVEL_ZWELS: "zowe.launchScript.logLevel",
-  STATIC_DEF_CONFIG_DIR: "components.discovery.staticDefinitionsDirectories",
-  ZOWE_APIM_VERIFY_CERTIFICATES: function(yamlConfigObj) {
-    return getBooleanVal(yamlConfigObj, 'components.gateway.verifyCertificates');
+  STATIC_DEF_CONFIG_DIR: "components.discovery.staticApiDefinitionsDirectories",
+  ZOWE_APIM_VERIFY_CERTIFICATES: function(yamlConfigObj, haInstance, componentId) {
+    let val = getBooleanVal(yamlConfigObj, `components.${componentId}.apiml.security.ssl.verifySslCertificatesOfServices`);
+    if (_.isUndefined(val)) {
+      val = true;
+    }
+    return val;
   },
   ZWE_EXTERNAL_HOSTS: function(yamlConfigObj) {
     const val = _.get(yamlConfigObj, 'zowe.externalDomains') || [];
@@ -320,6 +341,95 @@ const YAML_TO_ENV_MAPPING = {
   comment_580: '# token',
   PKCS11_TOKEN_LABEL: "zowe.sso.token.label",
   PKCS11_TOKEN_NAME: "zowe.sso.token.name",
+  comment_600: '# gateway internal certificate',
+  SERVER_INTERNAL_SSL_KEYALIAS: function(yamlConfigObj, haInstance, componentId) {
+    if (componentId !== 'gateway') {
+      return undefined;
+    }
+    const certObj = getGatewayInternalCertificateConfig(yamlConfigObj);
+    if (!certObj) {
+      return undefined;
+    }
+
+    return _.get(certObj, 'keystore.keyAlias');
+  },
+  SERVER_INTERNAL_SSL_KEYPASSWORD: function(yamlConfigObj, haInstance, componentId) {
+    if (componentId !== 'gateway') {
+      return undefined;
+    }
+    const certObj = getGatewayInternalCertificateConfig(yamlConfigObj);
+    if (!certObj) {
+      return undefined;
+    }
+
+    return _.get(certObj, 'keystore.password');
+  },
+  SERVER_INTERNAL_SSL_KEYSTOREPASSWORD: function(yamlConfigObj, haInstance, componentId) {
+    if (componentId !== 'gateway') {
+      return undefined;
+    }
+    const certObj = getGatewayInternalCertificateConfig(yamlConfigObj);
+    if (!certObj) {
+      return undefined;
+    }
+
+    return _.get(certObj, 'keystore.password');
+  },
+  SERVER_INTERNAL_SSL_KEYSTORETYPE: function(yamlConfigObj, haInstance, componentId) {
+    if (componentId !== 'gateway') {
+      return undefined;
+    }
+    const certObj = getGatewayInternalCertificateConfig(yamlConfigObj);
+    if (!certObj) {
+      return undefined;
+    }
+
+    return _.get(certObj, 'keystore.type');
+  },
+  SERVER_INTERNAL_SSL_KEYSTORE: function(yamlConfigObj, haInstance, componentId) {
+    if (componentId !== 'gateway') {
+      return undefined;
+    }
+    const certObj = getGatewayInternalCertificateConfig(yamlConfigObj);
+    if (!certObj) {
+      return undefined;
+    }
+
+    return _.get(certObj, 'keystore.file');
+  },
+  SERVER_INTERNAL_SSL_TRUSTSTORETYPE: function(yamlConfigObj, haInstance, componentId) {
+    if (componentId !== 'gateway') {
+      return undefined;
+    }
+    const certObj = getGatewayInternalCertificateConfig(yamlConfigObj);
+    if (!certObj) {
+      return undefined;
+    }
+
+    return _.get(certObj, 'trustStore.type') || _.get(certObj, 'keystore.type');
+  },
+  SERVER_INTERNAL_SSL_TRUSTSTORE: function(yamlConfigObj, haInstance, componentId) {
+    if (componentId !== 'gateway') {
+      return undefined;
+    }
+    const certObj = getGatewayInternalCertificateConfig(yamlConfigObj);
+    if (!certObj) {
+      return undefined;
+    }
+
+    return _.get(certObj, 'trustStore.file');
+  },
+  SERVER_INTERNAL_SSL_TRUSTSTOREPASSWORD: function(yamlConfigObj, haInstance, componentId) {
+    if (componentId !== 'gateway') {
+      return undefined;
+    }
+    const certObj = getGatewayInternalCertificateConfig(yamlConfigObj);
+    if (!certObj) {
+      return undefined;
+    }
+
+    return _.get(certObj, 'trustStore.password') || _.get(certObj, 'keyStore.password');
+  },
 };
 
 module.exports = {

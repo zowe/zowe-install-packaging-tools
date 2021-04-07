@@ -182,7 +182,7 @@ const convertConfigs = (configObj, haInstance, workspaceDir = null) => {
 };
 
 // convert Zowe YAML config to old instance.env format
-const convertZoweYamlToEnv = (workspaceDir, haInstance, yamlConfigFile, instanceEnvFile) => {
+const convertZoweYamlToEnv = (workspaceDir, haInstance, componentId, yamlConfigFile, instanceEnvFile) => {
   workspaceDir = workspaceDir ? workspaceDir : process.env.WORKSPACE_DIR;
   if (!workspaceDir) {
     throw new Error('Environment WORKSPACE_DIR is required');
@@ -243,7 +243,7 @@ const convertZoweYamlToEnv = (workspaceDir, haInstance, yamlConfigFile, instance
         pushKeyValue(key, lastVal);
       }
     } else if (_.isFunction(YAML_TO_ENV_MAPPING[key])) {
-      const val = YAML_TO_ENV_MAPPING[key](configObj, haInstance, null);
+      const val = YAML_TO_ENV_MAPPING[key](configObj, haInstance, componentId);
       if (!_.isUndefined(val)) {
         pushKeyValue(key, val);
       }
@@ -272,14 +272,14 @@ const convertZoweYamlToEnv = (workspaceDir, haInstance, yamlConfigFile, instance
 const convertHaInstanceYamlToEnv = (workspaceDir, haInstance) => {
   const haConfigFile = `.zowe-${haInstance}.json`;
   const haInstanceEnvFile = `.instance-${haInstance}.env`;
-  convertZoweYamlToEnv(workspaceDir, haInstance, haConfigFile, haInstanceEnvFile);
+  convertZoweYamlToEnv(workspaceDir, haInstance, null, haConfigFile, haInstanceEnvFile);
 };
 
 // convert one component YAML config to old instance.env format
 const convertComponentYamlToEnv = (workspaceDir, haInstance, componentId) => {
   const componentConfigFile = `${componentId}/.configs-${haInstance}.json`;
   const componentInstanceEnvFile = `${componentId}/.instance-${haInstance}.env`;
-  convertZoweYamlToEnv(workspaceDir, haInstance, componentConfigFile, componentInstanceEnvFile);
+  convertZoweYamlToEnv(workspaceDir, haInstance, componentId, componentConfigFile, componentInstanceEnvFile);
 };
 
 // convert YAML configs of all HA instances to old instance.env format

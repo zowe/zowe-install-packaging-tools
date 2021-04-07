@@ -22,7 +22,7 @@ const { RESOURCES_DIR, getYamlResource, testConfigConverter, showFiles, deleteAl
 describe('test zcc yaml to-env <yaml-with-full>', function () {
   const cliParams = ['yaml', 'to-env'];
   const resourceCategory = 'customized-cert';
-  const componentId = 'zss';
+  const componentId = 'gateway';
   let obj = null;
   let workspaceDirObj = null;
   let workspaceDir = null;
@@ -66,8 +66,10 @@ describe('test zcc yaml to-env <yaml-with-full>', function () {
     expect(existence).to.be.true;
 
     let content = fs.readFileSync(path.resolve(workspaceDir, componentId, '.instance-default.env')).toString();
-    expect(content).to.include('KEY_ALIAS="zss"');
-    expect(content).to.include('KEYSTORE="/var/zowe/keystore/zos/zss.keystore.p12"');
+    expect(content).to.include('KEY_ALIAS="gateway"');
+    expect(content).to.include('KEYSTORE="/var/zowe/keystore/zos/gateway.keystore.p12"');
+    expect(content).to.include('SERVER_INTERNAL_SSL_KEYALIAS="gateway.internal"');
+    expect(content).to.include('SERVER_INTERNAL_SSL_KEYSTORE="/var/zowe/keystore/zos/gateway-internal.keystore.p12"');
     expect(content).to.include('TRUSTSTORE="/var/zowe/keystore/localhost/localhost.truststore.p12"');
     expect(content).to.include('ZWE_LAUNCH_COMPONENTS="zss"');
   });

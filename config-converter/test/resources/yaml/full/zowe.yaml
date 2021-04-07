@@ -28,6 +28,32 @@ zowe:
     EXTERNAL_ROOT_CA: ""
     SSO_FALLBACK_TO_NATIVE_AUTH: "true"
   externalPort: "7554"
+  externalCertificate:
+    keystore:
+      keyAlias: localhost
+      password: password
+      file: /var/zowe/keystore/localhost/localhost.keystore.p12
+      type: PKCS12
+    trustStore:
+      file: /var/zowe/keystore/localhost/localhost.truststore.p12
+      certificateAuthorities: ""
+    pem:
+      key: /var/zowe/keystore/localhost/localhost.keystore.key
+      certificate: /var/zowe/keystore/localhost/localhost.keystore.cer-ebcdic
+      certificateAuthority: /var/zowe/keystore/local_ca/localca.cer-ebcdic
+  internalCertificate:
+    keystore:
+      keyAlias: localhost
+      password: password
+      file: /var/zowe/keystore/localhost/localhost.keystore.p12
+      type: PKCS12
+    trustStore:
+      file: /var/zowe/keystore/localhost/localhost.truststore.p12
+      certificateAuthorities: ""
+    pem:
+      key: /var/zowe/keystore/localhost/localhost.keystore.key
+      certificate: /var/zowe/keystore/localhost/localhost.keystore.cer-ebcdic
+      certificateAuthority: /var/zowe/keystore/local_ca/localca.cer-ebcdic
   sso:
     token:
       name: ""
@@ -43,31 +69,55 @@ zOSMF:
 components:
   api-catalog:
     port: "7552"
-    preferIpAddress: true
+    environment:
+      preferIpAddress: true
     debug: false
   discovery:
     port: "7553"
+    apiml:
+      service:
+        preferIpAddress: true
+      security:
+        ssl:
+          verifySslCertificatesOfServices: false
     debug: false
     alternativeStaticDefinitionsDirectories: ""
   gateway:
     port: "7554"
-    allowEncodedSlashes: true
-    corsEnabled: false
-    timeoutMillis: "600000"
-    auth:
-      x509Enabled: true
-      provider: zosmf
+    apiml:
+      service:
+        allowEncodedSlashes: true
+        corsEnabled: false
+        preferIpAddress: true
+      gateway:
+        timeoutMillis: "600000"
+      security:
+        x509:
+          enabled: true
+        zosmf:
+          applid: izudflt
+        auth:
+          provider: zosmf
+        ssl:
+          verifySslCertificatesOfServices: false
     debug: false
-    maxConnectionsPerRoute: "100"
-    totalConnections: "1000"
-    verifyCertificates: false
+    server:
+      maxConnectionsPerRoute: "100"
+      maxTotalConnections: "1000"
   caching-service:
+    environment:
+      preferIpAddress: true
     port: "7555"
-    vsam:
-      storageSize: "10000"
-      dataset: ZOWEAD3.ZWE.CACHE1
-    evictionStrategy: reject
-    persistent: VSAM
+    storage:
+      size: "10000"
+      evictionStrategy: reject
+      mode: VSAM
+      vsam:
+        name: ZOWEAD3.ZWE.CACHE1
+    apiml:
+      security:
+        ssl:
+          verifySslCertificatesOfServices: false
   jobs-api:
     port: "8545"
   files-api:
@@ -87,16 +137,3 @@ components:
     port: "8542"
     crossMemoryServerName: ZWESIS_STD
     enabled: true
-externalCertificate:
-  keystore:
-    keyAlias: localhost
-    password: password
-    file: /var/zowe/keystore/localhost/localhost.keystore.p12
-    type: PKCS12
-  trustStore:
-    file: /var/zowe/keystore/localhost/localhost.truststore.p12
-    certificateAuthorities: ""
-  pem:
-    key: /var/zowe/keystore/localhost/localhost.keystore.key
-    certificate: /var/zowe/keystore/localhost/localhost.keystore.cer-ebcdic
-    certificateAuthority: /var/zowe/keystore/local_ca/localca.cer-ebcdic

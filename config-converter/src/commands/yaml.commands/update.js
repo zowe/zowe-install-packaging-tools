@@ -25,7 +25,7 @@ const handler = async (options) => {
 
 module.exports = {
   command: 'update <yaml-file> <path-of-object> <new-value>',
-  description: 'Read YAML configuration',
+  description: 'Update YAML configuration without losing comments and format',
   builder,
   handler,
 };
