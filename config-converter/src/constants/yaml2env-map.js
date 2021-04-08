@@ -116,7 +116,7 @@ const YAML_TO_ENV_MAPPING = {
   DISCOVERY_PORT: "components.discovery.port",
   GATEWAY_PORT: ["zowe.externalPort", "components.gateway.port"],
   APIML_GATEWAY_INTERNAL_HOST: "zowe.gatewayInternalHost",
-  APIML_GATEWAY_INTERNAL_PORT: ["zowe.gatewayInternalPort", "components.gateway.internalPort"],
+  APIML_GATEWAY_INTERNAL_PORT: "zowe.gatewayInternalPort",
   APIML_ALLOW_ENCODED_SLASHES: function(yamlConfigObj) {
     return getBooleanVal(yamlConfigObj, 'components.gateway.apiml.service.allowEncodedSlashes');
   },

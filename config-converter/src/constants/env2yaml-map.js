@@ -81,7 +81,7 @@ const ENV_TO_YAML_MAPPING = {
   },
   APIML_ENABLE_SSO: false,
   APIML_GATEWAY_INTERNAL_HOST: "zowe.gatewayInternalHost",
-  APIML_GATEWAY_INTERNAL_PORT: ["zowe.gatewayInternalPort", "components.gateway.internalPort"],
+  APIML_GATEWAY_INTERNAL_PORT: "zowe.gatewayInternalPort",
   APIML_GATEWAY_TIMEOUT_MILLIS: "components.gateway.apiml.gateway.timeoutMillis",
   // added by https://github.com/zowe/zowe-install-packaging/pull/2021
   APIML_GATEWAY_EXTERNAL_MAPPER: "components.gateway.apiml.security.x509.externalMapperUrl",
