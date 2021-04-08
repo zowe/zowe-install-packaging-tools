@@ -29,7 +29,7 @@ zowe:
   externalPort: "7554"
   externalCertificate:
     keystore:
-      keyAlias: localhost
+      alias: localhost
       password: password
       file: /var/zowe/keystore/localhost/localhost.keystore.p12
       type: PKCS12
@@ -42,7 +42,7 @@ zowe:
       certificateAuthority: /var/zowe/keystore/local_ca/localca.cer-ebcdic
   internalCertificate:
     keystore:
-      keyAlias: localhost
+      alias: localhost
       password: password
       file: /var/zowe/keystore/localhost/localhost.keystore.p12
       type: PKCS12

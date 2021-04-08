@@ -30,7 +30,7 @@ zowe:
   externalPort: "7554"
   externalCertificate:
     keystore:
-      keyAlias: localhost
+      alias: localhost
       password: password
       file: /var/zowe/keystore/localhost/localhost.keystore.p12
       type: PKCS12
@@ -43,7 +43,7 @@ zowe:
       certificateAuthority: /var/zowe/keystore/local_ca/localca.cer-ebcdic
   internalCertificate:
     keystore:
-      keyAlias: localhost
+      alias: localhost
       password: password
       file: /var/zowe/keystore/localhost/localhost.keystore.p12
       type: PKCS12
@@ -107,7 +107,7 @@ components:
     # gateway uses different certificate comparing to others
     certificate:
       keystore:
-        keyAlias: gateway
+        alias: gateway
         password: password
         file: /var/zowe/keystore/zos/gateway.keystore.p12
         type: PKCS12
@@ -117,7 +117,7 @@ components:
     # gateway also has customized internal certificate
     internalCertificate:
       keystore:
-        keyAlias: gateway.internal
+        alias: gateway.internal
         password: password
         file: /var/zowe/keystore/zos/gateway-internal.keystore.p12
         type: PKCS12
