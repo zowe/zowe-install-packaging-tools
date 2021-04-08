@@ -9,6 +9,7 @@
  */
 
 const _ = require('lodash');
+const merge = require('deepmerge');
 const { DEFAULT_ZOWE_CORE_COMPONENTS, DEFAULT_ZOWE_CORE_COMPONENT_CANDIDATES } = require('./index');
 
 const getBooleanVal = (obj, path) => {
@@ -18,21 +19,22 @@ const getBooleanVal = (obj, path) => {
 
 // normal components (except for gateway) use `certificate` to define what certificate it will use
 const getCertificateConfig = (configObj) => {
-  return (configObj.configs && configObj.configs.certificate) ||
-    (configObj.zowe && configObj.zowe.internalCertificate) ||
-    (configObj.zowe && configObj.zowe.externalCertificate) ||
-    null;
+  return merge.all([
+    configObj.zowe && configObj.zowe.externalCertificate || {},
+    configObj.zowe && configObj.zowe.internalCertificate || {},
+    configObj.configs && configObj.configs.certificate || {},
+  ]);
 };
 
 // gateway uses
 // - `certificate` to define certificate used for external connector
 // - `internalCertificate` to define certificate used for internal connector
 const getGatewayInternalCertificateConfig = (configObj) => {
-  return (configObj.configs && configObj.configs.internalCertificate) ||
-    (configObj.configs && configObj.configs.certificate) ||
-    (configObj.zowe && configObj.zowe.internalCertificate) ||
-    (configObj.zowe && configObj.zowe.externalCertificate) ||
-    null;
+  return merge.all([
+    configObj.zowe && configObj.zowe.externalCertificate || {},
+    configObj.zowe && configObj.zowe.internalCertificate || {},
+    configObj.configs && configObj.configs.internalCertificate || {},
+  ]);
 };
 
 /**
@@ -293,7 +295,7 @@ const YAML_TO_ENV_MAPPING = {
       return undefined;
     }
 
-    return _.get(certObj, 'keystore.keyAlias');
+    return _.get(certObj, 'keystore.alias');
   },
   comment_540: '# truststore',
   TRUSTSTORE: function(yamlConfigObj) {
@@ -351,7 +353,7 @@ const YAML_TO_ENV_MAPPING = {
       return undefined;
     }
 
-    return _.get(certObj, 'keystore.keyAlias');
+    return _.get(certObj, 'keystore.alias');
   },
   SERVER_INTERNAL_SSL_KEYPASSWORD: function(yamlConfigObj, haInstance, componentId) {
     if (componentId !== 'gateway') {

@@ -183,7 +183,7 @@ const ENV_TO_YAML_MAPPING = {
 
   // certificate
   EXTERNAL_CERTIFICATE_AUTHORITIES: ["zowe.externalCertificate.trustStore.certificateAuthorities", "zowe.internalCertificate.trustStore.certificateAuthorities"],
-  KEY_ALIAS: ["zowe.externalCertificate.keystore.keyAlias", "zowe.internalCertificate.keystore.keyAlias"],
+  KEY_ALIAS: ["zowe.externalCertificate.keystore.alias", "zowe.internalCertificate.keystore.alias"],
   KEYSTORE_CERTIFICATE_AUTHORITY: ["zowe.externalCertificate.pem.certificateAuthority", "zowe.internalCertificate.pem.certificateAuthority"],
   KEYSTORE_CERTIFICATE: ["zowe.externalCertificate.pem.certificate", "zowe.internalCertificate.pem.certificate"],
   KEYSTORE_KEY: ["zowe.externalCertificate.pem.key", "zowe.internalCertificate.pem.key"],
