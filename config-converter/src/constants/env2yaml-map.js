@@ -78,6 +78,7 @@ const ENV_TO_YAML_MAPPING = {
     _.set(yamlConfig, 'components.gateway.debug', bVal);
     _.set(yamlConfig, 'components.discovery.debug', bVal);
     _.set(yamlConfig, 'components.api-catalog.debug', bVal);
+    _.set(yamlConfig, 'components.caching-service.debug', bVal);
   },
   APIML_ENABLE_SSO: false,
   APIML_GATEWAY_INTERNAL_HOST: "zowe.gatewayInternalHost",
