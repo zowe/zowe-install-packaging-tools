@@ -41,6 +41,7 @@ components:
     environment:
       preferIpAddress: true
   caching-service:
+    debug: false
     apiml:
       security:
         ssl:
