@@ -1,0 +1,19 @@
+# node.js
+node_modules
+# npm pack result
+*.tgz
+
+# test reports
+.nyc_output
+.reports
+
+# gradle 
+build
+
+# vscode
+.classpath
+.project
+.settings
+
+# tmp files
+.tmp

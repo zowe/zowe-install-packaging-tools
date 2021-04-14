@@ -1,0 +1,7 @@
+{
+  "name": "gateway",
+  "configs": {
+    "port": 12345,
+    "anotherConfig": "default-value"
+  }
+}

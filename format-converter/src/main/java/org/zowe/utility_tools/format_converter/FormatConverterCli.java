@@ -145,7 +145,7 @@ public class FormatConverterCli implements Callable<Integer> {
                 yaml.dump(data, writer);
             } else if (outputFileFormat == FileFormat.JSON) {
                 Gson gson = new GsonBuilder().setPrettyPrinting().create();
-                 gson.toJson(data, writer);
+                gson.toJson(data, writer);
             }
 
             writer.flush();

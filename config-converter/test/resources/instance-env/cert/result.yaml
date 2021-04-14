@@ -1,0 +1,21 @@
+#
+# This program and the accompanying materials are made available under the terms of the
+# Eclipse Public License v2.0 which accompanies this distribution, and is available at
+# https://www.eclipse.org/legal/epl-v20.html
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Copyright IBM Corporation 2021
+#
+zowe:
+  runtimeDirectory: /ZOWE/staging/zowe
+  jobPrefix: ZWE
+  identifier: "1"
+  environments:
+    KEYSTORE_DIRECTORY: /Users/tiefengjia/projects/zowe-install-packaging-tools/config-converter/test/resources/instance-env/cert
+  externalCertificate:
+    keystore:
+      file: /var/zowe/keystore/localhost/localhost.keystore.p12
+  internalCertificate:
+    keystore:
+      file: /var/zowe/keystore/localhost/localhost.keystore.p12

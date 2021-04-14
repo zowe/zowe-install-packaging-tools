@@ -167,14 +167,14 @@ describe('YAML / JSON converter', function () {
   });
 
   it('should show error if cannot read input YAML file', () => {
-    testFormatConverter([getResource('test1.cp1047.yaml')], {
+    testFormatConverter(['--input-format', 'yaml', getResource('test1.yaml.cp1047')], {
       rc: 1,
       stderr: 'error reading input file',
     });
   });
 
   it('should show error if cannot read input JSON file', () => {
-    testFormatConverter([getResource('test1.cp1047.json')], {
+    testFormatConverter(['--input-format', 'json', getResource('test1.json.cp1047')], {
       rc: 1,
       stderr: 'error reading input file',
     });
