@@ -212,7 +212,9 @@ const YAML_TO_ENV_MAPPING = {
   ZOWE_ZLUX_SERVER_HTTPS_PORT: "components.app-server.port",
   ZOWE_ZSS_SERVER_PORT: "components.zss.port",
   ZOWE_ZSS_XMEM_SERVER_NAME: "components.zss.crossMemoryServerName",
-  ZOWE_ZSS_SERVER_TLS: "components.zss.tls",
+  ZOWE_ZSS_SERVER_TLS:  function(yamlConfigObj) {
+    return getBooleanVal(yamlConfigObj, 'components.zss.tls');
+  },
   // ZOWE_ZLUX_SSH_PORT: "components.app-server.plugins.vt-term.port",
   // ZOWE_ZLUX_TELNET_PORT: "components.app-server.plugins.tn3270.port",
   // ZOWE_ZLUX_SECURITY_TYPE: "components.app-server.plugins.tn3270.security",

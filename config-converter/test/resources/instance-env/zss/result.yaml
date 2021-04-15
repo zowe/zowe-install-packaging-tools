@@ -1,12 +1,3 @@
-#
-# This program and the accompanying materials are made available under the terms of the
-# Eclipse Public License v2.0 which accompanies this distribution, and is available at
-# https://www.eclipse.org/legal/epl-v20.html
-#
-# SPDX-License-Identifier: EPL-2.0
-#
-# Copyright IBM Corporation 2021
-#
 zowe:
   runtimeDirectory: /ZOWE/staging/zowe
   jobPrefix: ZWE
@@ -79,6 +70,7 @@ components:
       security:
         ssl:
           verifySslCertificatesOfServices: false
+          nonStrictVerifySslCertificatesOfServices: false
     debug: false
     alternativeStaticApiDefinitionsDirectories: ""
   gateway:
@@ -99,6 +91,7 @@ components:
           provider: zosmf
         ssl:
           verifySslCertificatesOfServices: false
+          nonStrictVerifySslCertificatesOfServices: false
     debug: false
     server:
       maxConnectionsPerRoute: "100"
@@ -106,6 +99,7 @@ components:
   caching-service:
     environment:
       preferIpAddress: true
+    debug: false
     port: "7555"
     storage:
       size: "10000"
@@ -117,6 +111,7 @@ components:
       security:
         ssl:
           verifySslCertificatesOfServices: false
+          nonStrictVerifySslCertificatesOfServices: false
   jobs-api:
     port: "8545"
   files-api:

@@ -170,7 +170,9 @@ const ENV_TO_YAML_MAPPING = {
   // ZOWE_ZLUX_TELNET_PORT: "components.app-server.plugins.tn3270.port",
   ZOWE_ZSS_SERVER_PORT: "components.zss.port",
   ZOWE_ZSS_XMEM_SERVER_NAME: "components.zss.crossMemoryServerName",
-  ZOWE_ZSS_SERVER_TLS: "components.zss.tls",
+  ZOWE_ZSS_SERVER_TLS: function(val, envs, yamlConfig) {
+    _.set(yamlConfig, 'components.zss.tls', stringToBoolean(val));
+  },
   ZWE_CACHING_EVICTION_STRATEGY: "components.caching-service.storage.evictionStrategy",
   ZWE_CACHING_SERVICE_PERSISTENT: "components.caching-service.storage.mode",
   ZWE_CACHING_SERVICE_PORT: "components.caching-service.port",

@@ -151,4 +151,17 @@ describe('zcc instance-env to-yaml', function () {
       stderr: ['Error loading keystore configs', 'doesn\'t have "zowe-certificates.env" file'],
     });
   });
+
+  it.only('should have a full set of configuration but only zss enabled', () => {
+    testConfigConverter([...cliParams, '-v', getInstanceEnvResource('zss')], {
+      stderr: '',
+      yaml: {
+        'components.app-server.enabled': undefined,
+        'components.gateway.enabled': undefined,
+        'components.gateway.apiml.security.ssl.nonStrictVerifySslCertificatesOfServices': false,
+        'components.zss.enabled': true,
+        'components.zss.tls': true,
+      }
+    }, true);
+  });
 });
