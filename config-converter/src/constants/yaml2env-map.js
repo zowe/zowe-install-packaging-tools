@@ -212,6 +212,7 @@ const YAML_TO_ENV_MAPPING = {
   ZOWE_ZLUX_SERVER_HTTPS_PORT: "components.app-server.port",
   ZOWE_ZSS_SERVER_PORT: "components.zss.port",
   ZOWE_ZSS_XMEM_SERVER_NAME: "components.zss.crossMemoryServerName",
+  ZOWE_ZSS_SERVER_TLS: "components.zss.tls",
   // ZOWE_ZLUX_SSH_PORT: "components.app-server.plugins.vt-term.port",
   // ZOWE_ZLUX_TELNET_PORT: "components.app-server.plugins.tn3270.port",
   // ZOWE_ZLUX_SECURITY_TYPE: "components.app-server.plugins.tn3270.security",
@@ -239,6 +240,13 @@ const YAML_TO_ENV_MAPPING = {
   STATIC_DEF_CONFIG_DIR: "components.discovery.staticApiDefinitionsDirectories",
   ZOWE_APIM_VERIFY_CERTIFICATES: function(yamlConfigObj, haInstance, componentId) {
     let val = getBooleanVal(yamlConfigObj, `components.${componentId}.apiml.security.ssl.verifySslCertificatesOfServices`);
+    if (_.isUndefined(val)) {
+      val = true;
+    }
+    return val;
+  },
+  ZOWE_APIM_NONSTRICT_VERIFY_CERTIFICATES: function(yamlConfigObj, haInstance, componentId) {
+    let val = getBooleanVal(yamlConfigObj, `components.${componentId}.apiml.security.ssl.nonStrictVerifySslCertificatesOfServices`);
     if (_.isUndefined(val)) {
       val = true;
     }
