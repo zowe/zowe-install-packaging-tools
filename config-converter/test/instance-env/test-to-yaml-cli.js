@@ -8,13 +8,30 @@
  * Copyright IBM Corporation 2021
  */
 
-// const debug = require('debug')('zcc-test:instance-env:to-yaml-cli');
+const debug = require('debug')('zcc-test:instance-env:to-yaml-cli');
+
+const { expect } = require('chai');
+const _ = require('lodash');
 
 const { STDOUT_YAML_SEPARATOR } = require('../../src/constants');
+const { readYaml } = require('../../src/libs/yaml');
 const { getInstanceEnvResource, testConfigConverter, reformatYaml } = require('../utils');
+const tmp = require('tmp');
 
 describe('zcc instance-env to-yaml', function () {
   const cliParams = ['instance-env', 'to-yaml'];
+
+  let tmpfile;
+
+  beforeEach(() => {
+    tmpfile = null;
+  });
+
+  afterEach(() => {
+    if (tmpfile) {
+      tmpfile.removeCallback();
+    }
+  });
 
   it('should show error when input file doesn\'t exist', () => {
     testConfigConverter([...cliParams, getInstanceEnvResource('category-doesnot-exist')], {
@@ -34,6 +51,23 @@ describe('zcc instance-env to-yaml', function () {
         'zowe.identifier': "1",
       }
     }, true);
+  });
+
+  it('should write converted YAML file with valid instance.env input', () => {
+    tmpfile = tmp.fileSync();
+    debug('temporary file created: %s', tmpfile.name);
+    testConfigConverter([...cliParams, '-o', tmpfile.name, getInstanceEnvResource('simple')], {
+      stdout: '',
+      stderr: ''
+    }, true);
+
+    const result = readYaml(tmpfile.name);
+    debug(result);
+
+    expect(result).to.be.an('object');
+    expect(_.get(result, 'zowe.runtimeDirectory')).to.equal('/ZOWE/staging/zowe');
+    expect(_.get(result, 'zowe.jobPrefix')).to.equal('ZWE');
+    expect(_.get(result, 'zowe.identifier')).to.equal('1');
   });
 
   it('should show error if cannot source instance.env file', () => {
@@ -152,7 +186,7 @@ describe('zcc instance-env to-yaml', function () {
     });
   });
 
-  it.only('should have a full set of configuration but only zss enabled', () => {
+  it('should have a full set of configuration but only zss enabled', () => {
     testConfigConverter([...cliParams, '-v', getInstanceEnvResource('zss')], {
       stderr: '',
       yaml: {
