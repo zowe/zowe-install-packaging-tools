@@ -15,7 +15,12 @@ const { STDOUT_YAML_SEPARATOR } = require('../../constants');
 
 const builder = (yargs) => {
   yargs
-    .options({});
+    .options({
+      output: {
+        alias: 'o',
+        description: 'File name to write',
+      },
+    });
 };
 
 const handler = async (options) => {
@@ -30,7 +35,7 @@ const handler = async (options) => {
   if (options.verbose) {
     process.stdout.write(`\n${STDOUT_YAML_SEPARATOR}\n`);
   }
-  writeYaml(yamlConfig);
+  writeYaml(yamlConfig, options.output);
 };
 
 module.exports = {
