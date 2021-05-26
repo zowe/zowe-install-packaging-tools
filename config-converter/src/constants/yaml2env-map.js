@@ -19,33 +19,33 @@ const getBooleanVal = (obj, path) => {
 
 const getDiscoveryList = (originalConfigObj) => {
   const val = [];
-    const defaultEnabled = _.get(originalConfigObj, 'components.discovery.enabled');
-    const defaultPort = _.get(originalConfigObj, 'components.discovery.port');
-    const defaultExternalDomain = _.get(originalConfigObj, 'zowe.externalDomains.0') || '';
-    if (originalConfigObj.haInstances) {
-      for (const haInstanceId in originalConfigObj.haInstances) {
-        const haInstanceConfig = originalConfigObj.haInstances[haInstanceId];
-        const haInstanceDiscoveryConfig = haInstanceConfig && haInstanceConfig.components && haInstanceConfig.components.discovery;
-        const haInstanceHostname = (haInstanceConfig && haInstanceConfig.hostname) || defaultExternalDomain;
-        let hasDiscoveryInThisInstance = false;
-        if (haInstanceDiscoveryConfig && _.has(haInstanceDiscoveryConfig, 'enabled')) {
-          hasDiscoveryInThisInstance = _.get(haInstanceDiscoveryConfig, 'enabled');
-        } else {
-          hasDiscoveryInThisInstance = defaultEnabled;
-        }
-
-        let discoveryPort = defaultPort;
-        if (haInstanceDiscoveryConfig && _.has(haInstanceDiscoveryConfig, 'port')) {
-          discoveryPort = _.get(haInstanceDiscoveryConfig, 'port');
-        }
-        if (hasDiscoveryInThisInstance) {
-          val.push(`https://${haInstanceHostname}:${discoveryPort}/eureka/`.toLowerCase());
-        }
+  const defaultEnabled = _.get(originalConfigObj, 'components.discovery.enabled');
+  const defaultPort = _.get(originalConfigObj, 'components.discovery.port');
+  const defaultExternalDomain = _.get(originalConfigObj, 'zowe.externalDomains.0') || '';
+  if (originalConfigObj.haInstances) {
+    for (const haInstanceId in originalConfigObj.haInstances) {
+      const haInstanceConfig = originalConfigObj.haInstances[haInstanceId];
+      const haInstanceDiscoveryConfig = haInstanceConfig && haInstanceConfig.components && haInstanceConfig.components.discovery;
+      const haInstanceHostname = (haInstanceConfig && haInstanceConfig.hostname) || defaultExternalDomain;
+      let hasDiscoveryInThisInstance = false;
+      if (haInstanceDiscoveryConfig && _.has(haInstanceDiscoveryConfig, 'enabled')) {
+        hasDiscoveryInThisInstance = _.get(haInstanceDiscoveryConfig, 'enabled');
+      } else {
+        hasDiscoveryInThisInstance = defaultEnabled;
       }
-    } else if (defaultEnabled) { // any chance it's not enabled in this case?
-      val.push(`https://${defaultExternalDomain}:${defaultPort}/eureka/`.toLowerCase());
+
+      let discoveryPort = defaultPort;
+      if (haInstanceDiscoveryConfig && _.has(haInstanceDiscoveryConfig, 'port')) {
+        discoveryPort = _.get(haInstanceDiscoveryConfig, 'port');
+      }
+      if (hasDiscoveryInThisInstance) {
+        val.push(`https://${haInstanceHostname}:${discoveryPort}/eureka/`.toLowerCase());
+      }
     }
-    return _.uniq(val).join(',');
+  } else if (defaultEnabled) { // any chance it's not enabled in this case?
+    val.push(`https://${defaultExternalDomain}:${defaultPort}/eureka/`.toLowerCase());
+  }
+  return _.uniq(val).join(',');
 };
 
 // returns HA-instance-id where the service is enabled
