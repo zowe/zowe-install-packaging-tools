@@ -130,14 +130,12 @@ const convertConfigs = (configObj, haInstance, workspaceDir = null) => {
     }
   });
 
-  // write workspace/.zowe.yaml
+  // write workspace/.zowe.json
   if (process.env[VERBOSE_ENV]) {
-    process.stdout.write(`- write <workspace-dir>/.zowe.yaml\n`);
+    process.stdout.write(`- write <workspace-dir>/.zowe.json\n`);
   }
   // FIXME: will we have issue of competing write with multiple ha instance starting at same time?
-  //        but anyway this file is for reference purpose (showing how @include are handled), no
-  //        real usage on runtime.
-  writeYaml(configObjCopy, path.resolve(workspaceDir, '.zowe.yaml'));
+  writeJson(configObjCopy, path.resolve(workspaceDir, '.zowe.json'));
 
   // prepare haInstance.id, haInstance.hostname and haInstance.ip
   if (process.env[VERBOSE_ENV]) {
@@ -191,6 +189,7 @@ const convertZoweYamlToEnv = (workspaceDir, haInstance, componentId, yamlConfigF
   // should have <workspace-dir>/<component-id>/.configs-<ha-id>.json
   const haComponentConfig = path.resolve(workspaceDir, yamlConfigFile);
   const haInstanceEnv = path.resolve(workspaceDir, instanceEnvFile);
+  const originalConfigFile = path.resolve(workspaceDir, '.zowe.json');
   if (!fs.existsSync(haComponentConfig)) {
     process.stderr.write(`WARNING: <workspace-dir>/${yamlConfigFile} doesn't exist\n`);
     return;
@@ -200,6 +199,7 @@ const convertZoweYamlToEnv = (workspaceDir, haInstance, componentId, yamlConfigF
     process.stdout.write(`  - write <workspace-dir>/${instanceEnvFile}\n`);
   }
 
+  const originalConfigObj = simpleReadJson(originalConfigFile);
   const configObj = simpleReadJson(haComponentConfig);
   const envContent = ['#!/bin/sh', ''];
   const escapeEnvValue = (val) => {
@@ -243,7 +243,7 @@ const convertZoweYamlToEnv = (workspaceDir, haInstance, componentId, yamlConfigF
         pushKeyValue(key, lastVal);
       }
     } else if (_.isFunction(YAML_TO_ENV_MAPPING[key])) {
-      const val = YAML_TO_ENV_MAPPING[key](configObj, haInstance, componentId);
+      const val = YAML_TO_ENV_MAPPING[key](configObj, haInstance, componentId, originalConfigObj);
       if (!_.isUndefined(val)) {
         pushKeyValue(key, val);
       }

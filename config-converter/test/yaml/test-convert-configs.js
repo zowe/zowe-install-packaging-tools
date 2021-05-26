@@ -59,12 +59,12 @@ describe('test yaml utility method convertConfigs', function () {
     expect(testFunction).to.throw('Environment WORKSPACE_DIR is required');
   });
 
-  it('should generate .zowe.yaml and components default configs should be applied', () => {
+  it('should generate .zowe.json and components default configs should be applied', () => {
     convertConfigs(obj, '', workspaceDir);
     debug('workspace directory after converted');
     showFiles(workspaceDir);
 
-    const fileToCheck = path.resolve(workspaceDir, '.zowe.yaml');
+    const fileToCheck = path.resolve(workspaceDir, '.zowe.json');
     debug(`checking ${fileToCheck}`);
 
     const existence = fs.existsSync(fileToCheck);

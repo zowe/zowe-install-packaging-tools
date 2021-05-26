@@ -144,14 +144,14 @@ const YAML_TO_ENV_MAPPING = {
   APIML_GATEWAY_EXTERNAL_MAPPER: "components.gateway.apiml.security.x509.externalMapperUrl",
   APIML_SECURITY_AUTHORIZATION_ENDPOINT_URL: "components.gateway.apiml.security.authorization.endpoint.url",
   // List of discovery service URLs separated by comma
-  ZWE_DISCOVERY_SERVICES_LIST: function(yamlConfigObj) {
+  ZWE_DISCOVERY_SERVICES_LIST: function(yamlConfigObj, haInstance, componentId, originalConfigObj) {
     const val = [];
-    const defaultEnabled = _.get(yamlConfigObj, 'components.discovery.enabled');
-    const defaultPort = _.get(yamlConfigObj, 'components.discovery.port');
-    const defaultExternalDomain = _.get(yamlConfigObj, 'zowe.externalDomains.0') || '';
-    if (yamlConfigObj.haInstances) {
-      for (const haInstanceId in yamlConfigObj.haInstances) {
-        const haInstanceConfig = yamlConfigObj.haInstances[haInstanceId];
+    const defaultEnabled = _.get(originalConfigObj, 'components.discovery.enabled');
+    const defaultPort = _.get(originalConfigObj, 'components.discovery.port');
+    const defaultExternalDomain = _.get(originalConfigObj, 'zowe.externalDomains.0') || '';
+    if (originalConfigObj.haInstances) {
+      for (const haInstanceId in originalConfigObj.haInstances) {
+        const haInstanceConfig = originalConfigObj.haInstances[haInstanceId];
         const haInstanceDiscoveryConfig = haInstanceConfig && haInstanceConfig.components && haInstanceConfig.components.discovery;
         const haInstanceHostname = (haInstanceConfig && haInstanceConfig.hostname) || defaultExternalDomain;
         let hasDiscoveryInThisInstance = false;
