@@ -17,6 +17,62 @@ const getBooleanVal = (obj, path) => {
   return _.isUndefined(val) ? val : `${val}`;
 };
 
+const getDiscoveryList = (originalConfigObj) => {
+  const val = [];
+    const defaultEnabled = _.get(originalConfigObj, 'components.discovery.enabled');
+    const defaultPort = _.get(originalConfigObj, 'components.discovery.port');
+    const defaultExternalDomain = _.get(originalConfigObj, 'zowe.externalDomains.0') || '';
+    if (originalConfigObj.haInstances) {
+      for (const haInstanceId in originalConfigObj.haInstances) {
+        const haInstanceConfig = originalConfigObj.haInstances[haInstanceId];
+        const haInstanceDiscoveryConfig = haInstanceConfig && haInstanceConfig.components && haInstanceConfig.components.discovery;
+        const haInstanceHostname = (haInstanceConfig && haInstanceConfig.hostname) || defaultExternalDomain;
+        let hasDiscoveryInThisInstance = false;
+        if (haInstanceDiscoveryConfig && _.has(haInstanceDiscoveryConfig, 'enabled')) {
+          hasDiscoveryInThisInstance = _.get(haInstanceDiscoveryConfig, 'enabled');
+        } else {
+          hasDiscoveryInThisInstance = defaultEnabled;
+        }
+
+        let discoveryPort = defaultPort;
+        if (haInstanceDiscoveryConfig && _.has(haInstanceDiscoveryConfig, 'port')) {
+          discoveryPort = _.get(haInstanceDiscoveryConfig, 'port');
+        }
+        if (hasDiscoveryInThisInstance) {
+          val.push(`https://${haInstanceHostname}:${discoveryPort}/eureka/`.toLowerCase());
+        }
+      }
+    } else if (defaultEnabled) { // any chance it's not enabled in this case?
+      val.push(`https://${defaultExternalDomain}:${defaultPort}/eureka/`.toLowerCase());
+    }
+    return _.uniq(val).join(',');
+};
+
+// returns HA-instance-id where the service is enabled
+const isServiceEnabledAnywhere = (originalConfigObj, serviceKey) => {
+  let val = '';
+  const defaultEnabled = _.get(originalConfigObj, `components.${serviceKey}.enabled`);
+  if (originalConfigObj.haInstances) {
+    for (const haInstanceId in originalConfigObj.haInstances) {
+      const haInstanceConfig = originalConfigObj.haInstances[haInstanceId];
+      const haInstanceServiceConfig = haInstanceConfig && haInstanceConfig.components && haInstanceConfig.components[serviceKey];
+      let hasServiceInThisInstance = false;
+      if (haInstanceServiceConfig && _.has(haInstanceServiceConfig, 'enabled')) {
+        hasServiceInThisInstance = _.get(haInstanceServiceConfig, 'enabled');
+      } else {
+        hasServiceInThisInstance = defaultEnabled;
+      }
+
+      if (hasServiceInThisInstance) {
+        val = haInstanceId;
+      }
+    }
+  } else if (defaultEnabled) { // any chance it's not enabled in this case?
+    val = '_';
+  }
+  return val;
+};
+
 // normal components (except for gateway) use `certificate` to define what certificate it will use
 const getCertificateConfig = (configObj) => {
   return merge.all([
@@ -145,34 +201,7 @@ const YAML_TO_ENV_MAPPING = {
   APIML_SECURITY_AUTHORIZATION_ENDPOINT_URL: "components.gateway.apiml.security.authorization.endpoint.url",
   // List of discovery service URLs separated by comma
   ZWE_DISCOVERY_SERVICES_LIST: function(yamlConfigObj, haInstance, componentId, originalConfigObj) {
-    const val = [];
-    const defaultEnabled = _.get(originalConfigObj, 'components.discovery.enabled');
-    const defaultPort = _.get(originalConfigObj, 'components.discovery.port');
-    const defaultExternalDomain = _.get(originalConfigObj, 'zowe.externalDomains.0') || '';
-    if (originalConfigObj.haInstances) {
-      for (const haInstanceId in originalConfigObj.haInstances) {
-        const haInstanceConfig = originalConfigObj.haInstances[haInstanceId];
-        const haInstanceDiscoveryConfig = haInstanceConfig && haInstanceConfig.components && haInstanceConfig.components.discovery;
-        const haInstanceHostname = (haInstanceConfig && haInstanceConfig.hostname) || defaultExternalDomain;
-        let hasDiscoveryInThisInstance = false;
-        if (haInstanceDiscoveryConfig && _.has(haInstanceDiscoveryConfig, 'enabled')) {
-          hasDiscoveryInThisInstance = _.get(haInstanceDiscoveryConfig, 'enabled');
-        } else {
-          hasDiscoveryInThisInstance = defaultEnabled;
-        }
-
-        let discoveryPort = defaultPort;
-        if (haInstanceDiscoveryConfig && _.has(haInstanceDiscoveryConfig, 'port')) {
-          discoveryPort = _.get(haInstanceDiscoveryConfig, 'port');
-        }
-        if (hasDiscoveryInThisInstance) {
-          val.push(`https://${haInstanceHostname}:${discoveryPort}/eureka/`.toLowerCase());
-        }
-      }
-    } else if (defaultEnabled) { // any chance it's not enabled in this case?
-      val.push(`https://${defaultExternalDomain}:${defaultPort}/eureka/`.toLowerCase());
-    }
-    return _.uniq(val).join(',');
+    return getDiscoveryList(originalConfigObj);
   },
   comment_120: '# Enable debug logging for Api Mediation Layer services',
   APIML_DEBUG_MODE_ENABLED:  function(yamlConfigObj, haInstance, componentId) {
@@ -218,6 +247,77 @@ const YAML_TO_ENV_MAPPING = {
   // ZOWE_ZLUX_SSH_PORT: "components.app-server.plugins.vt-term.port",
   // ZOWE_ZLUX_TELNET_PORT: "components.app-server.plugins.tn3270.port",
   // ZOWE_ZLUX_SECURITY_TYPE: "components.app-server.plugins.tn3270.security",
+  ZWED_node_mediationLayer_enabled: function(yamlConfigObj, haInstance, componentId, originalConfigObj) {
+    const customized = _.get(yamlConfigObj, 'zowe.environments.ZWED_node_mediationLayer_enabled');
+    if (customized) {
+      return customized;
+    }
+    const gatewayIsAvailableAt = !!isServiceEnabledAnywhere(originalConfigObj, 'gateway');
+    const discoveryIsAvailableAt = !!isServiceEnabledAnywhere(originalConfigObj, 'discovery');
+    // FIXME: should we check "and" or "or" here?
+    return gatewayIsAvailableAt || discoveryIsAvailableAt;
+  },
+  ZWED_node_mediationLayer_server_gatewayHostname: function(yamlConfigObj, haInstance, componentId, originalConfigObj) {
+    const customized = _.get(yamlConfigObj, 'zowe.environments.ZWED_node_mediationLayer_server_gatewayHostname');
+    if (customized) {
+      return customized;
+    }
+    const gatewayIsAvailableAt = isServiceEnabledAnywhere(originalConfigObj, 'gateway');
+    const val = _.get(yamlConfigObj, 'zowe.externalDomains') || [];
+    return (gatewayIsAvailableAt && val[0] ? val[0] : undefined);
+  },
+  ZWED_node_mediationLayer_server_gatewayPort: function(yamlConfigObj, haInstance, componentId, originalConfigObj) {
+    const customized = _.get(yamlConfigObj, 'zowe.environments.ZWED_node_mediationLayer_server_gatewayPort');
+    if (customized) {
+      return customized;
+    }
+    const gatewayIsAvailableAt = isServiceEnabledAnywhere(originalConfigObj, 'gateway');
+    const val = _.get(yamlConfigObj, 'zowe.externalPort');
+    return (gatewayIsAvailableAt ? val : undefined);
+  },
+  comment_320: '# FIXME: currently only the first discovery in the list will be put here',
+  ZWED_node_mediationLayer_server_hostname: function(yamlConfigObj, haInstance, componentId, originalConfigObj) {
+    const customized = _.get(yamlConfigObj, 'zowe.environments.ZWED_node_mediationLayer_server_hostname');
+    if (customized) {
+      return customized;
+    }
+    const discoveryList = getDiscoveryList(originalConfigObj).split(/,/);
+    // FIXME: desktop should use ZWE_DISCOVERY_SERVICES_LIST to register, instead of relying on the first discovery instance
+    const firstDiscovery = discoveryList[0];
+    let val = undefined;
+    if (firstDiscovery) {
+      const m = firstDiscovery.match(/https?:\/\/(.+):[0-9]+\/eureka\//);
+      if (m) {
+        val = m[1];
+      }
+    }
+    return val;
+  },
+  ZWED_node_mediationLayer_server_port: function(yamlConfigObj, haInstance, componentId, originalConfigObj) {
+    const customized = _.get(yamlConfigObj, 'zowe.environments.ZWED_node_mediationLayer_server_port');
+    if (customized) {
+      return customized;
+    }
+    const discoveryList = getDiscoveryList(originalConfigObj).split(/,/);
+    // FIXME: desktop should use ZWE_DISCOVERY_SERVICES_LIST to register, instead of relying on the first discovery instance
+    const firstDiscovery = discoveryList[0];
+    let val = undefined;
+    if (firstDiscovery) {
+      const m = firstDiscovery.match(/https?:\/\/.+:([0-9]+)\/eureka\//);
+      if (m) {
+        val = m[1];
+      }
+    }
+    return val;
+  },
+  ZWED_node_mediationLayer_cachingService_enabled: function(yamlConfigObj, haInstance, componentId, originalConfigObj) {
+    const customized = _.get(yamlConfigObj, 'zowe.environments.ZWED_node_mediationLayer_cachingService_enabled');
+    if (customized) {
+      return customized;
+    }
+    const availableAt = isServiceEnabledAnywhere(originalConfigObj, 'caching-service');
+    return !!availableAt;
+  },
 
   separator_400: '\n',
   comment_400: '# Extender variables',
