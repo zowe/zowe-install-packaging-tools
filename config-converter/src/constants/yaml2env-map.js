@@ -159,7 +159,12 @@ const YAML_TO_ENV_MAPPING = {
   ZOSMF_HOST: "zOSMF.host",
   ZOSMF_PORT: "zOSMF.port",
 
+  // should be deprecated
   ZOWE_EXPLORER_HOST: function(yamlConfigObj) {
+    return _.get(yamlConfigObj, 'haInstance.hostname') || _.get(yamlConfigObj, 'zowe.externalDomains.0') || '';
+  },
+  // this is the expected variable instead of ZOWE_EXPLORER_HOST
+  ZWE_INTERNAL_HOST: function(yamlConfigObj) {
     return _.get(yamlConfigObj, 'haInstance.hostname') || _.get(yamlConfigObj, 'zowe.externalDomains.0') || '';
   },
   ZOWE_IP_ADDRESS: function(yamlConfigObj) {
@@ -263,8 +268,8 @@ const YAML_TO_ENV_MAPPING = {
       return customized;
     }
     const gatewayIsAvailableAt = isServiceEnabledAnywhere(originalConfigObj, 'gateway');
-    const val = _.get(yamlConfigObj, 'zowe.externalDomains') || [];
-    return (gatewayIsAvailableAt && val[0] ? val[0] : undefined);
+    const val = _.get(yamlConfigObj, 'zowe.externalDomains.0') || '';
+    return (gatewayIsAvailableAt && val ? val : undefined);
   },
   ZWED_node_mediationLayer_server_gatewayPort: function(yamlConfigObj, haInstance, componentId, originalConfigObj) {
     const customized = _.get(yamlConfigObj, 'zowe.environments.ZWED_node_mediationLayer_server_gatewayPort');
