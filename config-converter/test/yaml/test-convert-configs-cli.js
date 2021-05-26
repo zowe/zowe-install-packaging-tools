@@ -56,14 +56,14 @@ describe('test zcc yaml convert', function () {
     });
   });
 
-  it('should generate .zowe.yaml and components default configs should be applied', () => {
+  it('should generate .zowe.json and components default configs should be applied', () => {
     testConfigConverter([...cliParams, '--workspace-dir', workspaceDir, getYamlResource(resourceCategory)], {
       rc: 0,
       stdout: '',
       stderr: '',
     });
 
-    const fileToCheck = path.resolve(workspaceDir, '.zowe.yaml');
+    const fileToCheck = path.resolve(workspaceDir, '.zowe.json');
     debug(`checking ${fileToCheck}`);
 
     const existence = fs.existsSync(fileToCheck);
@@ -89,13 +89,13 @@ describe('test zcc yaml convert', function () {
         'Converting',
         /found \d+ components/,
         /process HA instance "first"/,
-        'write <workspace-dir>/.zowe.yaml',
+        'write <workspace-dir>/.zowe.json',
         'write <workspace-dir>/discovery/.configs-first.json',
       ],
       stderr: '',
     });
 
-    const fileToCheck = path.resolve(workspaceDir, '.zowe.yaml');
+    const fileToCheck = path.resolve(workspaceDir, '.zowe.json');
     debug(`checking ${fileToCheck}`);
 
     const existence = fs.existsSync(fileToCheck);
