@@ -165,6 +165,10 @@ const YAML_TO_ENV_MAPPING = {
   },
   // this is the expected variable instead of ZOWE_EXPLORER_HOST
   ZWE_INTERNAL_HOST: function(yamlConfigObj) {
+    const customized = _.get(yamlConfigObj, 'zowe.environments.ZWE_INTERNAL_HOST');
+    if (customized) {
+      return customized;
+    }
     return _.get(yamlConfigObj, 'haInstance.hostname') || _.get(yamlConfigObj, 'zowe.externalDomains.0') || '';
   },
   ZOWE_IP_ADDRESS: function(yamlConfigObj) {
