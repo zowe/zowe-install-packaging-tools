@@ -180,6 +180,11 @@ const YAML_TO_ENV_MAPPING = {
   CATALOG_PORT: "components.api-catalog.port",
   DISCOVERY_PORT: "components.discovery.port",
   GATEWAY_PORT: ["zowe.externalPort", "components.gateway.port"],
+  EUREKA_INSTANCE_HOMEPAGEURL: function(yamlConfigObj) {
+    const hostname = _.get(yamlConfigObj, 'zowe.externalDomains.0') || _.get(yamlConfigObj, 'haInstance.hostname') || '';
+    const port = _.get(yamlConfigObj, 'zowe.externalPort') || _.get(yamlConfigObj, 'components.gateway.port') || '';
+    return (hostname && port ? `https://${hostname}:${port}/` : undefined);
+  },
   APIML_GATEWAY_INTERNAL_HOST: "zowe.gatewayInternalHost",
   APIML_GATEWAY_INTERNAL_PORT: "zowe.gatewayInternalPort",
   APIML_ALLOW_ENCODED_SLASHES: function(yamlConfigObj) {
