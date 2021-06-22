@@ -48,6 +48,24 @@ const getDiscoveryList = (originalConfigObj) => {
   return _.uniq(val).join(',');
 };
 
+const getAllHostnames = (originalConfigObj) => {
+  const val = _.get(originalConfigObj, 'zowe.externalDomains') || [];
+
+  if (originalConfigObj.haInstances) {
+    for (const haInstanceId in originalConfigObj.haInstances) {
+      const haInstanceConfig = originalConfigObj.haInstances[haInstanceId];
+      if (haInstanceConfig && haInstanceConfig.hostname) {
+        val.push(haInstanceConfig.hostname);
+      }
+      if (haInstanceConfig && haInstanceConfig.ip) {
+        val.push(haInstanceConfig.ip);
+      }
+    }
+  }
+
+  return _.uniq(val);
+};
+
 // returns HA-instance-id where the service is enabled
 const isServiceEnabledAnywhere = (originalConfigObj, serviceKey) => {
   let val = '';
@@ -111,6 +129,10 @@ const YAML_TO_ENV_MAPPING = {
   ROOT_DIR: 'zowe.runtimeDirectory',
   ZOWE_PREFIX: 'zowe.jobPrefix',
   ZOWE_INSTANCE: "zowe.identifier",
+  // a calculated result of how many haInstances are defined in zowe.yaml
+  ZWE_HA_INSTANCES_COUNT: function(yamlConfigObj, haInstance, componentId, originalConfigObj) {
+    return originalConfigObj.haInstances ? _.keys(originalConfigObj.haInstances).length : 1;
+  },
 
   separator_20: '\n',
   comment_20: '# Comma separated list of components should start from [GATEWAY,DESKTOP]',
@@ -372,11 +394,13 @@ const YAML_TO_ENV_MAPPING = {
     const val = _.get(yamlConfigObj, 'zowe.externalDomains') || [];
     return val.join(',');
   },
-  ZWE_REFERRER_HOSTS: function(yamlConfigObj) {
-    const val = _.get(yamlConfigObj, 'zowe.referrerHosts') || _.get(yamlConfigObj, 'zowe.externalDomains') || [];
+  ZWE_REFERRER_HOSTS: function(yamlConfigObj, haInstance, componentId, originalConfigObj) {
+    const val = _.get(yamlConfigObj, 'zowe.referrerHosts') || getAllHostnames(originalConfigObj) || [];
     return val.join(',');
   },
-  ZOWE_LOOPBACK_ADDRESS: "zowe.loopbackIp",
+  ZOWE_LOOPBACK_ADDRESS: function(yamlConfigObj) {
+    return _.get(yamlConfigObj, 'zowe.environments.ZOWE_LOOPBACK_ADDRESS') || _.get(yamlConfigObj, 'zowe.loopbackIp') || _.get(yamlConfigObj, 'haInstance.ip') || undefined;
+  },
   // SSO_FALLBACK_TO_NATIVE_AUTH: false,
   // deprecated/abandoned variables
   APIML_ENABLE_SSO: false,
