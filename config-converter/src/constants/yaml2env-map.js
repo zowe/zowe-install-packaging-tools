@@ -48,23 +48,24 @@ const getDiscoveryList = (originalConfigObj) => {
   return _.uniq(val).join(',');
 };
 
-const getAllHostnames = (originalConfigObj) => {
-  const val = _.get(originalConfigObj, 'zowe.externalDomains') || [];
+// not really used
+// const getAllHostnames = (originalConfigObj) => {
+//   const val = _.get(originalConfigObj, 'zowe.externalDomains') || [];
 
-  if (originalConfigObj.haInstances) {
-    for (const haInstanceId in originalConfigObj.haInstances) {
-      const haInstanceConfig = originalConfigObj.haInstances[haInstanceId];
-      if (haInstanceConfig && haInstanceConfig.hostname) {
-        val.push(haInstanceConfig.hostname);
-      }
-      if (haInstanceConfig && haInstanceConfig.ip) {
-        val.push(haInstanceConfig.ip);
-      }
-    }
-  }
+//   if (originalConfigObj.haInstances) {
+//     for (const haInstanceId in originalConfigObj.haInstances) {
+//       const haInstanceConfig = originalConfigObj.haInstances[haInstanceId];
+//       if (haInstanceConfig && haInstanceConfig.hostname) {
+//         val.push(haInstanceConfig.hostname);
+//       }
+//       if (haInstanceConfig && haInstanceConfig.ip) {
+//         val.push(haInstanceConfig.ip);
+//       }
+//     }
+//   }
 
-  return _.uniq(val);
-};
+//   return _.uniq(val);
+// };
 
 // returns HA-instance-id where the service is enabled
 const isServiceEnabledAnywhere = (originalConfigObj, serviceKey) => {
