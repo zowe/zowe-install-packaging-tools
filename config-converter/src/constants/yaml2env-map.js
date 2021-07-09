@@ -48,6 +48,25 @@ const getDiscoveryList = (originalConfigObj) => {
   return _.uniq(val).join(',');
 };
 
+// not really used
+// const getAllHostnames = (originalConfigObj) => {
+//   const val = _.get(originalConfigObj, 'zowe.externalDomains') || [];
+
+//   if (originalConfigObj.haInstances) {
+//     for (const haInstanceId in originalConfigObj.haInstances) {
+//       const haInstanceConfig = originalConfigObj.haInstances[haInstanceId];
+//       if (haInstanceConfig && haInstanceConfig.hostname) {
+//         val.push(haInstanceConfig.hostname);
+//       }
+//       if (haInstanceConfig && haInstanceConfig.ip) {
+//         val.push(haInstanceConfig.ip);
+//       }
+//     }
+//   }
+
+//   return _.uniq(val);
+// };
+
 // returns HA-instance-id where the service is enabled
 const isServiceEnabledAnywhere = (originalConfigObj, serviceKey) => {
   let val = '';
@@ -111,6 +130,10 @@ const YAML_TO_ENV_MAPPING = {
   ROOT_DIR: 'zowe.runtimeDirectory',
   ZOWE_PREFIX: 'zowe.jobPrefix',
   ZOWE_INSTANCE: "zowe.identifier",
+  // a calculated result of how many haInstances are defined in zowe.yaml
+  ZWE_HA_INSTANCES_COUNT: function(yamlConfigObj, haInstance, componentId, originalConfigObj) {
+    return originalConfigObj.haInstances ? _.keys(originalConfigObj.haInstances).length : 1;
+  },
 
   separator_20: '\n',
   comment_20: '# Comma separated list of components should start from [GATEWAY,DESKTOP]',

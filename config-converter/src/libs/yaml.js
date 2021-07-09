@@ -344,6 +344,14 @@ const writeJson = (data, toFile = null) => {
 const updateYaml = (yamlFile, objectPath, newValue) => {
   const yamlText = fs.readFileSync(yamlFile).toString();
   let yawn = new YAWN(yamlText);
+
+  // convert string of boolean to real boolean
+  if (newValue === 'true') {
+    newValue = true;
+  } else if (newValue === 'false') {
+    newValue = false;
+  }
+
   yawn.json = _.set(yawn.json, objectPath, newValue);
   fs.writeFileSync(yamlFile, yawn.yaml, {
     mode: DEFAULT_NEW_FILE_MODE,
