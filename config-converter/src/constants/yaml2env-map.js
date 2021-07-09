@@ -394,13 +394,11 @@ const YAML_TO_ENV_MAPPING = {
     const val = _.get(yamlConfigObj, 'zowe.externalDomains') || [];
     return val.join(',');
   },
-  ZWE_REFERRER_HOSTS: function(yamlConfigObj, haInstance, componentId, originalConfigObj) {
-    const val = _.get(yamlConfigObj, 'zowe.referrerHosts') || getAllHostnames(originalConfigObj) || [];
+  ZWE_REFERRER_HOSTS: function(yamlConfigObj) {
+    const val = _.get(yamlConfigObj, 'zowe.referrerHosts') || _.get(yamlConfigObj, 'zowe.externalDomains') || [];
     return val.join(',');
   },
-  ZOWE_LOOPBACK_ADDRESS: function(yamlConfigObj) {
-    return _.get(yamlConfigObj, 'zowe.environments.ZOWE_LOOPBACK_ADDRESS') || _.get(yamlConfigObj, 'zowe.loopbackIp') || _.get(yamlConfigObj, 'haInstance.ip') || undefined;
-  },
+  ZOWE_LOOPBACK_ADDRESS: "zowe.loopbackIp",
   // SSO_FALLBACK_TO_NATIVE_AUTH: false,
   // deprecated/abandoned variables
   APIML_ENABLE_SSO: false,
