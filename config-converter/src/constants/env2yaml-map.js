@@ -178,6 +178,22 @@ const ENV_TO_YAML_MAPPING = {
   ZWE_CACHING_SERVICE_PORT: "components.caching-service.port",
   ZWE_CACHING_SERVICE_VSAM_DATASET: "components.caching-service.storage.vsam.name",
   ZWE_CACHING_STORAGE_SIZE: "components.caching-service.storage.size",
+
+  // caching service with redis
+  CACHING_STORAGE_REDIS_MASTERNODEURI: "components.caching-service.storage.redis.masterNodeUri",
+  CACHING_STORAGE_REDIS_TIMEOUT: "components.caching-service.storage.redis.timeout",
+  CACHING_STORAGE_REDIS_SENTINEL_MASTERINSTANCE: "components.caching-service.storage.redis.sentinel.masterInstance",
+  CACHING_STORAGE_REDIS_SENTINEL_NODES: function(val, envs, yamlConfig) {
+    _.set(yamlConfig, 'components.caching-service.storage.redis.sentinel.nodes', String(val).split(/,/));
+  },
+  CACHING_STORAGE_REDIS_SSL_ENABLED: function(val, envs, yamlConfig) {
+    _.set(yamlConfig, 'components.caching-service.storage.redis.ssl.enabled', stringToBoolean(val));
+  },
+  CACHING_STORAGE_REDIS_SSL_KEYSTORE: "components.caching-service.storage.redis.ssl.keystore",
+  CACHING_STORAGE_REDIS_SSL_KEYSTOREPASSWORD: "components.caching-service.storage.redis.ssl.keystorePassword",
+  CACHING_STORAGE_REDIS_SSL_TRUSTSTORE: "components.caching-service.storage.redis.ssl.truststore",
+  CACHING_STORAGE_REDIS_SSL_TRUSTSTOREPASSWORD: "components.caching-service.storage.redis.ssl.truststorePassword",
+
   ZWE_LAUNCH_COMPONENTS: function(val, envs, yamlConfig) {
     enableComponents(val, yamlConfig);
   },

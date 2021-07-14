@@ -264,6 +264,22 @@ const YAML_TO_ENV_MAPPING = {
   // specify the data set name of the caching service VSAM
   ZWE_CACHING_SERVICE_VSAM_DATASET: "components.caching-service.storage.vsam.name",
 
+  // caching service with redis
+  CACHING_STORAGE_REDIS_MASTERNODEURI: "components.caching-service.storage.redis.masterNodeUri",
+  CACHING_STORAGE_REDIS_TIMEOUT: "components.caching-service.storage.redis.timeout",
+  CACHING_STORAGE_REDIS_SENTINEL_MASTERINSTANCE: "components.caching-service.storage.redis.sentinel.masterInstance",
+  CACHING_STORAGE_REDIS_SENTINEL_NODES: function(yamlConfigObj) {
+    const nodes = _.get(yamlConfigObj, 'components.caching-service.storage.redis.sentinel.nodes');
+    return _.isArray(nodes) ? nodes.join(',') : nodes;
+  },
+  CACHING_STORAGE_REDIS_SSL_ENABLED: function(yamlConfigObj) {
+    return getBooleanVal(yamlConfigObj, 'components.caching-service.storage.redis.ssl.enabled');
+  },
+  CACHING_STORAGE_REDIS_SSL_KEYSTORE: "components.caching-service.storage.redis.ssl.keystore",
+  CACHING_STORAGE_REDIS_SSL_KEYSTOREPASSWORD: "components.caching-service.storage.redis.ssl.keystorePassword",
+  CACHING_STORAGE_REDIS_SSL_TRUSTSTORE: "components.caching-service.storage.redis.ssl.truststore",
+  CACHING_STORAGE_REDIS_SSL_TRUSTSTOREPASSWORD: "components.caching-service.storage.redis.ssl.truststorePassword",
+
   separator_200: '\n',
   comment_200: '# explorer variables',
   JOBS_API_PORT: "components.jobs-api.port",
