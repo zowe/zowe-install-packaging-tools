@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "dependencies": {
     "@elastic/micro-jq": "^1.2.0",
-    "yargs": "^15.4.0"
+    "yargs": "^13.3.0"
   },
   "bundledDependencies": [
     "@elastic/micro-jq",
