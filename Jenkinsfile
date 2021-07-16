@@ -25,7 +25,7 @@ node('zowe-jenkins-agent') {
   pipeline.test(
     name          : 'Unit',
     operation     : {
-        sh 'echo "node version: " && node -v && ./gradlew --info test coverage'
+        sh './gradlew --info test coverage'
     },
     junit         : '**/.reports/junit.xml',
     htmlReports   : [

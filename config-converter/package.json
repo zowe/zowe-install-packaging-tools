@@ -7,7 +7,7 @@
     "deepmerge": "^4.2.2",
     "lodash": "^4.17.21",
     "yaml": "^1.10.0",
-    "yargs": "^13.3.0",
+    "yargs": "^15.4.0",
     "yawn-yaml": "^1.5.0"
   },
   "bundledDependencies": [
