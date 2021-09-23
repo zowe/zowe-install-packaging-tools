@@ -35,6 +35,8 @@ node('zowe-jenkins-agent') {
       [dir: "njq/.reports/unit-test", files: "index.html", name: "Node JQ: Unit Test"],
       [dir: "config-converter/.reports/lcov-report", files: "index.html", name: "Config Converter: Code Coverage"],
       [dir: "config-converter/.reports/unit-test", files: "index.html", name: "Config Converter: Unit Test"],
+      [dir: "ncert/.reports/lcov-report", files: "index.html", name: "Node Certificate Tool: Code Coverage"],
+      [dir: "ncert/.reports/unit-test", files: "index.html", name: "Node Certificate Tool: Unit Test"],
     ],
   )
 

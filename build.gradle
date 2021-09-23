@@ -38,6 +38,7 @@ ext.npmProjects = [
     'fconv',
     'njq',
     'config-converter',
+    'ncert',
 ]
 
 apply plugin: 'com.palantir.jacoco-full-report'
@@ -104,7 +105,7 @@ task mergeCoverage() {
 
 task coverage() {
     mergeCoverage.mustRunAfter jacocoSubProjects
-    dependsOn mergeCoverage, jacocoSubProjects, jacocoTestReport, ":fconv:runTests", ":config-converter:runTests", ":njq:runTests"
+    dependsOn mergeCoverage, jacocoSubProjects, jacocoTestReport, ":fconv:runTests", ":config-converter:runTests", ":njq:runTests", ":ncert:runTests"
 }
 
 task npmPackAll() {
