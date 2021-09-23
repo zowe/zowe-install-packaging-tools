@@ -16,7 +16,7 @@ const builder = (yargs) => {
     .options({
       password: {
         alias: 'p',
-        description: 'Password of the PKCS12 file.',
+        description: 'Password of the PKCS#12 file.',
       },
       json: {
         description: 'Output as JSON format',
@@ -31,7 +31,7 @@ const handler = async (options) => {
     process.stdout.write(`Reading ${options.inputFile} ...\n`);
   }
 
-  const result = readCertificates(options.inputFile, options.password);
+  const result = readCertificates(options.inputFile, options.password, options);
 
   if (options.json) {
     process.stdout.write(JSON.stringify(result.formatted, null, DEFAULT_JSON_INDENT) + '\n');
@@ -48,7 +48,7 @@ const handler = async (options) => {
       process.stdout.write(`Certificate: ${cert.friendlyName}\n`);
       process.stdout.write(`Version: ${cert.version}\n`);
       process.stdout.write(`Serial Number: ${cert.serialNumber}\n`);
-      process.stdout.write(`Validity: ${cert.validity.notBefore} to ${cert.validity.notAfter}\n`);
+      process.stdout.write(`Validity: ${cert.validity.notBefore} --> ${cert.validity.notAfter}\n`);
       process.stdout.write(`Issuer: ${formatSubject(cert.issuer)}\n`);
       process.stdout.write(`Subject: ${formatSubject(cert.subject)}\n`);
       process.stdout.write('Extensions:\n')
@@ -62,6 +62,8 @@ const handler = async (options) => {
         process.stdout.write(`- Subject Alt Name (DNS): ${cert.extensions.subjectAltName.dns.join(', ')}\n`);
         process.stdout.write(`- Subject Alt Name (IP): ${cert.extensions.subjectAltName.ip.join(', ')}\n`);
       }
+      process.stdout.write(`Private Key: ${cert.privateKey ? 'YES' : 'NO'}\n`)
+      
       process.stdout.write('\n');
     }
   }
@@ -69,7 +71,7 @@ const handler = async (options) => {
 
 module.exports = {
   command: 'info <input-file>',
-  description: 'Display PKCS12 information',
+  description: 'Display certificate information from PKCS#12 file',
   builder,
   handler,
 };
