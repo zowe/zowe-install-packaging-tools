@@ -11,7 +11,6 @@
 const forge = require('node-forge');
 forge.options.usePureJavaScript = true;
 const { generateCsr, signCsr, saveCertificate } = require('../../libs/pkcs12');
-const { DEFAULT_JSON_INDENT } = require('../../constants');
 
 const builder = (yargs) => {
   yargs
@@ -82,11 +81,6 @@ const builder = (yargs) => {
       'ca-alias': {
         alias: 'caa',
         description: 'Certificate authority alias in the PKCS#12 file',
-      },
-      json: {
-        description: 'Output as JSON format',
-        default: false,
-        type: 'boolean',
       },
     });
 };

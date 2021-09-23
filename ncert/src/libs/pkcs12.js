@@ -39,7 +39,7 @@ const loadPkcs12 = (p12File, password) => {
  * @param {*} options 
  * @returns 
  */
-const readCertificates = (p12File, password, options) => {
+const readCertificates = (p12File, password) => {
   const p12 = loadPkcs12(p12File, password);
   const certs = p12.getBags({
     bagType: forge.pki.oids.certBag
@@ -285,7 +285,7 @@ const signCsr = (csr, options) => {
  * @param {*} ceert 
  * @param {*} options 
  */
-const saveCertificate = (p12File, password, cert, key, alias, options) => {
+const saveCertificate = (p12File, password, cert, key, alias) => {
   const p12Asn1 = forge.pkcs12.toPkcs12Asn1(key, [cert], password, {
     generateLocalKeyId: true,
     friendlyName: alias,
