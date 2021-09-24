@@ -169,7 +169,7 @@ const generateCsr = (options) => {
   const exts = [];
   const altNames = [];
   if (options.altName && options.altName.length) {
-    for (const one of [...new Set(options.altName)]) {
+    for (const one of options.altName) {
       if (one.match(/^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/)) {
         altNames.push({ type: 7, ip: one });
       } else if (one.match(/^https?:\/\/.+$/)) {
@@ -248,6 +248,11 @@ const signCsr = (csr, options) => {
   if (!caCert || !caKey) {
     throw new Error('Failed to find certificate authority cert or key');
   }
+  const caSubjectKeyIdentifierObj = caCert.getExtension('subjectKeyIdentifier');
+  const caSubjectKeyIdentifier = caSubjectKeyIdentifierObj && caSubjectKeyIdentifierObj.subjectKeyIdentifier;
+  if (!caSubjectKeyIdentifier) {
+    throw new Error('Failed to find certificate authority subject key identifier');
+  }
 
   const cert = forge.pki.createCertificate();
   cert.serialNumber = options.serialNumber || generateSerialNumber(`${new Date()} - ${JSON.stringify(csr.getAttribute({name: 'extensionRequest'}).extensions)}`);
@@ -266,9 +271,10 @@ const signCsr = (csr, options) => {
   const extensions = csr.getAttribute({name: 'extensionRequest'}).extensions;
   extensions.push({
     name: 'subjectKeyIdentifier'
-  }, {
+  });
+  extensions.push({
     name: 'authorityKeyIdentifier',
-    keyIdentifier: true,
+    keyIdentifier: caSubjectKeyIdentifier,
   });
   cert.setExtensions(extensions);
 
