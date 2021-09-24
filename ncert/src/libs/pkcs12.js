@@ -169,7 +169,7 @@ const generateCsr = (options) => {
   const exts = [];
   const altNames = [];
   if (options.altName && options.altName.length) {
-    for (const one of options.altName) {
+    for (const one of [...new Set(options.altName)]) {
       if (one.match(/^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/)) {
         altNames.push({ type: 7, ip: one });
       } else if (one.match(/^https?:\/\/.+$/)) {
@@ -248,6 +248,11 @@ const signCsr = (csr, options) => {
   if (!caCert || !caKey) {
     throw new Error('Failed to find certificate authority cert or key');
   }
+  const caSubjectKeyIdentifierObj = caCert.getExtension('subjectKeyIdentifier');
+  const caSubjectKeyIdentifier = caSubjectKeyIdentifierObj && caSubjectKeyIdentifierObj.value;
+  if (!caSubjectKeyIdentifier) {
+    throw new Error('Failed to find certificate authority subject key identifier');
+  }
 
   const cert = forge.pki.createCertificate();
   cert.serialNumber = options.serialNumber || generateSerialNumber(`${new Date()} - ${JSON.stringify(csr.getAttribute({name: 'extensionRequest'}).extensions)}`);
@@ -266,9 +271,14 @@ const signCsr = (csr, options) => {
   const extensions = csr.getAttribute({name: 'extensionRequest'}).extensions;
   extensions.push({
     name: 'subjectKeyIdentifier'
-  }, {
+  });
+  extensions.push({
     name: 'authorityKeyIdentifier',
-    keyIdentifier: true,
+    // somehow node-forge will prefix few characters on top of caSubjectKeyIdentifier and make it invalid
+    // keyIdentifier: caSubjectKeyIdentifier,
+    // linking with serial number works well
+    authorityCertIssuer: true,
+    serialNumber: caCert.serialNumber
   });
   cert.setExtensions(extensions);
 
@@ -295,12 +305,60 @@ const saveCertificate = (p12File, password, cert, key, alias) => {
   fs.writeFileSync(p12File, Buffer.from(p12Der, 'binary'));
 };
 
+const exportCertificate = (p12File, password, alias, options) => {
+  const p12 = loadPkcs12(p12File, password);
+  const bag = p12.getBags({
+    friendlyName: alias,
+    bagType: forge.pki.oids.certBag
+  });
+  const cert = bag && bag.friendlyName && bag.friendlyName[0] && bag.friendlyName[0].cert;
+  if (!cert) {
+    throw new Error(`Cannot find certificate ${alias} in ${p12File}`);
+  }
+
+  if (options.verbose) {
+    process.stdout.write(`Certificate found: ${JSON.stringify(cert)}\n\n`);
+  }
+
+  const result = forge.pki.certificateToPem(cert);
+  if (options.outputFile) {
+    fs.writeFileSync(options.outputFile, result);
+  } else {
+    process.stdout.write(`${result}\n`);
+  }
+};
+
+const exportPrivateKey = (p12File, password, alias, options) => {
+  const p12 = loadPkcs12(p12File, password);
+  const bag = p12.getBags({
+    friendlyName: alias,
+    bagType: forge.pki.oids.pkcs8ShroudedKeyBag
+  });
+  const key = bag && bag.friendlyName && bag.friendlyName[0] && bag.friendlyName[0].key;
+  if (!key) {
+    throw new Error(`Cannot find private key ${alias} in ${p12File}`);
+  }
+
+  if (options.verbose) {
+    process.stdout.write(`Private key found: ${JSON.stringify(key)}\n\n`);
+  }
+
+  const result = forge.pki.privateKeyToPem(key);
+  if (options.outputFile) {
+    fs.writeFileSync(options.outputFile, result);
+  } else {
+    process.stdout.write(`${result}\n`);
+  }
+};
+
 module.exports = {
   formatSubject,
   readCertificates,
   generateCsr,
   signCsr,
   saveCertificate,
+  exportCertificate,
+  exportPrivateKey,
 };
 
 // merge 2 keystores
