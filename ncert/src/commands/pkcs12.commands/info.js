@@ -8,6 +8,8 @@
  * Copyright IBM Corporation 2021
  */
 
+const forge = require('node-forge');
+forge.options.usePureJavaScript = true;
 const { formatSubject, readCertificates } = require('../../libs/pkcs12');
 const { DEFAULT_JSON_INDENT } = require('../../constants');
 
@@ -52,6 +54,12 @@ const handler = async (options) => {
       process.stdout.write(`Issuer: ${formatSubject(cert.issuer)}\n`);
       process.stdout.write(`Subject: ${formatSubject(cert.subject)}\n`);
       process.stdout.write('Extensions:\n')
+      if (cert.extensions && cert.extensions.subjectKeyIdentifier) {
+        process.stdout.write(`- Subject Key Identifier: ${forge.util.bytesToHex(cert.extensions.subjectKeyIdentifier)}\n`);
+      }
+      if (cert.extensions && cert.extensions.authorityKeyIdentifier) {
+        process.stdout.write(`- Authority Key Identifier: ${forge.util.bytesToHex(cert.extensions.authorityKeyIdentifier)}\n`);
+      }
       if (cert.extensions && cert.extensions.keyUsage) {
         process.stdout.write(`- Key Usage: ${cert.extensions.keyUsage.join(', ')}\n`);
       }

@@ -249,7 +249,7 @@ const signCsr = (csr, options) => {
     throw new Error('Failed to find certificate authority cert or key');
   }
   const caSubjectKeyIdentifierObj = caCert.getExtension('subjectKeyIdentifier');
-  const caSubjectKeyIdentifier = caSubjectKeyIdentifierObj && caSubjectKeyIdentifierObj.subjectKeyIdentifier;
+  const caSubjectKeyIdentifier = caSubjectKeyIdentifierObj && caSubjectKeyIdentifierObj.value;
   if (!caSubjectKeyIdentifier) {
     throw new Error('Failed to find certificate authority subject key identifier');
   }
@@ -274,7 +274,11 @@ const signCsr = (csr, options) => {
   });
   extensions.push({
     name: 'authorityKeyIdentifier',
-    keyIdentifier: caSubjectKeyIdentifier,
+    // somehow node-forge will prefix few characters on top of caSubjectKeyIdentifier and make it invalid
+    // keyIdentifier: caSubjectKeyIdentifier,
+    // linking with serial number works well
+    authorityCertIssuer: true,
+    serialNumber: caCert.serialNumber
   });
   cert.setExtensions(extensions);
 
