@@ -305,12 +305,50 @@ const saveCertificate = (p12File, password, cert, key, alias) => {
   fs.writeFileSync(p12File, Buffer.from(p12Der, 'binary'));
 };
 
+const exportCertificate = (p12File, password, alias, options) => {
+  const p12 = loadPkcs12(p12File, password);
+  const bag = p12.getBags({
+    friendlyName: alias,
+    bagType: forge.pki.oids.certBag
+  });
+  const cert = bag && bag.friendlyName && bag.friendlyName[0] && bag.friendlyName[0].cert;
+  if (!cert) {
+    throw new Error(`Cannot find certificate ${alias} in ${p12File}`);
+  }
+
+  if (options.verbose) {
+    process.stdout.write(`Certificate found: ${JSON.stringify(cert)}\n\n`);
+  }
+
+  return forge.pki.certificateToPem(cert);
+};
+
+const exportPrivateKey = (p12File, password, alias, options) => {
+  const p12 = loadPkcs12(p12File, password);
+  const bag = p12.getBags({
+    friendlyName: alias,
+    bagType: forge.pki.oids.pkcs8ShroudedKeyBag
+  });
+  const key = bag && bag.friendlyName && bag.friendlyName[0] && bag.friendlyName[0].key;
+  if (!key) {
+    throw new Error(`Cannot find private key ${alias} in ${p12File}`);
+  }
+
+  if (options.verbose) {
+    process.stdout.write(`Private key found: ${JSON.stringify(key)}\n\n`);
+  }
+
+  return forge.pki.privateKeyToPem(key);
+};
+
 module.exports = {
   formatSubject,
   readCertificates,
   generateCsr,
   signCsr,
   saveCertificate,
+  exportCertificate,
+  exportPrivateKey,
 };
 
 // merge 2 keystores
