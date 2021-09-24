@@ -24,7 +24,11 @@ const builder = (yargs) => {
         description: 'Export private key of the certificate instead of certificate itself.',
         default: false,
         type: 'boolean',
-      }
+      },
+      'output-file': {
+        alias: 'f',
+        description: 'Export to this file.',
+      },
     });
 };
 
@@ -33,13 +37,11 @@ const handler = async (options) => {
     process.stdout.write(`Reading ${options.inputFile} ...\n`);
   }
 
-  let result;
   if (options.privateKey) {
-    result = exportPrivateKey(options.inputFile, options.password, options.alias, options);
+    exportPrivateKey(options.inputFile, options.password, options.alias, options);
   } else {
-    result = exportCertificate(options.inputFile, options.password, options.alias, options);
+    exportCertificate(options.inputFile, options.password, options.alias, options);
   }
-  process.stdout.write(`${result}\n`);
 };
 
 module.exports = {

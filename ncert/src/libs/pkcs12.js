@@ -320,7 +320,12 @@ const exportCertificate = (p12File, password, alias, options) => {
     process.stdout.write(`Certificate found: ${JSON.stringify(cert)}\n\n`);
   }
 
-  return forge.pki.certificateToPem(cert);
+  const result = forge.pki.certificateToPem(cert);
+  if (options.outputFile) {
+    fs.writeFileSync(options.outputFile, result);
+  } else {
+    process.stdout.write(`${result}\n`);
+  }
 };
 
 const exportPrivateKey = (p12File, password, alias, options) => {
@@ -338,7 +343,12 @@ const exportPrivateKey = (p12File, password, alias, options) => {
     process.stdout.write(`Private key found: ${JSON.stringify(key)}\n\n`);
   }
 
-  return forge.pki.privateKeyToPem(key);
+  const result = forge.pki.privateKeyToPem(key);
+  if (options.outputFile) {
+    fs.writeFileSync(options.outputFile, result);
+  } else {
+    process.stdout.write(`${result}\n`);
+  }
 };
 
 module.exports = {
