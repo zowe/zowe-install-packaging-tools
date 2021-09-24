@@ -169,7 +169,7 @@ const generateCsr = (options) => {
   const exts = [];
   const altNames = [];
   if (options.altName && options.altName.length) {
-    for (const one of options.altName) {
+    for (const one of [...new Set(options.altName)]) {
       if (one.match(/^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/)) {
         altNames.push({ type: 7, ip: one });
       } else if (one.match(/^https?:\/\/.+$/)) {
