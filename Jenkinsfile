@@ -49,9 +49,10 @@ node('zowe-jenkins-agent') {
 
   pipeline.packaging(
       name: 'zowe-utility-tools',
-      // operation: {
-      //     sh './gradlew packageZoweUtilityTools'
-      // }
+      operation: {
+          // sh './gradlew packageZoweUtilityTools'
+          pipeline.packagingGeneric(name: 'zowe-utility-tools')
+      }
   )
 
   pipeline.publish(
