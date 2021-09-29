@@ -58,10 +58,10 @@ node('zowe-jenkins-agent') {
         )
 
         echo "extract zowe-utility-tools.pax"
-        tar xvf zowe-utility-tools.pax
+        sh "tar xvf zowe-utility-tools.pax"
 
         echo "packaing final zip"
-        ./gradlew packageZoweUtilityTools
+        sh "./gradlew packageZoweUtilityTools"
       }
   )
 
