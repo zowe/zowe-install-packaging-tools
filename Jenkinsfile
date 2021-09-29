@@ -88,10 +88,6 @@ node('zowe-jenkins-agent') {
         echo "cleanup zowe-utility-tools.zip if exists"
         sh "./gradlew zowe-utility-tools-package:clean"
 
-        echo "extract zowe-utility-tools.pax"
-        sh "tar xvf .pax/zowe-utility-tools.pax"
-        sh "mv zowe-ncert-*.pax ncert/"
-
         echo "packaing final zip"
         sh "./gradlew packageZoweUtilityTools"
     }
