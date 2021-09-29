@@ -39,11 +39,10 @@ export GRADLE_USER_HOME=-Djava.io.tmpdir=/ZOWE/tmp
 ./bootstrap_gradlew.sh
 
 echo "[${SCRIPT_NAME}] fix gradle files encoding ..."
-files="settings.gradle"
+files="settings.gradle $(find . -name build.gradle)"
 for file in ${files}; do
   convert_encoding "${file}"
 done
-find . -name build.gradle | xargs convert_encoding
 
 echo "[${SCRIPT_NAME}] build projects ..."
 ./gradlew assemble
