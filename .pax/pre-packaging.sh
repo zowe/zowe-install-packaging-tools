@@ -28,6 +28,7 @@ cd "${BASE_DIR}/content"
 echo "[${SCRIPT_NAME}] gradle packaging ..."
 
 export GRADLE_OPTS=-Djava.io.tmpdir=/ZOWE/tmp
+export GRADLE_USER_HOME=-Djava.io.tmpdir=/ZOWE/tmp
 
 ./bootstrap_gradlew.sh
 ./gradlew assemble
