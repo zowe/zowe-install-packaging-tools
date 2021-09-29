@@ -52,7 +52,9 @@ mkdir -p "${CONTENT_DIR}"
 
 # copy from current github source
 echo "[${SCRIPT_NAME}] copying files ..."
-cp -r ncert                      "${CONTENT_DIR}"
+cp -r ncert/package.json      "${CONTENT_DIR}"
+cp -r ncert/package-lock.json      "${CONTENT_DIR}"
+cp -r ncert/src      "${CONTENT_DIR}"
 
 # put text files into ascii folder (recursive & verbose)
 rsync -rv \

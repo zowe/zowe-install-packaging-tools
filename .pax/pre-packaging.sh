@@ -23,24 +23,9 @@ set -x
 SCRIPT_NAME=$(basename "$0")  # $0=./pre-packaging.sh
 BASE_DIR=$(cd $(dirname "$0"); pwd)      # <something>/.pax
 
-convert_encoding() {
-  file=$1
-
-  echo "- converting ${file}"
-  iconv -f IBM-1047 -t IBM-850 "${file}" > "${file}.tmp"
-  mv "${file}.tmp" "${file}"
-}
-
 cd "${BASE_DIR}/content"
 
-
-echo "[${SCRIPT_NAME}] build and package ncert ..."
-cd ncert
-version=$(node -e "const p=require('./package.json');console.log(p.version);")
+echo "[${SCRIPT_NAME}] npm install ..."
 npm install --no-audit --production
-pax -w -f zowe-ncert-${version}.pax -o saveext *
-mv zowe-ncert-*.pax ..
-cd ..
-rm -fr ncert
 
 echo "[${SCRIPT_NAME}] done"

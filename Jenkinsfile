@@ -47,13 +47,35 @@ node('zowe-jenkins-agent') {
     ],
   )
 
+  pipeline.createStage(
+    name: "Package ncert",
+    timeout: [ time: 60, unit: 'MINUTES' ],
+    isSkippable: true,
+    stage : {
+      pipeline.pax.pack(
+        job             : 'pax-packaging-zowe-utility-tools-ncert',
+        filename        : 'zowe-ncert.pax',
+        paxOptions      : '-o saveext'
+      )
+      if (!fileExists('.pax/zowe-ncert.pax')) {
+        steps.error "Failed to find packaging result zowe-ncert.pax"
+      }
+
+      def version = sh(script: "node -e \"const p=require('./ncert/package.json');console.log(p.version);\"", returnStdout: true).trim()
+      sh "mv zowe-ncert.pax ncert/zowe-ncert-${version}.pax"
+
+      echo "Files in ncert"
+      sh "ls -la ncert/"
+    }
+  )
+
   // package everything must be on z/OS
   pipeline.packaging(
       name: 'zowe-utility-tools',
-      // keepTempFolder: true,
-      paxOptions: '-o saveext',
       operation: {
-        echo "dummy operation to skip gradle packaging here"
+        // cleanup before rebuild
+        sh "./gradlew zowe-utility-tools-package:clean"
+        sh "./gradlew packageZoweUtilityTools"
       }
   )
 
