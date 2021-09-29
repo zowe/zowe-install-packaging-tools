@@ -43,16 +43,16 @@ yargs
   }])
   .fail((msg, err) => {
     if (msg) {
-      console.error(msg);
+      process.stderr.write(`${msg}\n`);
     }
     if (err) {
       if (err.stack && process.env[VERBOSE_ENV]) {
-        console.error(err.stack);
+        process.stderr.write(`${err.stack}\n`);
       } else {
-        console.error(`${err}`);
+        process.stderr.write(`${err}\n`);
       }
     }
-    console.error(`Try --help to get usage information, or use --verbose option to display more details.`);
+    process.stderr.write('Try --help to get usage information, or use --verbose option to display more details.\n');
     process.exit(1);
   })
   .parse();
