@@ -51,7 +51,11 @@ node('zowe-jenkins-agent') {
       name: 'zowe-utility-tools',
       operation: {
         // operation is overriden by GradlePipeline, call packagingGeneric explicitly
-        pipeline.packagingGeneric(name: 'zowe-utility-tools', paxOptions: '-o saveext')
+        pipeline.packagingGeneric(
+          name: 'zowe-utility-tools',
+          keepTempFolder: true,
+          paxOptions: '-o saveext'
+        )
       }
   )
 
