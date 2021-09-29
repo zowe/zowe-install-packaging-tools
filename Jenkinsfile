@@ -51,7 +51,10 @@ node('zowe-jenkins-agent') {
   pipeline.packaging(
       name: 'zowe-utility-tools',
       keepTempFolder: true,
-      paxOptions: '-o saveext'
+      paxOptions: '-o saveext',
+      operation: {
+        echo "dummy operation to skip gradle packaging here"
+      }
   )
 
 
@@ -60,8 +63,12 @@ node('zowe-jenkins-agent') {
     timeout: [ time: 60, unit: 'MINUTES' ],
     isSkippable: true,
     stage : {
+        echo "cleanup zowe-utility-tools.zip if exists"
+        sh "./gradlew zowe-utility-tools-package:clean"
+
         echo "extract zowe-utility-tools.pax"
         sh "tar xvf .pax/zowe-utility-tools.pax"
+        mv zowe-ncert-*.pax ncert
 
         echo "packaing final zip"
         sh "./gradlew packageZoweUtilityTools"
