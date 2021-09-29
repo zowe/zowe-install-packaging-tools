@@ -68,7 +68,7 @@ node('zowe-jenkins-agent') {
 
         echo "extract zowe-utility-tools.pax"
         sh "tar xvf .pax/zowe-utility-tools.pax"
-        mv zowe-ncert-*.pax ncert
+        sh "mv zowe-ncert-*.pax ncert/"
 
         echo "packaing final zip"
         sh "./gradlew packageZoweUtilityTools"
