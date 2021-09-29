@@ -33,21 +33,12 @@ convert_encoding() {
 
 cd "${BASE_DIR}/content"
 
-echo "[${SCRIPT_NAME}] init gradle ..."
-export GRADLE_OPTS=-Djava.io.tmpdir=/ZOWE/tmp
-export GRADLE_USER_HOME=-Djava.io.tmpdir=/ZOWE/tmp
-./bootstrap_gradlew.sh
 
-echo "[${SCRIPT_NAME}] fix gradle files encoding ..."
-files="settings.gradle $(find . -name build.gradle)"
-for file in ${files}; do
-  convert_encoding "${file}"
-done
-
-echo "[${SCRIPT_NAME}] build projects ..."
-./gradlew assemble
-
-echo "[${SCRIPT_NAME}] packaging projects ..."
-./gradlew packageZoweUtilityTools
+echo "[${SCRIPT_NAME}] build and package ncert ..."
+cd ncert
+npm install --no-audit --production
+npm pack
+mv zowe-ncert-*.tgz ..
+rm -fr ncert
 
 echo "[${SCRIPT_NAME}] done"

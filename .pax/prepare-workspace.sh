@@ -14,22 +14,11 @@
 #######################################################################
 
 #######################################################################
-# Build script
+# Build script - only build ncert on z/OS
 #
 # runs on Jenkins server, before sending data to z/OS
 #######################################################################
 set -x
-
-# expected input workspace layout ($ROOT_DIR):
-# ./.pax/keyring-util/
-# ./bin/
-# ./files/
-# ./install/
-# ./manifest.json
-# ./scripts/
-# ./shared/scripts/
-# ./workflows/files/
-# ./workflows/templates/
 
 # ---------------------------------------------------------------------
 # --- main --- main --- main --- main --- main --- main --- main ---
@@ -47,7 +36,7 @@ ASCII_DIR="${PAX_WORKSPACE_DIR}/ascii"
 CONTENT_DIR="${PAX_WORKSPACE_DIR}/content"
 
 echo "[${SCRIPT_NAME}] clean up build temporary files ..."
-subprojects="config-converter fconv format-converter jackson-jq ncert njq zowe-utility-tools-package"
+subprojects="ncert"
 for sub in ${subprojects}; do
   rm -fr "${sub}/build"
   rm -fr "${sub}/node_modules"
@@ -63,19 +52,7 @@ mkdir -p "${CONTENT_DIR}"
 
 # copy from current github source
 echo "[${SCRIPT_NAME}] copying files ..."
-cp bootstrap_gradlew.sh          "${CONTENT_DIR}"
-cp gradle.properties             "${CONTENT_DIR}"
-cp gradlew                       "${CONTENT_DIR}"
-cp settings.gradle               "${CONTENT_DIR}"
-cp README.md                     "${CONTENT_DIR}"
-cp -r config-converter           "${CONTENT_DIR}"
-cp -r fconv                      "${CONTENT_DIR}"
-cp -r format-converter           "${CONTENT_DIR}"
-cp -r gradle                     "${CONTENT_DIR}"
-cp -r jackson-jq                 "${CONTENT_DIR}"
 cp -r ncert                      "${CONTENT_DIR}"
-cp -r njq                        "${CONTENT_DIR}"
-cp -r zowe-utility-tools-package "${CONTENT_DIR}"
 
 # put text files into ascii folder (recursive & verbose)
 rsync -rv \
