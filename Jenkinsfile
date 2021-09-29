@@ -47,6 +47,7 @@ node('zowe-jenkins-agent') {
     ],
   )
 
+  // package everything must be on z/OS
   pipeline.packaging(
       name: 'zowe-utility-tools',
       operation: {
@@ -56,13 +57,21 @@ node('zowe-jenkins-agent') {
           keepTempFolder: true,
           paxOptions: '-o saveext'
         )
+      }
+  )
 
+
+  pipeline.createStage(
+    name: "Repackage Zip",
+    timeout: [ time: 60, unit: 'MINUTES' ],
+    isSkippable: true,
+    stage : {
         echo "extract zowe-utility-tools.pax"
-        sh "tar xvf zowe-utility-tools.pax"
+        sh "tar xvf .pax/zowe-utility-tools.pax"
 
         echo "packaing final zip"
         sh "./gradlew packageZoweUtilityTools"
-      }
+    }
   )
 
   pipeline.publish(
