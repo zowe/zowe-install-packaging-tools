@@ -46,6 +46,13 @@ PAX_WORKSPACE_DIR=${ROOT_DIR}/.pax
 ASCII_DIR="${PAX_WORKSPACE_DIR}/ascii"
 CONTENT_DIR="${PAX_WORKSPACE_DIR}/content"
 
+echo "[${SCRIPT_NAME}] clean up build temporary files ..."
+subprojects="config-converter fconv format-converter jackson-jq ncert njq zowe-utility-tools-package"
+for sub in ${subprojects}; do
+  rm -fr "${sub}/build"
+  rm -fr "${sub}/node_modules"
+done
+
 # prepare pax workspace
 echo "[${SCRIPT_NAME}] preparing folders ..."
 rm -fr ${ASCII_DIR}
