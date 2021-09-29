@@ -18,7 +18,14 @@ node('zowe-jenkins-agent') {
 
   pipeline.admins.add("jackjia")
 
-  pipeline.setup()
+  pipeline.setup(
+    pax: [
+      sshHost                    : lib.Constants.DEFAULT_PAX_PACKAGING_SSH_HOST,
+      sshPort                    : lib.Constants.DEFAULT_PAX_PACKAGING_SSH_PORT,
+      sshCredential              : lib.Constants.DEFAULT_PAX_PACKAGING_SSH_CREDENTIAL,
+      remoteWorkspace            : lib.Constants.DEFAULT_PAX_PACKAGING_REMOTE_WORKSPACE,
+    ]
+  )
 
   pipeline.build()
 
