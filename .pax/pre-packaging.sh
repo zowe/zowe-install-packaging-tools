@@ -23,6 +23,14 @@ set -x
 SCRIPT_NAME=$(basename "$0")  # $0=./pre-packaging.sh
 BASE_DIR=$(cd $(dirname "$0"); pwd)      # <something>/.pax
 
+convert_encoding() {
+  file=$1
+
+  echo "- converting ${file}"
+  iconv -f IBM-1047 -t IBM-850 "${file}" > "${file}.tmp"
+  mv "${file}.tmp" "${file}"
+}
+
 cd "${BASE_DIR}/content"
 
 echo "[${SCRIPT_NAME}] init gradle ..."
@@ -33,9 +41,9 @@ export GRADLE_USER_HOME=-Djava.io.tmpdir=/ZOWE/tmp
 echo "[${SCRIPT_NAME}] fix gradle files encoding ..."
 files="settings.gradle"
 for file in ${files}; do
-  iconv -f IBM-1047 -t IBM-850 "${file}" > "${file}.tmp"
-  mv "${file}.tmp" "${file}"
+  convert_encoding "${file}"
 done
+find . -name build.gradle | xargs convert_encoding
 
 echo "[${SCRIPT_NAME}] build projects ..."
 ./gradlew assemble
