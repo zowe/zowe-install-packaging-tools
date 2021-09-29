@@ -25,11 +25,22 @@ BASE_DIR=$(cd $(dirname "$0"); pwd)      # <something>/.pax
 
 cd "${BASE_DIR}/content"
 
-echo "[${SCRIPT_NAME}] gradle packaging ..."
-
+echo "[${SCRIPT_NAME}] init gradle ..."
 export GRADLE_OPTS=-Djava.io.tmpdir=/ZOWE/tmp
 export GRADLE_USER_HOME=-Djava.io.tmpdir=/ZOWE/tmp
-
 ./bootstrap_gradlew.sh
+
+echo "[${SCRIPT_NAME}] fix gradle files encoding ..."
+files="settings.gradle"
+for file in ${files}; do
+  iconv -f IBM-1047 -t IBM-850 "${file}" > "${file}.tmp"
+  mv "${file}.tmp" "${file}"
+done
+
+echo "[${SCRIPT_NAME}] build projects ..."
 ./gradlew assemble
+
+echo "[${SCRIPT_NAME}] packaging projects ..."
 ./gradlew packageZoweUtilityTools
+
+echo "[${SCRIPT_NAME}] done"
