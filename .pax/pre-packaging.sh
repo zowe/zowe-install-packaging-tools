@@ -23,5 +23,10 @@ set -x
 SCRIPT_NAME=$(basename "$0")  # $0=./pre-packaging.sh
 BASE_DIR=$(cd $(dirname "$0"); pwd)      # <something>/.pax
 
-echo "[${SCRIPT_NAME}] list contents of ${BASE_DIR} ..."
-find .
+cd "${BASE_DIR}/content"
+
+echo "[${SCRIPT_NAME}] gradle packaging ..."
+
+./bootstrap_gradlew.sh
+./gradlew assemble
+./gradlew packageZoweUtilityTools

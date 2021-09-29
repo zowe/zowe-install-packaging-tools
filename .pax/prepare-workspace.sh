@@ -51,6 +51,7 @@ subprojects="config-converter fconv format-converter jackson-jq ncert njq zowe-u
 for sub in ${subprojects}; do
   rm -fr "${sub}/build"
   rm -fr "${sub}/node_modules"
+  rm -fr "${sub}/zowe-"*.tgz
 done
 
 # prepare pax workspace
