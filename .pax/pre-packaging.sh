@@ -36,9 +36,11 @@ cd "${BASE_DIR}/content"
 
 echo "[${SCRIPT_NAME}] build and package ncert ..."
 cd ncert
+version=$(node -e "const p=require('./package.json');console.log(p.version);")
 npm install --no-audit --production
-npm pack
-mv zowe-ncert-*.tgz ..
+pax -w -f zowe-ncert-${version}.pax -o saveext *
+mv zowe-ncert-*.pax ..
+cd ..
 rm -fr ncert
 
 echo "[${SCRIPT_NAME}] done"
