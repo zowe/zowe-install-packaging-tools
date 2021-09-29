@@ -62,7 +62,7 @@ node('zowe-jenkins-agent') {
       }
 
       def version = sh(script: "node -e \"const p=require('./ncert/package.json');console.log(p.version);\"", returnStdout: true).trim()
-      sh "mv zowe-ncert.pax ncert/zowe-ncert-${version}.pax"
+      sh "mv .pax/zowe-ncert.pax ncert/zowe-ncert-${version}.pax"
 
       echo "Files in ncert"
       sh "ls -la ncert/"
