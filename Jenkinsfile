@@ -50,7 +50,7 @@ node('zowe-jenkins-agent') {
   // package everything must be on z/OS
   pipeline.packaging(
       name: 'zowe-utility-tools',
-      keepTempFolder: true,
+      // keepTempFolder: true,
       paxOptions: '-o saveext',
       operation: {
         echo "dummy operation to skip gradle packaging here"
