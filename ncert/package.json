@@ -4,9 +4,11 @@
   "description": "A certificate tool implementation with node.js",
   "main": "src/index.js",
   "dependencies": {
-    "keyring_js": "^1.1.0",
     "node-forge": "^0.10.0",
     "yargs": "^15.4.0"
+  },
+  "optionalDependencies": {
+    "keyring_js": "^1.1.0"
   },
   "bundledDependencies": [
     "keyring_js",
