@@ -50,14 +50,8 @@ node('zowe-jenkins-agent') {
   // package everything must be on z/OS
   pipeline.packaging(
       name: 'zowe-utility-tools',
-      operation: {
-        // operation is overriden by GradlePipeline, call packagingGeneric explicitly
-        pipeline.packagingGeneric(
-          name: 'zowe-utility-tools',
-          keepTempFolder: true,
-          paxOptions: '-o saveext'
-        )
-      }
+      keepTempFolder: true,
+      paxOptions: '-o saveext'
   )
 
 
