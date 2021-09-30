@@ -16,7 +16,7 @@ dependencies {
     fconvNpmPackage fileTree(dir: '../fconv', include: "zowe-fconv-*.tgz")
     njqNpmPackage fileTree(dir: '../njq', include: "zowe-njq-*.tgz")
     configConverterNpmPackage fileTree(dir: '../config-converter', include: "zowe-config-converter-*.tgz")
-    ncertNpmPackage fileTree(dir: '../ncert', include: "zowe-ncert-*.tgz")
+    ncertNpmPackage fileTree(dir: '../ncert', include: "zowe-ncert-*.pax")
     // formatConverterJar(project(path: ":format-converter", configuration: "archives"))
     // jacksonJq(project(path: ":jackson-jq", configuration: "archives"))
 }

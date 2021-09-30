@@ -20,6 +20,10 @@ const builder = (yargs) => {
         alias: 'p',
         description: 'Password of the PKCS#12 file.',
       },
+      alias: {
+        alias: 'a',
+        description: 'Only show certificate with this alias in the PKCS#12 file',
+      },
       json: {
         description: 'Output as JSON format',
         default: false,
@@ -45,6 +49,10 @@ const handler = async (options) => {
     }
 
     for (const cert of result.formatted) {
+      if (options.alias && cert.friendlyName && cert.friendlyName[0] && cert.friendlyName[0] !== options.alias) {
+        continue;
+      }
+
       process.stdout.write('===============================================================\n');
 
       process.stdout.write(`Certificate: ${cert.friendlyName}\n`);
