@@ -227,7 +227,7 @@ const convertZoweYamlToEnv = (workspaceDir, haInstance, componentId, yamlConfigF
       } else {
         const val = _.get(configObj, YAML_TO_ENV_MAPPING[key]);
         if (!_.isUndefined(val)) {
-          pushKeyValue(key, val);
+          pushKeyValue(key, _.isNull(val) ? '' : val);
         }
       }
     } else if (_.isArray(YAML_TO_ENV_MAPPING[key])) {
@@ -239,13 +239,13 @@ const convertZoweYamlToEnv = (workspaceDir, haInstance, componentId, yamlConfigF
         }
         lastVal = thisVal;
       });
-      if (lastVal !== null && !_.isUndefined(lastVal)) {
-        pushKeyValue(key, lastVal);
+      if (!_.isUndefined(lastVal)) {
+        pushKeyValue(key, isNull(lastVal) ? '' : lastVal);
       }
     } else if (_.isFunction(YAML_TO_ENV_MAPPING[key])) {
       const val = YAML_TO_ENV_MAPPING[key](configObj, haInstance, componentId, originalConfigObj);
       if (!_.isUndefined(val)) {
-        pushKeyValue(key, val);
+        pushKeyValue(key, _.isNull(val) ? '' : val);
       }
     }
   }
