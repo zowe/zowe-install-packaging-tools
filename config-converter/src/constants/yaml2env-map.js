@@ -236,6 +236,7 @@ const YAML_TO_ENV_MAPPING = {
   // added by https://github.com/zowe/zowe-install-packaging/pull/2021
   APIML_GATEWAY_EXTERNAL_MAPPER: "components.gateway.apiml.security.x509.externalMapperUrl",
   APIML_SECURITY_AUTHORIZATION_ENDPOINT_URL: "components.gateway.apiml.security.authorization.endpoint.url",
+  ZWE_DISCOVERY_SERVICES_REPLICAS: 'components.discovery.replicas',
   // List of discovery service URLs separated by comma
   ZWE_DISCOVERY_SERVICES_LIST: function(yamlConfigObj, haInstance, componentId, originalConfigObj) {
     return getDiscoveryList(originalConfigObj);

@@ -358,6 +358,17 @@ const updateYaml = (yamlFile, objectPath, newValue) => {
   });
 };
 
+// delete a property from YAML file without losing format
+const deleteYamlProperty = (yamlFile, objectPath) => {
+  const yamlText = fs.readFileSync(yamlFile).toString();
+  let yawn = new YAWN(yamlText);
+
+  yawn.json = _.unset(yawn.json, objectPath);
+  fs.writeFileSync(yamlFile, yawn.yaml, {
+    mode: DEFAULT_NEW_FILE_MODE,
+  });
+};
+
 module.exports = {
   convertToYamlConfig,
   readYaml,
@@ -368,4 +379,5 @@ module.exports = {
   writeYaml,
   writeJson,
   updateYaml,
+  deleteYamlProperty,
 };
