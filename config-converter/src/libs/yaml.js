@@ -240,7 +240,7 @@ const convertZoweYamlToEnv = (workspaceDir, haInstance, componentId, yamlConfigF
         lastVal = thisVal;
       });
       if (!_.isUndefined(lastVal)) {
-        pushKeyValue(key, isNull(lastVal) ? '' : lastVal);
+        pushKeyValue(key, _.isNull(lastVal) ? '' : lastVal);
       }
     } else if (_.isFunction(YAML_TO_ENV_MAPPING[key])) {
       const val = YAML_TO_ENV_MAPPING[key](configObj, haInstance, componentId, originalConfigObj);
@@ -369,6 +369,8 @@ const deleteYamlProperty = (yamlFile, objectPath) => {
   fs.writeFileSync(yamlFile, yawn.yaml, {
     mode: DEFAULT_NEW_FILE_MODE,
   });
+
+  return result;
 };
 
 module.exports = {
