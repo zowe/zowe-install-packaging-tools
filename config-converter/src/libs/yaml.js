@@ -363,7 +363,9 @@ const deleteYamlProperty = (yamlFile, objectPath) => {
   const yamlText = fs.readFileSync(yamlFile).toString();
   let yawn = new YAWN(yamlText);
 
-  yawn.json = _.unset(yawn.json, objectPath);
+  const tmp = Object.assign({}, yawn.json);
+  const result = _.unset(tmp, objectPath);
+  yawn.json = tmp;
   fs.writeFileSync(yamlFile, yawn.yaml, {
     mode: DEFAULT_NEW_FILE_MODE,
   });
