@@ -19,31 +19,41 @@ const getBooleanVal = (obj, path) => {
 
 const getDiscoveryList = (originalConfigObj) => {
   const val = [];
-  const defaultEnabled = _.get(originalConfigObj, 'components.discovery.enabled');
+  const defaultReplicas = _.get(originalConfigObj, 'components.discovery.replicas');
+  const replicas = defaultReplicas && `${defaultReplicas}`.match(/^[0-9]+$/) && parseInt(defaultReplicas, 10);
   const defaultPort = _.get(originalConfigObj, 'components.discovery.port');
-  const defaultExternalDomain = _.get(originalConfigObj, 'zowe.externalDomains.0') || '';
-  if (originalConfigObj.haInstances) {
-    for (const haInstanceId in originalConfigObj.haInstances) {
-      const haInstanceConfig = originalConfigObj.haInstances[haInstanceId];
-      const haInstanceDiscoveryConfig = haInstanceConfig && haInstanceConfig.components && haInstanceConfig.components.discovery;
-      const haInstanceHostname = (haInstanceConfig && haInstanceConfig.hostname) || defaultExternalDomain;
-      let hasDiscoveryInThisInstance = false;
-      if (haInstanceDiscoveryConfig && _.has(haInstanceDiscoveryConfig, 'enabled')) {
-        hasDiscoveryInThisInstance = _.get(haInstanceDiscoveryConfig, 'enabled');
-      } else {
-        hasDiscoveryInThisInstance = defaultEnabled;
-      }
-
-      let discoveryPort = defaultPort;
-      if (haInstanceDiscoveryConfig && _.has(haInstanceDiscoveryConfig, 'port')) {
-        discoveryPort = _.get(haInstanceDiscoveryConfig, 'port');
-      }
-      if (hasDiscoveryInThisInstance) {
-        val.push(`https://${haInstanceHostname}:${discoveryPort}/eureka/`.toLowerCase());
-      }
+  if (replicas) {
+    const k8sNamespace = process.env.ZWE_KUBERNETES_NAMESPACE || 'zowe';
+    const k8sClusterName = process.env.ZWE_KUBERNETES_CLUSTERNAME || 'cluster.local';
+    for (let i = 0; i < replicas; i++) {
+      val.push(`https://discovery-${i}.discovery-service.${k8sNamespace}.svc.${k8sClusterName}:${defaultPort}/eureka/`.toLowerCase());
     }
-  } else if (defaultEnabled) { // any chance it's not enabled in this case?
-    val.push(`https://${defaultExternalDomain}:${defaultPort}/eureka/`.toLowerCase());
+  } else {
+    const defaultEnabled = _.get(originalConfigObj, 'components.discovery.enabled');
+    const defaultExternalDomain = _.get(originalConfigObj, 'zowe.externalDomains.0') || '';
+    if (originalConfigObj.haInstances) {
+      for (const haInstanceId in originalConfigObj.haInstances) {
+        const haInstanceConfig = originalConfigObj.haInstances[haInstanceId];
+        const haInstanceDiscoveryConfig = haInstanceConfig && haInstanceConfig.components && haInstanceConfig.components.discovery;
+        const haInstanceHostname = (haInstanceConfig && haInstanceConfig.hostname) || defaultExternalDomain;
+        let hasDiscoveryInThisInstance = false;
+        if (haInstanceDiscoveryConfig && _.has(haInstanceDiscoveryConfig, 'enabled')) {
+          hasDiscoveryInThisInstance = _.get(haInstanceDiscoveryConfig, 'enabled');
+        } else {
+          hasDiscoveryInThisInstance = defaultEnabled;
+        }
+
+        let discoveryPort = defaultPort;
+        if (haInstanceDiscoveryConfig && _.has(haInstanceDiscoveryConfig, 'port')) {
+          discoveryPort = _.get(haInstanceDiscoveryConfig, 'port');
+        }
+        if (hasDiscoveryInThisInstance) {
+          val.push(`https://${haInstanceHostname}:${discoveryPort}/eureka/`.toLowerCase());
+        }
+      }
+    } else if (defaultEnabled) { // any chance it's not enabled in this case?
+      val.push(`https://${defaultExternalDomain}:${defaultPort}/eureka/`.toLowerCase());
+    }
   }
   return _.uniq(val).join(',');
 };
