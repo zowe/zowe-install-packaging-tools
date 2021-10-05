@@ -23,8 +23,8 @@ const getDiscoveryList = (originalConfigObj) => {
   const replicas = defaultReplicas && `${defaultReplicas}`.match(/^[0-9]+$/) && parseInt(defaultReplicas, 10);
   const defaultPort = _.get(originalConfigObj, 'components.discovery.port');
   if (replicas) {
-    const k8sNamespace = process.env.ZWE_KUBERNETES_NAMESPACE || 'zowe';
-    const k8sClusterName = process.env.ZWE_KUBERNETES_CLUSTERNAME || 'cluster.local';
+    const k8sNamespace = process.env.ZWE_POD_NAMESPACE || 'zowe';
+    const k8sClusterName = process.env.ZWE_POD_CLUSTERNAME || 'cluster.local';
     for (let i = 0; i < replicas; i++) {
       val.push(`https://discovery-${i}.discovery-service.${k8sNamespace}.svc.${k8sClusterName}:${defaultPort}/eureka/`.toLowerCase());
     }
