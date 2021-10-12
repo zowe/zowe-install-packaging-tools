@@ -107,7 +107,8 @@ const ENV_TO_YAML_MAPPING = {
     enableComponents(val, yamlConfig);
   },
   FILES_API_PORT: "components.files-api.port",
-  GATEWAY_PORT: ["zowe.externalPort", "components.gateway.port"],
+  ZWE_EXTERNAL_PORT: "zowe.externalPort",
+  GATEWAY_PORT: "components.gateway.port",
   JAVA_HOME: "java.home",
   JAVA_OPTIONS: "java.options",
   JES_EXPLORER_UI_PORT: "components.explorer-jes.port",
