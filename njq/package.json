@@ -4,22 +4,22 @@
   "description": "A simple jq implementation with node.js",
   "main": "src/index.js",
   "dependencies": {
-    "@elastic/micro-jq": "^1.2.0",
-    "yargs": "^15.4.0"
+    "@elastic/micro-jq": "1.2.0",
+    "yargs": "15.4.1"
   },
   "bundledDependencies": [
     "@elastic/micro-jq",
     "yargs"
   ],
   "devDependencies": {
-    "chai": "^4.2.0",
-    "debug": "^4.3.1",
-    "eslint": "^6.8.0",
-    "mocha": "^7.1.1",
-    "mocha-jenkins-reporter": "^0.4.3",
-    "mocha-multi-reporters": "^1.1.7",
-    "mochawesome": "^4.1.0",
-    "nyc": "^15.1.0"
+    "chai": "4.2.0",
+    "debug": "4.3.1",
+    "eslint": "6.8.0",
+    "mocha": "7.2.0",
+    "mocha-jenkins-reporter": "0.4.5",
+    "mocha-multi-reporters": "1.5.1",
+    "mochawesome": "4.1.0",
+    "nyc": "15.1.0"
   },
   "scripts": {
     "lint": "eslint .",
