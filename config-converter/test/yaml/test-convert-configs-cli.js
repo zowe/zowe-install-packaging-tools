@@ -16,40 +16,61 @@ const fs = require('fs');
 const _ = require('lodash');
 const tmp = require('tmp');
 
+const { updateYaml } = require('../../src/libs/yaml');
 const { simpleReadYaml } = require('../../src/libs/index');
 const { RESOURCES_DIR, getYamlResource, testConfigConverter, showFiles, deleteAllFiles } = require('../utils');
 
 describe('test zcc yaml convert', function () {
   const cliParams = ['yaml', 'convert'];
   const resourceCategory = 'ha-instances';
-  let workspaceDirObj = null;
+  let tmpDirObj = null;
+  let runtimeDir = null;
+  let extensionDir = null;
+  let instanceDir = null;
   let workspaceDir = null;
+  let targetYaml = null;
 
   beforeEach(() => {
-    // prepare workspace directory
-    workspaceDirObj = tmp.dirSync();
-    workspaceDir = workspaceDirObj.name;
-    debug(`workspace directory: ${workspaceDir}`);
+    // prepare temporary directory
+    tmpDirObj = tmp.dirSync();
+    const tmpDir = tmpDirObj.name;
+    runtimeDir = path.resolve(tmpDir, 'runtime');
+    fs.mkdirSync(runtimeDir);
+    fs.mkdirSync(path.resolve(runtimeDir, 'components'));
+    extensionDir = path.resolve(tmpDir, 'extensions');
+    fs.mkdirSync(extensionDir);
+    instanceDir = path.resolve(tmpDir, 'instance');
+    fs.mkdirSync(instanceDir);
+    workspaceDir = path.resolve(instanceDir, '.env');
+    fs.mkdirSync(workspaceDir);
+    debug(`temporary directory: ${tmpDir}`);
 
-    fs.mkdirSync(path.resolve(workspaceDir, 'gateway'));
-    fs.mkdirSync(path.resolve(workspaceDir, 'discovery'));
-    fs.mkdirSync(path.resolve(workspaceDir, 'dummy'));
-    fs.copyFileSync(path.resolve(RESOURCES_DIR, 'yaml', resourceCategory, 'gateway', '.manifest.json'), path.resolve(workspaceDir, 'gateway', '.manifest.json'));
-    fs.copyFileSync(path.resolve(RESOURCES_DIR, 'yaml', resourceCategory, 'discovery', '.manifest.json'), path.resolve(workspaceDir, 'discovery', '.manifest.json'));
-    fs.copyFileSync(path.resolve(RESOURCES_DIR, 'yaml', resourceCategory, 'dummy', '.keep'), path.resolve(workspaceDir, 'dummy', '.keep'));
-    debug('workspace directory prepared');
-    showFiles(workspaceDir);
+    // copy and update zowe.yaml with new runtime/extension dir
+    const yaml = getYamlResource(resourceCategory);
+    targetYaml = path.resolve(instanceDir, 'zowe.yaml');
+    fs.copyFileSync(yaml, targetYaml);
+    updateYaml(targetYaml, 'zowe.runtimeDirectory', runtimeDir);
+    updateYaml(targetYaml, 'zowe.extensionDirectory', extensionDir);
+
+    fs.mkdirSync(path.resolve(runtimeDir, 'components', 'gateway'));
+    fs.mkdirSync(path.resolve(extensionDir, 'discovery'));
+    fs.mkdirSync(path.resolve(extensionDir, 'dummy'));
+    fs.copyFileSync(path.resolve(RESOURCES_DIR, 'yaml', resourceCategory, 'gateway', 'manifest.json'), path.resolve(runtimeDir, 'components', 'gateway', 'manifest.json'));
+    fs.copyFileSync(path.resolve(RESOURCES_DIR, 'yaml', resourceCategory, 'discovery', 'manifest.yaml'), path.resolve(extensionDir, 'discovery', 'manifest.yaml'));
+    fs.copyFileSync(path.resolve(RESOURCES_DIR, 'yaml', resourceCategory, 'dummy', '.keep'), path.resolve(extensionDir, 'dummy', '.keep'));
+    debug('temporary directory prepared');
+    showFiles(tmpDir);
   });
 
   afterEach(() => {
-    if (workspaceDirObj) {
-      deleteAllFiles(workspaceDirObj.name);
-      workspaceDirObj.removeCallback();
+    if (tmpDirObj) {
+      deleteAllFiles(tmpDirObj.name);
+      tmpDirObj.removeCallback();
     }
   });
 
   it('should throw error if workspace directory doesn\'t have a value', () => {
-    testConfigConverter([...cliParams, getYamlResource(resourceCategory)], {
+    testConfigConverter([...cliParams, targetYaml], {
       rc: 1,
       stdout: '',
       stderr: ['Environment WORKSPACE_DIR is required'],
@@ -57,13 +78,13 @@ describe('test zcc yaml convert', function () {
   });
 
   it('should generate .zowe.json and components default configs should be applied', () => {
-    testConfigConverter([...cliParams, '--workspace-dir', workspaceDir, getYamlResource(resourceCategory)], {
+    testConfigConverter([...cliParams, '--workspace-dir', workspaceDir, '--ha-instance-id', 'default', targetYaml], {
       rc: 0,
       stdout: '',
       stderr: '',
     });
 
-    const fileToCheck = path.resolve(workspaceDir, '.zowe.json');
+    const fileToCheck = path.resolve(workspaceDir, 'gateway', '.configs-default.json');
     debug(`checking ${fileToCheck}`);
 
     const existence = fs.existsSync(fileToCheck);
@@ -81,7 +102,7 @@ describe('test zcc yaml convert', function () {
   });
 
   it('should show verbose information if -v is specified', () => {
-    testConfigConverter([...cliParams, '--workspace-dir', workspaceDir, '--ha-instance-id', 'first', '-v', getYamlResource(resourceCategory)], {
+    testConfigConverter([...cliParams, '--workspace-dir', workspaceDir, '--ha-instance-id', 'first', '-v', targetYaml], {
       rc: 0,
       stdout: [
         'CLI arguments',
@@ -89,13 +110,12 @@ describe('test zcc yaml convert', function () {
         'Converting',
         /found \d+ components/,
         /process HA instance "first"/,
-        'write <workspace-dir>/.zowe.json',
         'write <workspace-dir>/discovery/.configs-first.json',
       ],
       stderr: '',
     });
 
-    const fileToCheck = path.resolve(workspaceDir, '.zowe.json');
+    const fileToCheck = path.resolve(workspaceDir, 'gateway', '.configs-first.json');
     debug(`checking ${fileToCheck}`);
 
     const existence = fs.existsSync(fileToCheck);

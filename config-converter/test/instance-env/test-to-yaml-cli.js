@@ -14,7 +14,7 @@ const { expect } = require('chai');
 const _ = require('lodash');
 
 const { STDOUT_YAML_SEPARATOR } = require('../../src/constants');
-const { readYaml } = require('../../src/libs/yaml');
+const { readZoweYaml } = require('../../src/libs/yaml');
 const { getInstanceEnvResource, testConfigConverter, reformatYaml } = require('../utils');
 const tmp = require('tmp');
 
@@ -61,7 +61,7 @@ describe('zcc instance-env to-yaml', function () {
       stderr: ''
     }, true);
 
-    const result = readYaml(tmpfile.name);
+    const result = readZoweYaml(tmpfile.name);
     debug(result);
 
     expect(result).to.be.an('object');

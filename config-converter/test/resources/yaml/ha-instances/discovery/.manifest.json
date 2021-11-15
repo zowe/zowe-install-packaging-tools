@@ -1,7 +1,0 @@
-{
-  "name": "discovery",
-  "configs": {
-    "port": 12346,
-    "discoverySpecialConfig": "default-value"
-  }
-}

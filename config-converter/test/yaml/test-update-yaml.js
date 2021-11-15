@@ -15,10 +15,10 @@ const { expect } = require('chai');
 const _ = require('lodash');
 const tmp = require('tmp');
 
-const { readYaml, updateYaml } = require('../../src/libs/yaml');
+const { readZoweYaml, updateYaml } = require('../../src/libs/yaml');
 const { getYamlResource } = require('../utils');
 
-describe('test yaml utility method readYaml', function () {
+describe('test yaml utility method readZoweYaml', function () {
   let tmpfile;
 
   beforeEach(() => {
@@ -44,7 +44,7 @@ describe('test yaml utility method readYaml', function () {
 
     expect(text, 'should keep comments').to.include('SPDX-License-Identifier');
 
-    const result = readYaml(tmpfile.name);
+    const result = readZoweYaml(tmpfile.name);
     debug(result);
 
     expect(result).to.be.an('object');

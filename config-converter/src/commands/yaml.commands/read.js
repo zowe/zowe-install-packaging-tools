@@ -8,7 +8,7 @@
  * Copyright IBM Corporation 2021
  */
 
-const { readYaml } = require('../../libs/yaml');
+const { readZoweYaml } = require('../../libs/yaml');
 const { DEFAULT_JSON_INDENT } = require('../../constants');
 
 const builder = (yargs) => {
@@ -20,7 +20,7 @@ const handler = async (options) => {
   if (options.verbose) {
     process.stdout.write(`Reading ${options.yamlFile} ...\n`);
   }
-  const result = readYaml(options.yamlFile);
+  const result = readZoweYaml(options.yamlFile);
   process.stdout.write(JSON.stringify(result, null, DEFAULT_JSON_INDENT) + '\n');
 };
 

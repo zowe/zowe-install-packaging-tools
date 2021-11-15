@@ -124,9 +124,7 @@ const deleteAllFiles = (dir) => {
   fs.readdirSync(dir).forEach(file => {
     const absPath = path.resolve(dir, file);
     if (fs.statSync(absPath).isDirectory()) {
-      fs.readdirSync(absPath).forEach(subfile => {
-        fs.unlinkSync(path.resolve(absPath, subfile));
-      });
+      deleteAllFiles(absPath);
       fs.rmdirSync(absPath);
     } else {
       fs.unlinkSync(absPath);

@@ -56,7 +56,7 @@ const convertToYamlConfig = (envs) => {
 };
 
 // Read Zowe YAML config and also process @include
-const readYaml = (file) => {
+const readZoweYaml = (file) => {
   const baseFilePath = path.dirname(file);
   const data = simpleReadYaml(file);
 
@@ -100,49 +100,89 @@ const convertConfigs = (configObj, haInstance, workspaceDir = null) => {
   if (!workspaceDir) {
     throw new Error('Environment WORKSPACE_DIR is required');
   }
+  if (!haInstance) {
+    throw new Error('HA instance is required');
+  }
+  if (!fs.existsSync(workspaceDir)) {
+    fs.mkdirSync(workspaceDir);
+  }
 
   const configObjCopy = merge({}, configObj);
 
-  // find components
-  const components = fs.readdirSync(workspaceDir).filter(file => {
-    return fs.statSync(path.resolve(workspaceDir, file)).isDirectory();
-  });
-  if (process.env[VERBOSE_ENV]) {
-    process.stdout.write(`- found ${components.length} components\n`);
-  }
-  // apply components configs as default values
-  components.forEach(component => {
-    if (!fs.existsSync(path.resolve(workspaceDir, component, '.manifest.json'))) {
-      if (process.env[VERBOSE_ENV]) {
-        process.stdout.write(`  - component ${component} doesn't have manifest\n`);
-      }
-      return;
+  // find component installation directories
+  const componentRuntimeDirectories = [];
+  if (configObj && configObj.zowe) {
+    // add <runtimeDirectory>/components
+    if (configObj.zowe.runtimeDirectory) {
+      componentRuntimeDirectories.push(path.join(configObj.zowe.runtimeDirectory, 'components'));
     }
+    // add <extensionDirectory>
+    if (configObj.zowe.extensionDirectory) {
+      if (_.isString(configObj.zowe.extensionDirectory)) {
+        componentRuntimeDirectories.push(configObj.zowe.extensionDirectory);
+      } else if (_.isArray(configObj.zowe.extensionDirectory)) {
+        for (const one of configObj.zowe.extensionDirectory) {
+          componentRuntimeDirectories.push(one);
+        }
+      }
+    }
+    // add <extensionDirectories>
+    if (configObj.zowe.extensionDirectories) {
+      if (_.isString(configObj.zowe.extensionDirectories)) {
+        componentRuntimeDirectories.push(configObj.zowe.extensionDirectories);
+      } else if (_.isArray(configObj.zowe.extensionDirectories)) {
+        for (const one of configObj.zowe.extensionDirectories) {
+          componentRuntimeDirectories.push(one);
+        }
+      }
+    }
+  }
+
+  // find components as component-id / component-manifest-path pair
+  const components = {};
+  for (const componentRuntimeDir of componentRuntimeDirectories) {
+    const componentDirs = fs.readdirSync(componentRuntimeDir).filter(file => {
+      return fs.statSync(path.resolve(componentRuntimeDir, file)).isDirectory();
+    });
+    for (const component of componentDirs) {
+      for (const manifest of ['manifest.yaml', 'manifest.yml', 'manifest.json']) {
+        const componentManifest = path.resolve(componentRuntimeDir, component, manifest);
+        if (fs.existsSync(componentManifest)) {
+          components[component] = componentManifest;
+          break;
+        }
+      }
+    }
+  }
+  if (process.env[VERBOSE_ENV]) {
+    process.stdout.write(`- found ${Object.keys(components).length} components\n`);
+  }
+
+  // apply components configs as default values
+  for (const component in components) {
     if (process.env[VERBOSE_ENV]) {
       process.stdout.write(`  - read ${component} manifest\n`);
     }
-    const manifest = simpleReadJson(path.resolve(workspaceDir, component, '.manifest.json'));
+    let manifest;
+    if (components[component].endsWith('.json')) {
+      manifest = simpleReadJson(components[component]);
+    } else {
+      manifest = simpleReadYaml(components[component]);
+    }
     if (manifest.configs) {
       if (!configObjCopy.components) {
         configObjCopy.components = {};
       }
       configObjCopy.components[component] = _.defaultsDeep(configObjCopy.components[component] || {}, manifest.configs);
     }
-  });
-
-  // write workspace/.zowe.json
-  if (process.env[VERBOSE_ENV]) {
-    process.stdout.write(`- write <workspace-dir>/.zowe.json\n`);
   }
-  // FIXME: will we have issue of competing write with multiple ha instance starting at same time?
-  writeJson(configObjCopy, path.resolve(workspaceDir, '.zowe.json'));
 
-  // prepare haInstance.id, haInstance.hostname and haInstance.ip
+  // prepare haInstance.id, haInstance.hostname
   if (process.env[VERBOSE_ENV]) {
     process.stdout.write(`- process HA instance "${haInstance}"\n`);
   }
   const haCopy = merge({}, configObjCopy);
-  const haCopyMerged = merge(haCopy, _.omit(configObjCopy.haInstances && configObjCopy.haInstances[haInstance] || {}, ['id', 'hostname', 'ip']));
+  const haCopyMerged = merge(haCopy, _.omit(configObjCopy.haInstances && configObjCopy.haInstances[haInstance] || {}, ['hostname']));
   _.set(haCopyMerged, 'haInstance.id', haInstance);
   _.set(haCopyMerged, 'haInstance.hostname', 
     (
@@ -151,18 +191,10 @@ const convertConfigs = (configObj, haInstance, workspaceDir = null) => {
       ''
     )
   );
-  _.set(haCopyMerged, 'haInstance.ip', 
-    (
-      (configObjCopy.haInstances && configObjCopy.haInstances[haInstance] && configObjCopy.haInstances[haInstance].ip) || 
-      (configObjCopy.zowe && configObjCopy.zowe.environments && configObjCopy.zowe.environments['ZOWE_IP_ADDRESS']) ||
-      ''
-    )
-  );
-  writeJson(haCopyMerged, path.resolve(workspaceDir, `.zowe-${haInstance}.json`));
 
   // prepare component configs and write component configurations
   // IMPORTANT: these configs will be used to generate component runtime environment
-  components.forEach(component => {
+  for (const component in components) {
     if (haCopyMerged.components && haCopyMerged.components[component]) {
       const componentCopy = merge({}, haCopyMerged);
       _.set(componentCopy, 'configs', haCopyMerged.components[component]);
@@ -170,13 +202,13 @@ const convertConfigs = (configObj, haInstance, workspaceDir = null) => {
       if (process.env[VERBOSE_ENV]) {
         process.stdout.write(`    - write <workspace-dir>/${component}/.configs-${haInstance}.json\n`);
       }
-      writeJson(componentCopy, path.resolve(workspaceDir, component, `.configs-${haInstance}.json`));
-      // if (process.env[VERBOSE_ENV]) {
-      //   process.stdout.write(`    - write <workspace-dir>/${component}/.configs-${haInstance}.yaml\n`);
-      // }
-      // writeYaml(componentCopy, path.resolve(workspaceDir, component, `.configs-${haInstance}.yaml`));
+      const componentWorkspaceDir = path.resolve(workspaceDir, component);
+      if (!fs.existsSync(componentWorkspaceDir)) {
+        fs.mkdirSync(componentWorkspaceDir);
+      }    
+      writeJson(componentCopy, path.resolve(componentWorkspaceDir, `.configs-${haInstance}.json`));
     }
-  });
+  }
 };
 
 // convert Zowe YAML config to old instance.env format
@@ -375,7 +407,7 @@ const deleteYamlProperty = (yamlFile, objectPath) => {
 
 module.exports = {
   convertToYamlConfig,
-  readYaml,
+  readZoweYaml,
   convertConfigs,
   convertHaInstanceYamlToEnv,
   convertComponentYamlToEnv,

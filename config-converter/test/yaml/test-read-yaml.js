@@ -13,13 +13,13 @@ const debug = require('debug')('zcc-test:yaml:read-yaml');
 const { expect } = require('chai');
 const _ = require('lodash');
 
-const { readYaml } = require('../../src/libs/yaml');
+const { readZoweYaml } = require('../../src/libs/yaml');
 const { getYamlResource } = require('../utils');
 
-describe('test yaml utility method readYaml', function () {
+describe('test yaml utility method readZoweYaml', function () {
 
   it('should return object with simple YAML file (without include)', () => {
-    const result = readYaml(getYamlResource('simple'));
+    const result = readZoweYaml(getYamlResource('simple'));
     debug(JSON.stringify(result, null, 2));
 
     expect(result).to.be.an('object');
@@ -28,7 +28,7 @@ describe('test yaml utility method readYaml', function () {
   });
 
   it('should return object with included YAML file', () => {
-    const result = readYaml(getYamlResource('with-include'));
+    const result = readZoweYaml(getYamlResource('with-include'));
     debug(JSON.stringify(result, null, 2));
 
     expect(result).to.be.an('object');
@@ -48,7 +48,7 @@ describe('test yaml utility method readYaml', function () {
   });
 
   it('should return correct array if same YAML file is included multiple times', () => {
-    const result = readYaml(getYamlResource('with-include', 'array-of-objects.yaml'));
+    const result = readZoweYaml(getYamlResource('with-include', 'array-of-objects.yaml'));
     debug(JSON.stringify(result, null, 2));
 
     expect(result).to.be.an('object');
@@ -60,7 +60,7 @@ describe('test yaml utility method readYaml', function () {
 
   it('should throw error if include YAML file doesn\'t not exist', () => {
     const testFunction = () => {
-      readYaml(getYamlResource('with-include', 'zowe-missing-include.yaml'));
+      readZoweYaml(getYamlResource('with-include', 'zowe-missing-include.yaml'));
     };
 
     expect(testFunction).to.throw('no such file or directory');
