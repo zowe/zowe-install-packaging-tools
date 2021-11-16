@@ -8,7 +8,7 @@
  * Copyright IBM Corporation 2021
  */
 
-const { convertComponentYamlToEnv, convertAllComponentYamlsToEnv, convertHaInstanceYamlToEnv } = require('../../libs/yaml');
+const { convertComponentYamlToEnv, convertAllComponentYamlsToEnv } = require('../../libs/yaml');
 const { getSysname } = require('../../libs');
 
 const builder = (yargs) => {
@@ -45,7 +45,6 @@ const handler = async (options) => {
   if (options.componentId) {
     convertComponentYamlToEnv(options.workspaceDir, options.haInstanceId, options.componentId);
   } else {
-    convertHaInstanceYamlToEnv(options.workspaceDir, options.haInstanceId);
     convertAllComponentYamlsToEnv(options.workspaceDir, options.haInstanceId);
   }
 };

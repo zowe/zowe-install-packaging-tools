@@ -15,7 +15,7 @@ const path = require('path');
 const fs = require('fs');
 const tmp = require('tmp');
 
-const { convertConfigs } = require('../../src/libs/yaml');
+const { convertConfigs, updateYaml } = require('../../src/libs/yaml');
 const { simpleReadYaml } = require('../../src/libs/index');
 const { RESOURCES_DIR, getYamlResource, testConfigConverter, showFiles, deleteAllFiles } = require('../utils');
 
@@ -24,21 +24,36 @@ describe('test zcc yaml to-env <yaml-with-full>', function () {
   const resourceCategory = 'full';
   const componentId = 'discovery';
   let obj = null;
-  let workspaceDirObj = null;
+  let tmpDirObj = null;
+  let runtimeDir = null;
+  let instanceDir = null;
   let workspaceDir = null;
+  let targetYaml = null;
 
   beforeEach(() => {
-    obj = simpleReadYaml(getYamlResource(resourceCategory));
+    // prepare temporary directory
+    tmpDirObj = tmp.dirSync();
+    const tmpDir = tmpDirObj.name;
+    runtimeDir = path.resolve(tmpDir, 'runtime');
+    fs.mkdirSync(runtimeDir);
+    fs.mkdirSync(path.resolve(runtimeDir, 'components'));
+    instanceDir = path.resolve(tmpDir, 'instance');
+    fs.mkdirSync(instanceDir);
+    workspaceDir = path.resolve(instanceDir, '.env');
+    fs.mkdirSync(workspaceDir);
+    debug(`temporary directory: ${tmpDir}`);
 
-    // prepare workspace directory
-    workspaceDirObj = tmp.dirSync();
-    workspaceDir = workspaceDirObj.name;
-    debug(`workspace directory: ${workspaceDir}`);
+    // copy and update zowe.yaml with new runtime/extension dir
+    const yaml = getYamlResource(resourceCategory);
+    targetYaml = path.resolve(instanceDir, 'zowe.yaml');
+    fs.copyFileSync(yaml, targetYaml);
+    updateYaml(targetYaml, 'zowe.runtimeDirectory', runtimeDir);
+    obj = simpleReadYaml(targetYaml);
 
-    fs.mkdirSync(path.resolve(workspaceDir, componentId));
-    fs.copyFileSync(path.resolve(RESOURCES_DIR, 'yaml', resourceCategory, componentId, '.manifest.json'), path.resolve(workspaceDir, componentId, '.manifest.json'));
-    debug('workspace directory prepared');
-    showFiles(workspaceDir);
+    fs.mkdirSync(path.resolve(runtimeDir, 'components', componentId));
+    fs.copyFileSync(path.resolve(RESOURCES_DIR, 'yaml', resourceCategory, componentId, 'manifest.yaml'), path.resolve(runtimeDir, 'components', componentId, 'manifest.yaml'));
+    debug('temporary directory prepared');
+    showFiles(tmpDir);
 
     convertConfigs(obj, 'default', workspaceDir);
     debug('workspace directory after converted');
@@ -46,9 +61,9 @@ describe('test zcc yaml to-env <yaml-with-full>', function () {
   });
 
   afterEach(() => {
-    if (workspaceDirObj) {
-      deleteAllFiles(workspaceDirObj.name);
-      workspaceDirObj.removeCallback();
+    if (tmpDirObj) {
+      deleteAllFiles(tmpDirObj.name);
+      tmpDirObj.removeCallback();
     }
   });
 
@@ -66,11 +81,11 @@ describe('test zcc yaml to-env <yaml-with-full>', function () {
     expect(existence).to.be.true;
 
     let content = fs.readFileSync(path.resolve(workspaceDir, componentId, '.instance-default.env')).toString();
-    expect(content).to.include('GATEWAY_PORT="7554"');
-    expect(content).to.include('LAUNCH_COMPONENT_GROUPS="ZSS"');
-    expect(content).to.include('ZWE_LAUNCH_COMPONENTS="zss"');
-    expect(content).to.include('ZOWE_EXPLORER_HOST="zos.test-domain.com"');
-    expect(content).to.include('APIML_SECURITY_X509_ENABLED="true"');
+    expect(content).to.include('COMPONENTS_GATEWAY_PORT="7554"');
+    expect(content).to.include('CONFIGS_PORT="7553"');
+    expect(content).to.include('HA_INSTANCE_ID="default"');
+    expect(content).to.include('CONFIGS_DEBUG="false"');
+    expect(content).to.include('CONFIGS_DISCOVERY_SPECIAL_CONFIG="default-value"');
   });
 
 });

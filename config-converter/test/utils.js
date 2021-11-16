@@ -108,14 +108,14 @@ const reformatYaml = (file) => {
   });
 };
 
-const showFiles = (dir) => {
+const showFiles = (dir, indent = '') => {
   fs.readdirSync(dir).forEach(file => {
-    debug(`- ${file}`);
     const absPath = path.resolve(dir, file);
     if (fs.statSync(absPath).isDirectory()) {
-      fs.readdirSync(absPath).forEach(subfile => {
-        debug(`  - ${subfile}`);
-      });
+      debug(`${indent}- ${file}/`);
+      showFiles(`${dir}/${file}`, indent + '  ');
+    } else {
+      debug(`${indent}- ${file}`);
     }
   });
 };
