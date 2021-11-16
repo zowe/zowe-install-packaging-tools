@@ -1,6 +1,6 @@
 {
   "name": "@zowe/config-converter",
-  "version": "0.1.0",
+  "version": "2.1.0",
   "description": "Convert Zowe instance.env to YAML format",
   "main": "src/index.js",
   "dependencies": {
