@@ -27,15 +27,13 @@ node('zowe-jenkins-agent') {
       sshPort                    : lib.Constants.DEFAULT_PAX_PACKAGING_SSH_PORT,
       sshCredential              : lib.Constants.DEFAULT_PAX_PACKAGING_SSH_CREDENTIAL,
       remoteWorkspace            : lib.Constants.DEFAULT_PAX_PACKAGING_REMOTE_WORKSPACE,
-    ],
-    extraInit: {
-      echo "Pipeline will use node.js ${nodeJsVersion} to build and test"
-      sh "set +x\n. ${nvmInitScript}\nnvm install ${nodeJsVersion}\nnpm install npm -g\nnpm install yarn -g"
-    }
+    ]
   )
 
   pipeline.build(
     operation: {
+      echo "Pipeline will use node.js ${nodeJsVersion} to build and test"
+      sh "set +x\n. ${nvmInitScript}\nnvm install ${nodeJsVersion}\nnpm install npm -g\nnpm install yarn -g"
       sh "set +x\n. ${nvmInitScript}\nnvm use ${nodeJsVersion}\nset -x\n./gradlew assemble"
     }
   )
