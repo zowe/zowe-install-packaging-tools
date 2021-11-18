@@ -19,7 +19,7 @@ const { convertConfigs, updateYaml } = require('../../src/libs/yaml');
 const { simpleReadYaml } = require('../../src/libs/index');
 const { RESOURCES_DIR, getYamlResource, testConfigConverter, showFiles, deleteAllFiles } = require('../utils');
 
-describe('test zcc yaml to-env <yaml-with-full>', function () {
+describe('test zcc yaml to-env <yaml-with-customized-cert>', function () {
   const cliParams = ['yaml', 'to-env'];
   const resourceCategory = 'customized-cert';
   const componentId = 'gateway';
@@ -81,12 +81,13 @@ describe('test zcc yaml to-env <yaml-with-full>', function () {
     expect(existence).to.be.true;
 
     let content = fs.readFileSync(path.resolve(workspaceDir, componentId, '.instance-default.env')).toString();
-    expect(content).to.include('CONFIGS_CERTIFICATE_KEYSTORE_ALIAS="gateway"');
-    expect(content).to.include('CONFIGS_CERTIFICATE_KEYSTORE_FILE="/var/zowe/keystore/zos/gateway.keystore.p12"');
-    expect(content).to.include('CONFIGS_INTERNAL_CERTIFICATE_KEYSTORE_ALIAS="gateway.internal"');
-    expect(content).to.include('CONFIGS_INTERNAL_CERTIFICATE_KEYSTORE_FILE="/var/zowe/keystore/zos/gateway-internal.keystore.p12"');
-    expect(content).to.include('CONFIGS_CERTIFICATE_TRUST_STORE_FILE="/var/zowe/keystore/localhost/localhost.truststore.p12"');
-    expect(content).to.include('CONFIGS_PORT="7554"');
+    debug(`converted result: ${content}`);
+    expect(content).to.include('ZWE_configs_certificate_keystore_alias="gateway"');
+    expect(content).to.include('ZWE_configs_certificate_keystore_file="/var/zowe/keystore/zos/gateway.keystore.p12"');
+    expect(content).to.include('ZWE_configs_internalCertificate_keystore_alias="gateway.internal"');
+    expect(content).to.include('ZWE_configs_internalCertificate_keystore_file="/var/zowe/keystore/zos/gateway-internal.keystore.p12"');
+    expect(content).to.include('ZWE_configs_internalCertificate_trustStore_file="/var/zowe/keystore/localhost/localhost.truststore.p12"');
+    expect(content).to.include('ZWE_configs_port="7554"');
   });
 
 });

@@ -81,11 +81,14 @@ describe('test zcc yaml to-env <yaml-with-full>', function () {
     expect(existence).to.be.true;
 
     let content = fs.readFileSync(path.resolve(workspaceDir, componentId, '.instance-default.env')).toString();
-    expect(content).to.include('COMPONENTS_GATEWAY_PORT="7554"');
-    expect(content).to.include('CONFIGS_PORT="7553"');
-    expect(content).to.include('HA_INSTANCE_ID="default"');
-    expect(content).to.include('CONFIGS_DEBUG="false"');
-    expect(content).to.include('CONFIGS_DISCOVERY_SPECIAL_CONFIG="default-value"');
+    debug(`converted result: ${content}`);
+    expect(content).to.include('ZWE_components_gateway_port="7554"');
+    expect(content).to.include('ZWE_configs_port="7553"');
+    expect(content).to.include('ZWE_haInstance_id="default"');
+    expect(content).to.include('ZWE_configs_debug="false"');
+    expect(content).to.include('ZWE_configs_discoverySpecialConfig="default-value"');
+    expect(content).to.include('JAVA_HOME="/usr/lpp/java/J8.0_64"');
+    expect(content).to.include('ZOSMF_PORT="10443"');
   });
 
 });

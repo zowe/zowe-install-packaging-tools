@@ -248,11 +248,19 @@ const convertZoweYamlToEnv = (workspaceDir, haInstance, componentId, yamlConfigF
     envContent.push([key, escapeEnvValue(val)].join('='));
   };
   const convertPathToEnvVar = (objPath) => {
-    return objPath
-      .replace(/([a-z])([A-Z])/g, '$1_$2')
-      .toUpperCase()
-      .replace(/[^0-9A-Z_]/g, '_')
-      .replace(/(_+)/g, '_');
+    if (objPath.match(/^(zowe|components|haInstances|haInstance|configs)\./)) {
+      return 'ZWE_' + objPath
+        // .replace(/([a-z])([A-Z])/g, '$1_$2')
+        // .toUpperCase()
+        .replace(/[^0-9A-Za-z_]/g, '_')
+        .replace(/(_+)/g, '_');
+    } else {
+      return objPath
+        // .replace(/([a-z])([A-Z])/g, '$1_$2')
+        .toUpperCase()
+        .replace(/[^0-9A-Za-z_]/g, '_')
+        .replace(/(_+)/g, '_');
+    }
   };
 
   for (const objPath of Object.keys(flatted)) {

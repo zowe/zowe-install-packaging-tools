@@ -95,30 +95,34 @@ describe('test zcc yaml to-env <yaml-with-ha-instances>', function () {
 
     debug(`validating workspace/${componentId}/.instance-default.env`);
     let content = fs.readFileSync(path.resolve(workspaceDir, componentId, '.instance-default.env')).toString();
-    expect(content).to.include('CONFIGS_PORT="12346"');
-    expect(content).to.include('COMPONENTS_GATEWAY_PORT="8888"');
-    expect(content).to.include('HA_INSTANCE_HOSTNAME="my-default-zos.com"');
+    debug(`converted result: ${content}`);
+    expect(content).to.include('ZWE_configs_port="12346"');
+    expect(content).to.include('ZWE_components_gateway_port="8888"');
+    expect(content).to.include('ZWE_haInstance_hostname="my-default-zos.com"');
     expect(content).to.include('UNKNOWN_KEY="value"');
 
     debug(`validating workspace/${componentId}/.instance-first.env`);
     content = fs.readFileSync(path.resolve(workspaceDir, componentId, '.instance-first.env')).toString();
-    expect(content).to.include('CONFIGS_PORT="12346"');
-    expect(content).to.include('COMPONENTS_GATEWAY_PORT="8888"');
-    expect(content).to.include('HA_INSTANCE_HOSTNAME="my-first-zos.com"');
+    debug(`converted result: ${content}`);
+    expect(content).to.include('ZWE_configs_port="12346"');
+    expect(content).to.include('ZWE_components_gateway_port="8888"');
+    expect(content).to.include('ZWE_haInstance_hostname="my-first-zos.com"');
     expect(content).to.include('UNKNOWN_KEY="value"');
 
     debug(`validating workspace/${componentId}/.instance-second.env`);
     content = fs.readFileSync(path.resolve(workspaceDir, componentId, '.instance-second.env')).toString();
-    expect(content).to.include('CONFIGS_PORT="7553"');
-    expect(content).to.include('COMPONENTS_GATEWAY_PORT="7554"');
-    expect(content).to.include('HA_INSTANCE_HOSTNAME="my-second-zos.com"');
+    debug(`converted result: ${content}`);
+    expect(content).to.include('ZWE_configs_port="7553"');
+    expect(content).to.include('ZWE_components_gateway_port="7554"');
+    expect(content).to.include('ZWE_haInstance_hostname="my-second-zos.com"');
     expect(content).to.include('UNKNOWN_KEY="value"');
 
     debug(`validating workspace/${componentId}/.instance-second-alt.env`);
     content = fs.readFileSync(path.resolve(workspaceDir, componentId, '.instance-second-alt.env')).toString();
-    expect(content).to.include('CONFIGS_PORT="17553"');
-    expect(content).to.include('COMPONENTS_GATEWAY_PORT="17554"');
-    expect(content).to.include('HA_INSTANCE_HOSTNAME="my-second-zos.com"');
+    debug(`converted result: ${content}`);
+    expect(content).to.include('ZWE_configs_port="17553"');
+    expect(content).to.include('ZWE_components_gateway_port="17554"');
+    expect(content).to.include('ZWE_haInstance_hostname="my-second-zos.com"');
     expect(content).to.include('UNKNOWN_KEY="value"');
   });
 
