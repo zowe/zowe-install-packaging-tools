@@ -154,7 +154,7 @@ describe('node.js jq parser', function () {
     testNodeJq(["-v", "-i", getResource('file-doesnot-exist.json'), ".name"], {
       rc: 1,
       // this error comes from node.js
-      stderr: ['no such file or directory', 'test/resources/file-doesnot-exist.json', 'at Object.fs.openSync'],
+      stderr: ['no such file or directory', 'test/resources/file-doesnot-exist.json', 'at Object.openSync'],
     });
   });
 
