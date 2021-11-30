@@ -133,7 +133,8 @@ describe('YAML / JSON converter', function () {
   it('should show error when input encoding is invalid', () => {
     testFormatConverter(['--input-encoding', 'non-exist-encoding', getResource('test1.yaml')], {
       rc: 1,
-      stderr: 'Unknown encoding: non-exist-encoding',
+      // stderr: 'Unknown encoding: non-exist-encoding',
+      stderr: '"non-exist-encoding" is invalid',
     });
   });
 
