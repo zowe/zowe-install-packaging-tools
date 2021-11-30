@@ -15,30 +15,45 @@ const path = require('path');
 const fs = require('fs');
 const tmp = require('tmp');
 
-const { convertConfigs } = require('../../src/libs/yaml');
+const { convertConfigs, updateYaml } = require('../../src/libs/yaml');
 const { simpleReadYaml } = require('../../src/libs/index');
 const { RESOURCES_DIR, getYamlResource, testConfigConverter, showFiles, deleteAllFiles } = require('../utils');
 
-describe('test zcc yaml to-env <yaml-with-full>', function () {
+describe('test zcc yaml to-env <yaml-with-customized-cert>', function () {
   const cliParams = ['yaml', 'to-env'];
   const resourceCategory = 'customized-cert';
   const componentId = 'gateway';
   let obj = null;
-  let workspaceDirObj = null;
+  let tmpDirObj = null;
+  let runtimeDir = null;
+  let instanceDir = null;
   let workspaceDir = null;
+  let targetYaml = null;
 
   beforeEach(() => {
-    obj = simpleReadYaml(getYamlResource(resourceCategory));
+    // prepare temporary directory
+    tmpDirObj = tmp.dirSync();
+    const tmpDir = tmpDirObj.name;
+    runtimeDir = path.resolve(tmpDir, 'runtime');
+    fs.mkdirSync(runtimeDir);
+    fs.mkdirSync(path.resolve(runtimeDir, 'components'));
+    instanceDir = path.resolve(tmpDir, 'instance');
+    fs.mkdirSync(instanceDir);
+    workspaceDir = path.resolve(instanceDir, '.env');
+    fs.mkdirSync(workspaceDir);
+    debug(`temporary directory: ${tmpDir}`);
 
-    // prepare workspace directory
-    workspaceDirObj = tmp.dirSync();
-    workspaceDir = workspaceDirObj.name;
-    debug(`workspace directory: ${workspaceDir}`);
+    // copy and update zowe.yaml with new runtime/extension dir
+    const yaml = getYamlResource(resourceCategory);
+    targetYaml = path.resolve(instanceDir, 'zowe.yaml');
+    fs.copyFileSync(yaml, targetYaml);
+    updateYaml(targetYaml, 'zowe.runtimeDirectory', runtimeDir);
+    obj = simpleReadYaml(targetYaml);
 
-    fs.mkdirSync(path.resolve(workspaceDir, componentId));
-    fs.copyFileSync(path.resolve(RESOURCES_DIR, 'yaml', resourceCategory, componentId, '.manifest.json'), path.resolve(workspaceDir, componentId, '.manifest.json'));
-    debug('workspace directory prepared');
-    showFiles(workspaceDir);
+    fs.mkdirSync(path.resolve(runtimeDir, 'components', componentId));
+    fs.copyFileSync(path.resolve(RESOURCES_DIR, 'yaml', resourceCategory, componentId, 'manifest.json'), path.resolve(runtimeDir, 'components', componentId, 'manifest.json'));
+    debug('temporary directory prepared');
+    showFiles(tmpDir);
 
     convertConfigs(obj, 'default', workspaceDir);
     debug('workspace directory after converted');
@@ -46,9 +61,9 @@ describe('test zcc yaml to-env <yaml-with-full>', function () {
   });
 
   afterEach(() => {
-    if (workspaceDirObj) {
-      deleteAllFiles(workspaceDirObj.name);
-      workspaceDirObj.removeCallback();
+    if (tmpDirObj) {
+      deleteAllFiles(tmpDirObj.name);
+      tmpDirObj.removeCallback();
     }
   });
 
@@ -66,12 +81,13 @@ describe('test zcc yaml to-env <yaml-with-full>', function () {
     expect(existence).to.be.true;
 
     let content = fs.readFileSync(path.resolve(workspaceDir, componentId, '.instance-default.env')).toString();
-    expect(content).to.include('KEY_ALIAS="gateway"');
-    expect(content).to.include('KEYSTORE="/var/zowe/keystore/zos/gateway.keystore.p12"');
-    expect(content).to.include('SERVER_INTERNAL_SSL_KEYALIAS="gateway.internal"');
-    expect(content).to.include('SERVER_INTERNAL_SSL_KEYSTORE="/var/zowe/keystore/zos/gateway-internal.keystore.p12"');
-    expect(content).to.include('TRUSTSTORE="/var/zowe/keystore/localhost/localhost.truststore.p12"');
-    expect(content).to.include('ZWE_LAUNCH_COMPONENTS="zss"');
+    debug(`converted result: ${content}`);
+    expect(content).to.include('ZWE_configs_certificate_keystore_alias="gateway"');
+    expect(content).to.include('ZWE_configs_certificate_keystore_file="/var/zowe/keystore/zos/gateway.keystore.p12"');
+    expect(content).to.include('ZWE_configs_internalCertificate_keystore_alias="gateway.internal"');
+    expect(content).to.include('ZWE_configs_internalCertificate_keystore_file="/var/zowe/keystore/zos/gateway-internal.keystore.p12"');
+    expect(content).to.include('ZWE_configs_internalCertificate_trustStore_file="/var/zowe/keystore/localhost/localhost.truststore.p12"');
+    expect(content).to.include('ZWE_configs_port="7554"');
   });
 
 });

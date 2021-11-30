@@ -15,7 +15,7 @@ const path = require('path');
 const fs = require('fs');
 const tmp = require('tmp');
 
-const { convertConfigs } = require('../../src/libs/yaml');
+const { convertConfigs, updateYaml } = require('../../src/libs/yaml');
 const { simpleReadYaml } = require('../../src/libs/index');
 const { RESOURCES_DIR, getYamlResource, testConfigConverter, showFiles, deleteAllFiles } = require('../utils');
 
@@ -24,25 +24,44 @@ describe('test zcc yaml to-env <yaml-with-ha-instances>', function () {
   const resourceCategory = 'ha-instances';
   const componentId = 'discovery';
   let obj = null;
-  let workspaceDirObj = null;
+  let tmpDirObj = null;
+  let runtimeDir = null;
+  let extensionDir = null;
+  let instanceDir = null;
   let workspaceDir = null;
+  let targetYaml = null;
 
   beforeEach(() => {
-    obj = simpleReadYaml(getYamlResource(resourceCategory));
+    // prepare temporary directory
+    tmpDirObj = tmp.dirSync();
+    const tmpDir = tmpDirObj.name;
+    runtimeDir = path.resolve(tmpDir, 'runtime');
+    fs.mkdirSync(runtimeDir);
+    fs.mkdirSync(path.resolve(runtimeDir, 'components'));
+    extensionDir = path.resolve(tmpDir, 'extensions');
+    fs.mkdirSync(extensionDir);
+    instanceDir = path.resolve(tmpDir, 'instance');
+    fs.mkdirSync(instanceDir);
+    workspaceDir = path.resolve(instanceDir, '.env');
+    fs.mkdirSync(workspaceDir);
+    debug(`temporary directory: ${tmpDir}`);
 
-    // prepare workspace directory
-    workspaceDirObj = tmp.dirSync();
-    workspaceDir = workspaceDirObj.name;
-    debug(`workspace directory: ${workspaceDir}`);
+    // copy and update zowe.yaml with new runtime/extension dir
+    const yaml = getYamlResource(resourceCategory);
+    targetYaml = path.resolve(instanceDir, 'zowe.yaml');
+    fs.copyFileSync(yaml, targetYaml);
+    updateYaml(targetYaml, 'zowe.runtimeDirectory', runtimeDir);
+    updateYaml(targetYaml, 'zowe.extensionDirectory', extensionDir);
+    obj = simpleReadYaml(targetYaml);
 
-    fs.mkdirSync(path.resolve(workspaceDir, 'gateway'));
-    fs.mkdirSync(path.resolve(workspaceDir, 'discovery'));
-    fs.mkdirSync(path.resolve(workspaceDir, 'dummy'));
-    fs.copyFileSync(path.resolve(RESOURCES_DIR, 'yaml', resourceCategory, 'gateway', '.manifest.json'), path.resolve(workspaceDir, 'gateway', '.manifest.json'));
-    fs.copyFileSync(path.resolve(RESOURCES_DIR, 'yaml', resourceCategory, 'discovery', '.manifest.json'), path.resolve(workspaceDir, 'discovery', '.manifest.json'));
-    fs.copyFileSync(path.resolve(RESOURCES_DIR, 'yaml', resourceCategory, 'dummy', '.keep'), path.resolve(workspaceDir, 'dummy', '.keep'));
-    debug('workspace directory prepared');
-    showFiles(workspaceDir);
+    fs.mkdirSync(path.resolve(runtimeDir, 'components', 'gateway'));
+    fs.mkdirSync(path.resolve(extensionDir, 'discovery'));
+    fs.mkdirSync(path.resolve(extensionDir, 'dummy'));
+    fs.copyFileSync(path.resolve(RESOURCES_DIR, 'yaml', resourceCategory, 'gateway', 'manifest.json'), path.resolve(runtimeDir, 'components', 'gateway', 'manifest.json'));
+    fs.copyFileSync(path.resolve(RESOURCES_DIR, 'yaml', resourceCategory, 'discovery', 'manifest.yaml'), path.resolve(extensionDir, 'discovery', 'manifest.yaml'));
+    fs.copyFileSync(path.resolve(RESOURCES_DIR, 'yaml', resourceCategory, 'dummy', '.keep'), path.resolve(extensionDir, 'dummy', '.keep'));
+    debug('temporary directory prepared');
+    showFiles(tmpDir);
 
     convertConfigs(obj, 'default', workspaceDir);
     convertConfigs(obj, 'first', workspaceDir);
@@ -53,9 +72,9 @@ describe('test zcc yaml to-env <yaml-with-ha-instances>', function () {
   });
 
   afterEach(() => {
-    if (workspaceDirObj) {
-      deleteAllFiles(workspaceDirObj.name);
-      workspaceDirObj.removeCallback();
+    if (tmpDirObj) {
+      deleteAllFiles(tmpDirObj.name);
+      tmpDirObj.removeCallback();
     }
   });
 
@@ -74,28 +93,36 @@ describe('test zcc yaml to-env <yaml-with-ha-instances>', function () {
       expect(existence).to.be.true;
     });
 
+    debug(`validating workspace/${componentId}/.instance-default.env`);
     let content = fs.readFileSync(path.resolve(workspaceDir, componentId, '.instance-default.env')).toString();
-    expect(content).to.include('DISCOVERY_PORT="12346"');
-    expect(content).to.include('GATEWAY_PORT="8888"');
-    // expect(content).to.include('ZOWE_EXPLORER_HOST="my-default-zos.com"');
+    debug(`converted result: ${content}`);
+    expect(content).to.include('ZWE_configs_port="12346"');
+    expect(content).to.include('ZWE_components_gateway_port="8888"');
+    expect(content).to.include('ZWE_haInstance_hostname="my-default-zos.com"');
     expect(content).to.include('UNKNOWN_KEY="value"');
 
+    debug(`validating workspace/${componentId}/.instance-first.env`);
     content = fs.readFileSync(path.resolve(workspaceDir, componentId, '.instance-first.env')).toString();
-    expect(content).to.include('DISCOVERY_PORT="12346"');
-    expect(content).to.include('GATEWAY_PORT="8888"');
-    // expect(content).to.include('ZOWE_EXPLORER_HOST="my-first-zos.com"');
+    debug(`converted result: ${content}`);
+    expect(content).to.include('ZWE_configs_port="12346"');
+    expect(content).to.include('ZWE_components_gateway_port="8888"');
+    expect(content).to.include('ZWE_haInstance_hostname="my-first-zos.com"');
     expect(content).to.include('UNKNOWN_KEY="value"');
 
+    debug(`validating workspace/${componentId}/.instance-second.env`);
     content = fs.readFileSync(path.resolve(workspaceDir, componentId, '.instance-second.env')).toString();
-    expect(content).to.include('DISCOVERY_PORT="7553"');
-    expect(content).to.include('GATEWAY_PORT="7554"');
-    // expect(content).to.include('ZOWE_EXPLORER_HOST="my-second-zos.com"');
+    debug(`converted result: ${content}`);
+    expect(content).to.include('ZWE_configs_port="7553"');
+    expect(content).to.include('ZWE_components_gateway_port="7554"');
+    expect(content).to.include('ZWE_haInstance_hostname="my-second-zos.com"');
     expect(content).to.include('UNKNOWN_KEY="value"');
 
+    debug(`validating workspace/${componentId}/.instance-second-alt.env`);
     content = fs.readFileSync(path.resolve(workspaceDir, componentId, '.instance-second-alt.env')).toString();
-    expect(content).to.include('DISCOVERY_PORT="17553"');
-    expect(content).to.include('GATEWAY_PORT="17554"');
-    // expect(content).to.include('ZOWE_EXPLORER_HOST="my-second-zos.com"');
+    debug(`converted result: ${content}`);
+    expect(content).to.include('ZWE_configs_port="17553"');
+    expect(content).to.include('ZWE_components_gateway_port="17554"');
+    expect(content).to.include('ZWE_haInstance_hostname="my-second-zos.com"');
     expect(content).to.include('UNKNOWN_KEY="value"');
   });
 

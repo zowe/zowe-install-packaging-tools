@@ -108,14 +108,14 @@ const reformatYaml = (file) => {
   });
 };
 
-const showFiles = (dir) => {
+const showFiles = (dir, indent = '') => {
   fs.readdirSync(dir).forEach(file => {
-    debug(`- ${file}`);
     const absPath = path.resolve(dir, file);
     if (fs.statSync(absPath).isDirectory()) {
-      fs.readdirSync(absPath).forEach(subfile => {
-        debug(`  - ${subfile}`);
-      });
+      debug(`${indent}- ${file}/`);
+      showFiles(`${dir}/${file}`, indent + '  ');
+    } else {
+      debug(`${indent}- ${file}`);
     }
   });
 };
@@ -124,9 +124,7 @@ const deleteAllFiles = (dir) => {
   fs.readdirSync(dir).forEach(file => {
     const absPath = path.resolve(dir, file);
     if (fs.statSync(absPath).isDirectory()) {
-      fs.readdirSync(absPath).forEach(subfile => {
-        fs.unlinkSync(path.resolve(absPath, subfile));
-      });
+      deleteAllFiles(absPath);
       fs.rmdirSync(absPath);
     } else {
       fs.unlinkSync(absPath);

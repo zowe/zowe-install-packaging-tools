@@ -8,17 +8,17 @@
  * Copyright IBM Corporation 2021
  */
 
-const debug = require('debug')('zcc-test:yaml:update-yaml');
+const debug = require('debug')('zcc-test:yaml:delete-yaml');
 
 const fs = require('fs');
 const { expect } = require('chai');
 const _ = require('lodash');
 const tmp = require('tmp');
 
-const { readZoweYaml, updateYaml } = require('../../src/libs/yaml');
+const { readZoweYaml, deleteYamlProperty } = require('../../src/libs/yaml');
 const { getYamlResource } = require('../utils');
 
-describe('test yaml utility method updateYaml', function () {
+describe('test yaml utility method deleteYamlProperty', function () {
   let tmpfile;
 
   beforeEach(() => {
@@ -31,13 +31,12 @@ describe('test yaml utility method updateYaml', function () {
     }
   });
 
-  it('should return object with updated values', () => {
+  it('should return object without deleted properties', () => {
     tmpfile = tmp.fileSync();
     debug('temporary file created: %s', tmpfile.name);
     fs.copyFileSync(getYamlResource('simple'), tmpfile.name);
 
-    updateYaml(tmpfile.name, 'zowe.runtimeDirectory', '/new/value');
-    updateYaml(tmpfile.name, 'components.discovery.debug', 'false');
+    deleteYamlProperty(tmpfile.name, 'zowe.runtimeDirectory');
 
     const text = fs.readFileSync(tmpfile.name).toString();
     debug(text);
@@ -48,8 +47,8 @@ describe('test yaml utility method updateYaml', function () {
     debug(result);
 
     expect(result).to.be.an('object');
-    expect(_.get(result, 'zowe.runtimeDirectory')).to.equal('/new/value');
-    expect(_.get(result, 'components.discovery.debug')).to.false;
+    expect(_.get(result, 'zowe.runtimeDirectory')).to.be.undefined;
+    expect(_.get(result, 'components.discovery.debug')).to.true;
   });
 
 });

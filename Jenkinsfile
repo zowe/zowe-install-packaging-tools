@@ -16,6 +16,9 @@ node('zowe-jenkins-agent') {
 
   def pipeline = lib.pipelines.gradle.GradlePipeline.new(this)
 
+  def nvmInitScript = '/home/jenkins/.nvm/nvm.sh'
+  def nodeJsVersion = 'v12.22.5'
+
   pipeline.admins.add("jackjia")
 
   pipeline.setup(
@@ -27,12 +30,18 @@ node('zowe-jenkins-agent') {
     ]
   )
 
-  pipeline.build()
+  pipeline.build(
+    operation: {
+      echo "Pipeline will use node.js ${nodeJsVersion} to build and test"
+      sh "set +x\n. ${nvmInitScript}\nnvm install ${nodeJsVersion}\nnpm install npm -g\nnpm install yarn -g"
+      sh "set +x\n. ${nvmInitScript}\nnvm use ${nodeJsVersion}\nset -x\n./gradlew assemble"
+    }
+  )
 
   pipeline.test(
     name          : 'Unit',
     operation     : {
-        sh './gradlew --info test coverage'
+        sh "set +x\n. ${nvmInitScript}\nnvm use ${nodeJsVersion}\nset -x\n./gradlew --info test coverage"
     },
     junit         : '**/.reports/junit.xml',
     htmlReports   : [
@@ -75,7 +84,7 @@ node('zowe-jenkins-agent') {
       operation: {
         // cleanup before rebuild
         sh "./gradlew zowe-utility-tools-package:clean"
-        sh "./gradlew packageZoweUtilityTools"
+        sh "set +x\n. ${nvmInitScript}\nnvm use ${nodeJsVersion}\nset -x\n./gradlew packageZoweUtilityTools"
       }
   )
 

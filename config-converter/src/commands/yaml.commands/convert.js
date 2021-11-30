@@ -8,7 +8,7 @@
  * Copyright IBM Corporation 2021
  */
 
-const { readYaml, convertConfigs } = require('../../libs/yaml');
+const { readZoweYaml, convertConfigs } = require('../../libs/yaml');
 const { getSysname } = require('../../libs');
 
 const builder = (yargs) => {
@@ -30,7 +30,7 @@ const handler = async (options) => {
   if (options.verbose) {
     process.stdout.write(`Reading ${options.yamlFile} ...\n`);
   }
-  const result = readYaml(options.yamlFile);
+  const result = readZoweYaml(options.yamlFile);
   if (options.verbose) {
     process.stdout.write(`Converting ${options.yamlFile} ...\n`);
   }
