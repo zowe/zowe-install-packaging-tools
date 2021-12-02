@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "dependencies": {
     "node-forge": "0.10.0",
-    "yargs": "17.2.1"
+    "yargs": "15.4.1"
   },
   "optionalDependencies": {
     "keyring_js": "1.1.0"
