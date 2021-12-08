@@ -13,6 +13,7 @@
   },
   "bundledDependencies": [
     "deepmerge",
+    "flat",
     "lodash",
     "yaml",
     "yargs",
