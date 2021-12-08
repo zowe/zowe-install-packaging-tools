@@ -191,6 +191,7 @@ const convertConfigs = (configObj, haInstance, workspaceDir = null) => {
       ''
     )
   );
+  writeJson(haCopyMerged, path.resolve(workspaceDir, `.zowe-${haInstance}.json`));
 
   // prepare component configs and write component configurations
   // IMPORTANT: these configs will be used to generate component runtime environment
@@ -280,6 +281,13 @@ const convertZoweYamlToEnv = (workspaceDir, haInstance, componentId, yamlConfigF
   fs.writeFileSync(haInstanceEnv, envContent.join('\n') + '\n', {
     mode: DEFAULT_NEW_FILE_MODE,
   });
+};
+
+// convert a HA instance YAML config to old instance.env format
+const convertHaInstanceYamlToEnv = (workspaceDir, haInstance) => {
+  const haConfigFile = `.zowe-${haInstance}.json`;
+  const haInstanceEnvFile = `.instance-${haInstance}.env`;
+  convertZoweYamlToEnv(workspaceDir, haInstance, null, haConfigFile, haInstanceEnvFile);
 };
 
 // convert one component YAML config to old instance.env format
@@ -384,6 +392,7 @@ module.exports = {
   convertToYamlConfig,
   readZoweYaml,
   convertConfigs,
+  convertHaInstanceYamlToEnv,
   convertComponentYamlToEnv,
   convertAllComponentYamlsToEnv,
   writeYaml,
