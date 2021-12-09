@@ -13,6 +13,7 @@ zowe:
   identifier: "1"
   externalDomains:
     - my-default-zos.com
+    - extra-zos-domain.com
   environments:
     UNKNOWN_KEY: value
 haInstances:

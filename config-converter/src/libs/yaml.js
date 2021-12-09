@@ -232,7 +232,25 @@ const convertZoweYamlToEnv = (workspaceDir, haInstance, componentId, yamlConfigF
   }
 
   const configObj = simpleReadJson(haComponentConfig);
-  const flatted = flatten(configObj);
+  const convertSimpleArray = (flatted) => {
+    for (const objPath of Object.keys(flatted)) {
+      if (objPath.endsWith('.0')) { // an array we want to resolve
+        const newPath = objPath.slice(0, -2);
+        console.log(objPath, '>>>', newPath);
+        const newValue = []
+        for (const recheck of Object.keys(flatted)) {
+          if (recheck.slice(0, -2) === newPath) {
+            newValue.push(flatted[recheck]);
+          }
+        }
+
+        flatted[newPath] = newValue.join(',');
+      }
+    }
+
+    return flatted;
+  };
+  const flatted = convertSimpleArray(flatten(configObj));
 
   const envContent = ['#!/bin/sh', ''];
   const escapeEnvValue = (val) => {

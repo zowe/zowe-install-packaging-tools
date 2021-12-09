@@ -99,6 +99,7 @@ describe('test zcc yaml to-env <yaml-with-ha-instances>', function () {
     expect(content).to.include('ZWE_configs_port="12346"');
     expect(content).to.include('ZWE_components_gateway_port="8888"');
     expect(content).to.include('ZWE_haInstance_hostname="my-default-zos.com"');
+    expect(content).to.include('ZWE_zowe_externalDomains="my-default-zos.com,extra-zos-domain.com"');
     expect(content).to.include('UNKNOWN_KEY="value"');
 
     debug(`validating workspace/${componentId}/.instance-first.env`);
