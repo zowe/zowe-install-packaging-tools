@@ -18,20 +18,7 @@ zowe:
     EXTERNAL_ROOT_CA: ""
     SSO_FALLBACK_TO_NATIVE_AUTH: "true"
   externalPort: "7554"
-  externalCertificate:
-    keystore:
-      alias: localhost
-      password: password
-      file: /var/zowe/keystore/localhost/localhost.keystore.p12
-      type: PKCS12
-    trustStore:
-      file: /var/zowe/keystore/localhost/localhost.truststore.p12
-      certificateAuthorities: ""
-    pem:
-      key: /var/zowe/keystore/localhost/localhost.keystore.key
-      certificate: /var/zowe/keystore/localhost/localhost.keystore.cer-ebcdic
-      certificateAuthority: /var/zowe/keystore/local_ca/localca.cer-ebcdic
-  internalCertificate:
+  certificate:
     keystore:
       alias: localhost
       password: password

@@ -13,9 +13,6 @@ zowe:
   identifier: "1"
   environments:
     KEYSTORE_DIRECTORY: /Users/tiefengjia/projects/zowe-install-packaging-tools/config-converter/test/resources/instance-env/cert
-  externalCertificate:
-    keystore:
-      file: /var/zowe/keystore/localhost/localhost.keystore.p12
-  internalCertificate:
+  certificate:
     keystore:
       file: /var/zowe/keystore/localhost/localhost.keystore.p12
