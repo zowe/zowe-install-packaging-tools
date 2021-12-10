@@ -20,6 +20,47 @@ const { VERBOSE_ENV, DEFAULT_YAML_INDENT, DEFAULT_JSON_INDENT, DEFAULT_NEW_FILE_
 const { ENV_TO_YAML_MAPPING } = require('../constants/env2yaml-map');
 const { simpleReadJson, simpleReadYaml } = require('./index');
 
+const getDiscoveryList = (originalConfigObj) => {
+  const val = [];
+  const defaultReplicas = _.get(originalConfigObj, 'components.discovery.replicas');
+  const replicas = defaultReplicas && `${defaultReplicas}`.match(/^[0-9]+$/) && parseInt(defaultReplicas, 10);
+  const defaultPort = _.get(originalConfigObj, 'components.discovery.port');
+  if (replicas) {
+    const k8sNamespace = process.env.ZWE_POD_NAMESPACE || 'zowe';
+    const k8sClusterName = process.env.ZWE_POD_CLUSTERNAME || 'cluster.local';
+    for (let i = 0; i < replicas; i++) {
+      val.push(`https://discovery-${i}.discovery-service.${k8sNamespace}.svc.${k8sClusterName}:${defaultPort}/eureka/`.toLowerCase());
+    }
+  } else {
+    const defaultEnabled = _.get(originalConfigObj, 'components.discovery.enabled');
+    const defaultExternalDomain = _.get(originalConfigObj, 'zowe.externalDomains.0') || '';
+    if (originalConfigObj.haInstances) {
+      for (const haInstanceId in originalConfigObj.haInstances) {
+        const haInstanceConfig = originalConfigObj.haInstances[haInstanceId];
+        const haInstanceDiscoveryConfig = haInstanceConfig && haInstanceConfig.components && haInstanceConfig.components.discovery;
+        const haInstanceHostname = (haInstanceConfig && haInstanceConfig.hostname) || defaultExternalDomain;
+        let hasDiscoveryInThisInstance = false;
+        if (haInstanceDiscoveryConfig && _.has(haInstanceDiscoveryConfig, 'enabled')) {
+          hasDiscoveryInThisInstance = _.get(haInstanceDiscoveryConfig, 'enabled');
+        } else {
+          hasDiscoveryInThisInstance = defaultEnabled;
+        }
+
+        let discoveryPort = defaultPort;
+        if (haInstanceDiscoveryConfig && _.has(haInstanceDiscoveryConfig, 'port')) {
+          discoveryPort = _.get(haInstanceDiscoveryConfig, 'port');
+        }
+        if (hasDiscoveryInThisInstance) {
+          val.push(`https://${haInstanceHostname}:${discoveryPort}/eureka/`.toLowerCase());
+        }
+      }
+    } else if (defaultEnabled) { // any chance it's not enabled in this case?
+      val.push(`https://${defaultExternalDomain}:${defaultPort}/eureka/`.toLowerCase());
+    }
+  }
+  return _.uniq(val).join(',');
+};
+
 // convert instance.env object to YAML config object
 const convertToYamlConfig = (envs) => {
   try {
@@ -177,6 +218,13 @@ const convertConfigs = (configObj, haInstance, workspaceDir = null) => {
     }
   }
 
+  // write workspace/.zowe.json
+  if (process.env[VERBOSE_ENV]) {
+    process.stdout.write(`- write <workspace-dir>/.zowe.json\n`);
+  }
+  // FIXME: will we have issue of competing write with multiple ha instance starting at same time?
+  writeJson(configObjCopy, path.resolve(workspaceDir, '.zowe.json'));
+
   // prepare haInstance.id, haInstance.hostname
   if (process.env[VERBOSE_ENV]) {
     process.stdout.write(`- process HA instance "${haInstance}"\n`);
@@ -219,6 +267,9 @@ const convertZoweYamlToEnv = (workspaceDir, haInstance, componentId, yamlConfigF
     throw new Error('Environment WORKSPACE_DIR is required');
   }
 
+  const originalConfigFile = path.resolve(workspaceDir, '.zowe.json');
+  const originalConfigObj = simpleReadJson(originalConfigFile);
+
   // should have <workspace-dir>/<component-id>/.configs-<ha-id>.json
   const haComponentConfig = path.resolve(workspaceDir, yamlConfigFile);
   const haInstanceEnv = path.resolve(workspaceDir, instanceEnvFile);
@@ -236,7 +287,6 @@ const convertZoweYamlToEnv = (workspaceDir, haInstance, componentId, yamlConfigF
     for (const objPath of Object.keys(flatted)) {
       if (objPath.endsWith('.0')) { // an array we want to resolve
         const newPath = objPath.slice(0, -2);
-        console.log(objPath, '>>>', newPath);
         const newValue = []
         for (const recheck of Object.keys(flatted)) {
           if (recheck.slice(0, -2) === newPath) {
@@ -290,6 +340,7 @@ const convertZoweYamlToEnv = (workspaceDir, haInstance, componentId, yamlConfigF
 
   envContent.push('');
   envContent.push('# other environments kept as-is');
+  pushKeyValue('ZWE_DISCOVERY_SERVICES_LIST', getDiscoveryList(originalConfigObj));
   if (configObj && configObj.zowe && configObj.zowe.environments) {
     for (const key in configObj.zowe.environments) {
       pushKeyValue(key, configObj.zowe.environments[key]);

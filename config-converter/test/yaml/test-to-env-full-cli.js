@@ -89,6 +89,7 @@ describe('test zcc yaml to-env <yaml-with-full>', function () {
     expect(content).to.include('ZWE_configs_discoverySpecialConfig="default-value"');
     expect(content).to.include('JAVA_HOME="/usr/lpp/java/J8.0_64"');
     expect(content).to.include('ZOSMF_PORT="10443"');
+    expect(content).to.include('ZWE_DISCOVERY_SERVICES_LIST="https://zos.test-domain.com:7553/eureka/"');
   });
 
 });

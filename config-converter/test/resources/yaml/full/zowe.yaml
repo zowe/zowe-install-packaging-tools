@@ -60,6 +60,7 @@ components:
       preferIpAddress: true
     debug: false
   discovery:
+    enabled: true
     port: "7553"
     apiml:
       service:
