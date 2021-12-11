@@ -309,6 +309,9 @@ const convertZoweYamlToEnv = (workspaceDir, haInstance, componentId, yamlConfigF
       return val;
     } else if (val.indexOf('"') > -1) {
       return `"${val.replaceAll('"', '\\"')}"`;
+    } else if (val === 'null') {
+      // do not write null to env vars
+      return "\"\"";
     } else {
       return `"${val}"`;
     }
