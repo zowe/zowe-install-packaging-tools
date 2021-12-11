@@ -24,7 +24,7 @@ zowe:
       password: password
       file: /var/zowe/keystore/localhost/localhost.keystore.p12
       type: PKCS12
-    trustStore:
+    truststore:
       file: /var/zowe/keystore/localhost/localhost.truststore.p12
       certificateAuthorities: ""
     pem:

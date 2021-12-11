@@ -34,7 +34,7 @@ zowe:
       password: password
       file: /var/zowe/keystore/localhost/localhost.keystore.p12
       type: PKCS12
-    trustStore:
+    truststore:
       file: /var/zowe/keystore/localhost/localhost.truststore.p12
       certificateAuthorities: ""
     pem:
@@ -101,7 +101,7 @@ components:
               password: password
               file: /var/zowe/keystore/zos/gateway-internal.keystore.p12
               type: PKCS12
-            trustStore:
+            truststore:
               file: /var/zowe/keystore/localhost/localhost.truststore.p12
               certificateAuthorities: ""
     # gateway uses different certificate comparing to others
@@ -111,7 +111,7 @@ components:
         password: password
         file: /var/zowe/keystore/zos/gateway.keystore.p12
         type: PKCS12
-      trustStore:
+      truststore:
         file: /var/zowe/keystore/localhost/localhost.truststore.p12
         certificateAuthorities: ""
   caching-service:

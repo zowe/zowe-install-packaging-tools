@@ -86,7 +86,7 @@ describe('test zcc yaml to-env <yaml-with-customized-cert>', function () {
     expect(content).to.include('ZWE_configs_certificate_keystore_file="/var/zowe/keystore/zos/gateway.keystore.p12"');
     expect(content).to.include('ZWE_configs_server_internal_ssl_certificate_keystore_alias="gateway.internal"');
     expect(content).to.include('ZWE_configs_server_internal_ssl_certificate_keystore_file="/var/zowe/keystore/zos/gateway-internal.keystore.p12"');
-    expect(content).to.include('ZWE_configs_server_internal_ssl_certificate_trustStore_file="/var/zowe/keystore/localhost/localhost.truststore.p12"');
+    expect(content).to.include('ZWE_configs_server_internal_ssl_certificate_truststore_file="/var/zowe/keystore/localhost/localhost.truststore.p12"');
     expect(content).to.include('ZWE_configs_port="7554"');
   });
 

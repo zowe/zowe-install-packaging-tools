@@ -210,7 +210,7 @@ const ENV_TO_YAML_MAPPING = {
   ZWEAD_EXTERNAL_STATIC_DEF_DIRECTORIES: "components.discovery.alternativeStaticApiDefinitionsDirectories",
 
   // certificate
-  EXTERNAL_CERTIFICATE_AUTHORITIES: "zowe.certificate.trustStore.certificateAuthorities",
+  EXTERNAL_CERTIFICATE_AUTHORITIES: "zowe.certificate.truststore.certificateAuthorities",
   KEY_ALIAS: "zowe.certificate.keystore.alias",
   KEYSTORE_CERTIFICATE_AUTHORITY: "zowe.certificate.pem.certificateAuthority",
   KEYSTORE_CERTIFICATE: "zowe.certificate.pem.certificate",
@@ -218,7 +218,7 @@ const ENV_TO_YAML_MAPPING = {
   KEYSTORE_PASSWORD: "zowe.certificate.keystore.password",
   KEYSTORE_TYPE: "zowe.certificate.keystore.type",
   KEYSTORE: "zowe.certificate.keystore.file",
-  TRUSTSTORE: "zowe.certificate.trustStore.file",
+  TRUSTSTORE: "zowe.certificate.truststore.file",
 };
 
 module.exports = {
