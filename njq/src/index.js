@@ -66,6 +66,19 @@ const inputFile = argv.input || '';
 if (argv.verbose) {
   process.stdout.write(util.format('Parse %s with jq filter(s): %j\n', inputFile || 'stdin', filters));
 }
+const convertDash2Underscore = (obj) => {
+  if (typeof obj === 'object' && !Array.isArray(obj)) {
+    for (const key in obj) {
+      if (key.indexOf('-') > -1) {
+        obj[key.replace('-', '___')] = convertDash2Underscore(obj[key]);
+      } else {
+        obj[key] = convertDash2Underscore(obj[key]);
+      }
+    }
+  }
+
+  return obj;
+};
 
 //==============================================================================
 // parse JSOn with jq filter(s)
@@ -81,7 +94,10 @@ try {
       filter = oneJq;
     }
     const data = JSON.parse(fs.readFileSync(inputFile || STDIN_FILENO));
-    const result = executeScript(data, filter);
+
+    // micro-jq cannot handle filter with dash
+    // convert all dash to 3 underscores
+    const result = executeScript(convertDash2Underscore(data), filter.replace('-', '___'));
 
     if (Array.isArray(result)) {
       for (const one of result) {

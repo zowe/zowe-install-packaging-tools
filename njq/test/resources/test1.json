@@ -1,6 +1,9 @@
 {
   "name": "Test File 1",
   "description": "A sample test YAML file, in multiple line, and more.\n",
+  "caching-service": {
+    "enabled": true
+  },
   "array_example": [
     {
       "key1": "object element value 1-1",

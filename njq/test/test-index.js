@@ -115,6 +115,12 @@ describe('node.js jq parser', function () {
     }, true);
   });
 
+  it('should show correct value even if object key has dash in it', () => {
+    testNodeJq(["-i", getResource('test1.json'), ".caching-service.enabled"], {
+      stdout: 'true\n',
+    }, true);
+  });
+
   it('should show all array elements if we filter on array of object key', () => {
     testNodeJq(["-i", getResource('test1.json'), ".array_example[].key2"], {
       stdout: '"object element value 1-2"\n"object element value 2-2"\n"object element value 3-2"\n',
