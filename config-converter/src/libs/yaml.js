@@ -182,15 +182,17 @@ const convertConfigs = (configObj, haInstance, workspaceDir = null) => {
   // find components as component-id / component-manifest-path pair
   const components = {};
   for (const componentRuntimeDir of componentRuntimeDirectories) {
-    const componentDirs = fs.readdirSync(componentRuntimeDir).filter(file => {
-      return fs.statSync(path.resolve(componentRuntimeDir, file)).isDirectory();
-    });
-    for (const component of componentDirs) {
-      for (const manifest of ['manifest.yaml', 'manifest.yml', 'manifest.json']) {
-        const componentManifest = path.resolve(componentRuntimeDir, component, manifest);
-        if (fs.existsSync(componentManifest)) {
-          components[component] = componentManifest;
-          break;
+    if (fs.existsSync(componentRuntimeDir) && fs.statSync(componentRuntimeDir).isDirectory()) {
+      const componentDirs = fs.readdirSync(componentRuntimeDir).filter(file => {
+        return fs.statSync(path.resolve(componentRuntimeDir, file)).isDirectory();
+      });
+      for (const component of componentDirs) {
+        for (const manifest of ['manifest.yaml', 'manifest.yml', 'manifest.json']) {
+          const componentManifest = path.resolve(componentRuntimeDir, component, manifest);
+          if (fs.existsSync(componentManifest)) {
+            components[component] = componentManifest;
+            break;
+          }
         }
       }
     }
