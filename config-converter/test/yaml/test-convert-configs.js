@@ -182,11 +182,11 @@ describe('test yaml utility method convertConfigs', function () {
     expect(_.get(result, 'components.gateway.port')).to.equal(17554);
     expect(_.get(result, 'components.gateway.anotherConfig')).to.equal('customized-value');
     expect(_.get(result, 'components.discovery.enabled')).to.be.false;
-    expect(_.get(result, 'components.discovery.port')).to.equal(17553);
+    expect(_.get(result, 'components.discovery.port')).to.equal(17555);
     expect(_.get(result, 'components.discovery.discoverySpecialConfig')).to.equal('default-value');
 
     expect(_.get(result, 'configs.enabled')).to.be.false;
-    expect(_.get(result, 'configs.port')).to.equal(17553);
+    expect(_.get(result, 'configs.port')).to.equal(17555);
     expect(_.get(result, 'configs.discoverySpecialConfig')).to.equal('default-value');
   });
 
