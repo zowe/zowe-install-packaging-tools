@@ -100,6 +100,8 @@ describe('test yaml utility method convertConfigs', function () {
     expect(_.get(result, 'components.gateway.anotherConfig')).to.equal('default-value');
     expect(_.get(result, 'components.discovery.port')).to.equal(12346);
     expect(_.get(result, 'components.discovery.discoverySpecialConfig')).to.equal('default-value');
+    expect(_.get(result, 'components.dummy.port')).to.equal(8889);
+    expect(_.get(result, 'components.dummy2.port')).to.equal(8887);
 
     expect(_.get(result, 'configs.port')).to.equal(12346);
     expect(_.get(result, 'configs.discoverySpecialConfig')).to.equal('default-value');
