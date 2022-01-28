@@ -61,6 +61,25 @@ const getDiscoveryList = (originalConfigObj) => {
   return _.uniq(val).join(',');
 };
 
+const applyPortOffsets = (components) => {
+  const gwport = components?.gateway?.port;
+  if (gwport !== null && gwport !== undefined) {
+  for (const component in components) {
+    if (component !== "gateway") {
+        const configuredPort = components[component].port;
+        console.log(`CONFIURED PORT: ${component} ${configuredPort}`);
+        if (_.isString(configuredPort) && (configuredPort.startsWith("+") || configuredPort.startsWith("-"))) {
+          const offset = parseInt(configuredPort);
+          if (!isNaN(offset)) { // do nothing if not a number
+            components[component].port = gwport + offset; // offset is negative if started with '-'
+          }
+        }
+        console.log(`OFFSET PORT: ${component} ${components[component].port}`);
+      }
+    }
+  }
+}
+
 // convert instance.env object to YAML config object
 const convertToYamlConfig = (envs) => {
   try {
@@ -222,21 +241,7 @@ const convertConfigs = (configObj, haInstance, workspaceDir = null) => {
   console.log("~~~~~~~~~~~~~~~~~PRE OFFSET~~~~~~~~~~~~~~");
   console.log(JSON.stringify(configObjCopy, null, 4));
   console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-  const gwport = configObjCopy.components.gateway.port;
-  // iterate through component ports and apply offsets
-  for (const component in configObjCopy.components) {
-    if (component !== "gateway") {
-      const configuredPort = configObjCopy.components[component].port;
-      console.log(`CONFIURED PORT: ${component} ${configuredPort}`);
-      if (_.isString(configuredPort) && (configuredPort.startsWith("+") || configuredPort.startsWith("-"))) {
-        const offset = parseInt(configuredPort);
-        if (!isNaN(offset)) { // do nothing if not a number
-          configObjCopy.components[component].port = gwport + offset; // offset is negative if started with '-'
-        }
-      }
-      console.log(`OFFSET PORT: ${component} ${configObjCopy.components[component].port}`);
-    }
-  }
+  applyPortOffsets(configObjCopy.components);
 
   console.log("~~~~~~~~~~~~~~~~~POST OFSET~~~~~~~~~~~~~~");
   console.log(JSON.stringify(configObjCopy, null, 4));
