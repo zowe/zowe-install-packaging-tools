@@ -62,7 +62,7 @@ const getDiscoveryList = (originalConfigObj) => {
 };
 
 const applyPortOffsets = (components) => {
-  const gwport = components?.gateway?.port;
+  const gwport = parseInt(components?.gateway?.port);
   if (gwport !== null && gwport !== undefined) {
     for (const component in components) {
       if (component !== "gateway") {
