@@ -62,14 +62,14 @@ const getDiscoveryList = (originalConfigObj) => {
 };
 
 const applyPortOffsets = (components) => {
-  const gwport = parseInt(components?.gateway?.port);
-  if (gwport !== null && gwport !== undefined) {
+  if (components && components.gateway && parseInt(components.gateway.port)) {
+    const gwport = parseInt(components.gateway.port);
     for (const component in components) {
       if (component !== "gateway") {
         const configuredPort = components[component].port;
         if (_.isString(configuredPort) && (configuredPort.startsWith("+") || configuredPort.startsWith("-"))) {
           const offset = parseInt(configuredPort);
-          if (!isNaN(offset)) { // do nothing if not a number
+          if (!isNaN(offset)) {
             components[component].port = gwport + offset; // offset is negative if started with '-'
           }
         }
@@ -239,7 +239,9 @@ const convertConfigs = (configObj, haInstance, workspaceDir = null) => {
   
   applyPortOffsets(configObjCopy.components);
   for (const haInstance in configObjCopy.haInstances) {
-      applyPortOffsets(configObjCopy.haInstances[haInstance]?.components);
+    if (configObjCopy.haInstances[haInstance]) {
+      applyPortOffsets(configObjCopy.haInstances[haInstance].components);
+    }
   }
 
   // write workspace/.zowe.json
