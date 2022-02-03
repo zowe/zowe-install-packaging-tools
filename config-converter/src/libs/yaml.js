@@ -61,17 +61,14 @@ const getDiscoveryList = (originalConfigObj) => {
   return _.uniq(val).join(',');
 };
 
-const applyComponentPortOffsets = (components) => {
-  if (components && components.gateway && parseInt(components.gateway.port)) {
-    const gwport = parseInt(components.gateway.port);
-    for (const component in components) {
-      if (component !== "gateway") {
-        const configuredPort = components[component].port;
-        if (_.isString(configuredPort) && (configuredPort.startsWith("+") || configuredPort.startsWith("-"))) {
-          const offset = parseInt(configuredPort);
-          if (!isNaN(offset)) {
-            components[component].port = gwport + offset; // offset is negative if started with '-'
-          }
+const applyComponentPortOffsets = (components, referencePort = 0) => {
+  for (const component in components) {
+    if (component !== "gateway") { // reference port is the gateway
+      const configuredPort = components[component].port;
+      if (_.isString(configuredPort) && (configuredPort.startsWith("+") || configuredPort.startsWith("-"))) {
+        const offset = parseInt(configuredPort);
+        if (!isNaN(offset)) {
+          components[component].port = referencePort + offset; // offset is negative if started with '-'
         }
       }
     }
@@ -237,14 +234,24 @@ const convertConfigs = (configObj, haInstance, workspaceDir = null) => {
     }
   }
   
-  applyComponentPortOffsets(configObjCopy.components);
-  for (const haInstance in configObjCopy.haInstances) {
-    if (configObjCopy.haInstances[haInstance]) {
-      // TODO ha falls back to components.gateway.port if no ha gateway component
-      applyComponentPortOffsets(configObjCopy.haInstances[haInstance].components);
+  let gatewayPort = null;
+  if (configObjCopy.components && configObjCopy.components.gateway) {
+    gatewayPort = parseInt(configObjCopy.components.gateway.port);
+    if (gatewayPort) {
+      applyComponentPortOffsets(configObjCopy.components, gatewayPort);
+      // TODO apply to gateway internal port components.gateway.server.internal.port
     }
   }
-  // TODO apply to gateway internal port components.gateway.server.internal.port
+  for (const haInstance in configObjCopy.haInstances) {
+    const instance = configObjCopy.haInstances[haInstance];
+    if (instance) {
+      let haGatewayPort = gatewayPort; // let components.gateway port be the fallback value if there is no HA Gateway
+      if (instance.components && instance.components.gateway) {
+        haGatewayPort = instance.components.gateway.port;
+      }
+      applyComponentPortOffsets(instance.components, haGatewayPort);
+    }
+  }
 
   // write workspace/.zowe.json
   if (process.env[VERBOSE_ENV]) {
