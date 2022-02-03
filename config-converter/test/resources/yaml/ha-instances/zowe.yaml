@@ -29,6 +29,9 @@ haInstances:
       gateway:
         enabled: false
         port: 7554
+        server:
+          internal:
+            port: "-2"
       discovery:
         port: "-1"
   second-alt:

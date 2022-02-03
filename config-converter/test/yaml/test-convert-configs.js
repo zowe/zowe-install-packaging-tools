@@ -153,6 +153,7 @@ describe('test yaml utility method convertConfigs', function () {
 
     expect(_.get(result, 'haInstance.id')).to.equal('second');
     expect(_.get(result, 'haInstance.hostname')).to.equal('my-second-zos.com');
+    expect(_.get(result, 'haInstances.second.components.gateway.server.internal.port')).to.equal(7552);
     expect(_.get(result, 'components.gateway.enabled')).to.be.false;
     expect(_.get(result, 'components.gateway.port')).to.equal(7554);
     expect(_.get(result, 'components.gateway.anotherConfig')).to.equal('default-value');

@@ -255,7 +255,7 @@ const convertConfigs = (configObj, haInstance, workspaceDir = null) => {
     const instance = configObjCopy.haInstances[haInstance];
     if (instance) {
       let haGatewayPort = gatewayPort; // let components.gateway port be the fallback value if there is no HA Gateway
-      if (instance.components && instance.components.gateway && instance.components.gateway) {
+      if (instance.components && instance.components.gateway && instance.components.gateway.port) {
         haGatewayPort = instance.components.gateway.port;
       }
       applyComponentPortOffsets(instance.components, haGatewayPort);
