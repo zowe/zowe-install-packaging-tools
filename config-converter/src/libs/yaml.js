@@ -239,7 +239,17 @@ const convertConfigs = (configObj, haInstance, workspaceDir = null) => {
     gatewayPort = parseInt(configObjCopy.components.gateway.port);
     if (gatewayPort) {
       applyComponentPortOffsets(configObjCopy.components, gatewayPort);
-      // TODO apply to gateway internal port components.gateway.server.internal.port
+      
+      // apply offset for gateway internal port components.gateway.server.internal.port
+      if (configObjCopy.components.gateway.server && configObjCopy.components.gateway.server.internal) {
+        const configuredInternalPort = configObjCopy.components.gateway.server.internal.port;
+        if (_.isString(configuredInternalPort) && (configuredInternalPort.startsWith("+") || configuredInternalPort.startsWith("-"))) {
+          const offset = parseInt(configuredInternalPort);
+          if (!isNaN(offset)) {
+            configObjCopy.components.gateway.server.internal.port = gatewayPort + offset;
+          }
+        }
+      }
     }
   }
   for (const haInstance in configObjCopy.haInstances) {
