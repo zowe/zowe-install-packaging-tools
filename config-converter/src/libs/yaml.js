@@ -61,7 +61,7 @@ const getDiscoveryList = (originalConfigObj) => {
   return _.uniq(val).join(',');
 };
 
-const applyPortOffsets = (components) => {
+const applyComponentPortOffsets = (components) => {
   if (components && components.gateway && parseInt(components.gateway.port)) {
     const gwport = parseInt(components.gateway.port);
     for (const component in components) {
@@ -237,12 +237,14 @@ const convertConfigs = (configObj, haInstance, workspaceDir = null) => {
     }
   }
   
-  applyPortOffsets(configObjCopy.components);
+  applyComponentPortOffsets(configObjCopy.components);
   for (const haInstance in configObjCopy.haInstances) {
     if (configObjCopy.haInstances[haInstance]) {
-      applyPortOffsets(configObjCopy.haInstances[haInstance].components);
+      // TODO ha falls back to components.gateway.port if no ha gateway component
+      applyComponentPortOffsets(configObjCopy.haInstances[haInstance].components);
     }
   }
+  // TODO apply to gateway internal port components.gateway.server.internal.port
 
   // write workspace/.zowe.json
   if (process.env[VERBOSE_ENV]) {

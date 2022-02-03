@@ -97,6 +97,7 @@ describe('test yaml utility method convertConfigs', function () {
     expect(_.get(result, 'haInstance.hostname')).to.equal('my-default-zos.com');
     expect(_.get(result, 'components.gateway.enabled')).to.be.true;
     expect(_.get(result, 'components.gateway.port')).to.equal(8888);
+    expect(_.get(result, 'components.gateway.server.internal.port')).to.equal(8878);
     expect(_.get(result, 'components.gateway.anotherConfig')).to.equal('default-value');
     expect(_.get(result, 'components.discovery.port')).to.equal(12346);
     expect(_.get(result, 'components.discovery.discoverySpecialConfig')).to.equal('default-value');
@@ -129,6 +130,7 @@ describe('test yaml utility method convertConfigs', function () {
     expect(_.get(result, 'components.gateway.anotherConfig')).to.equal('default-value');
     expect(_.get(result, 'components.discovery.port')).to.equal(12346);
     expect(_.get(result, 'components.discovery.discoverySpecialConfig')).to.equal('default-value');
+    expect(_.get(result, 'haInstances.first.components.haDummy.port')).to.equal(8898);
 
     expect(_.get(result, 'configs.port')).to.equal(12346);
     expect(_.get(result, 'configs.discoverySpecialConfig')).to.equal('default-value');

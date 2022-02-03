@@ -20,6 +20,9 @@ haInstances:
   default:
   first:
     hostname: my-first-zos.com
+    components:
+      haDummy:
+        port: "+10"
   second:
     hostname: my-second-zos.com
     components:
@@ -42,6 +45,9 @@ components:
   gateway:
     enabled: true
     port: 8888
+    server:
+      internal:
+        port: "-10"
   discovery:
     enabled: true
   dummy:
