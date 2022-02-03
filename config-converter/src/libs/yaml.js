@@ -61,6 +61,25 @@ const getDiscoveryList = (originalConfigObj) => {
   return _.uniq(val).join(',');
 };
 
+const applySpecificPortOffset = (component, referencePort = 0) => {
+  if (component && component.port) {
+    if (_.isString(component.port) && (component.port.startsWith("+") || component.port.startsWith("-"))) {
+      const offset = parseInt(component.port);
+      if (!isNaN(offset)) {
+        component.port = referencePort + offset;
+      }
+    }
+  }
+}
+
+const applyComponentPortOffsets = (components, referencePort = 0) => {
+  for (const component in components) {
+    if (component !== "gateway") { // reference port is the gateway
+      applySpecificPortOffset(components[component], referencePort);
+    }
+  }
+}
+
 // convert instance.env object to YAML config object
 const convertToYamlConfig = (envs) => {
   try {
@@ -217,6 +236,35 @@ const convertConfigs = (configObj, haInstance, workspaceDir = null) => {
         configObjCopy.components = {};
       }
       configObjCopy.components[component] = _.defaultsDeep(configObjCopy.components[component] || {}, manifest.configs);
+    }
+  }
+  
+  let gatewayPort = null;
+  if (configObjCopy.components && configObjCopy.components.gateway) {
+    gatewayPort = parseInt(configObjCopy.components.gateway.port);
+    if (gatewayPort) {
+      applyComponentPortOffsets(configObjCopy.components, gatewayPort);
+      
+      // apply offset for gateway internal port
+      if (configObjCopy.components.gateway.server && configObjCopy.components.gateway.server.internal) {
+        applySpecificPortOffset(configObjCopy.components.gateway.server.internal, gatewayPort)
+      }
+    }
+  }
+  for (const haInstance in configObjCopy.haInstances) {
+    const instance = configObjCopy.haInstances[haInstance];
+    if (instance) {
+      let haGatewayPort = gatewayPort; // let components.gateway port be the fallback value if there is no HA Gateway
+      if (instance.components && instance.components.gateway && instance.components.gateway.port) {
+        haGatewayPort = instance.components.gateway.port;
+
+        // apply offset for gateway internal port
+        if (instance.components.gateway.server && instance.components.gateway.server.internal) {
+          applySpecificPortOffset(instance.components.gateway.server.internal, haGatewayPort)
+        }
+      }
+
+      applyComponentPortOffsets(instance.components, haGatewayPort);
     }
   }
 

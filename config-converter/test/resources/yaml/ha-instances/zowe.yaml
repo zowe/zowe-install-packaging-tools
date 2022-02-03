@@ -20,14 +20,20 @@ haInstances:
   default:
   first:
     hostname: my-first-zos.com
+    components:
+      haDummy:
+        port: "+10"
   second:
     hostname: my-second-zos.com
     components:
       gateway:
         enabled: false
         port: 7554
+        server:
+          internal:
+            port: "-2"
       discovery:
-        port: 7553
+        port: "-1"
   second-alt:
     # we want to start another instance on same system
     hostname: my-second-zos.com
@@ -37,10 +43,17 @@ haInstances:
         anotherConfig: customized-value
       discovery:
         enabled: false
-        port: 17553
+        port: "+1"
 components:
   gateway:
     enabled: true
     port: 8888
+    server:
+      internal:
+        port: "-10"
   discovery:
     enabled: true
+  dummy:
+    port: "+1"
+  dummy2:
+    port: "-1"

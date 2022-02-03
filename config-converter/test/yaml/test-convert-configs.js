@@ -97,9 +97,12 @@ describe('test yaml utility method convertConfigs', function () {
     expect(_.get(result, 'haInstance.hostname')).to.equal('my-default-zos.com');
     expect(_.get(result, 'components.gateway.enabled')).to.be.true;
     expect(_.get(result, 'components.gateway.port')).to.equal(8888);
+    expect(_.get(result, 'components.gateway.server.internal.port')).to.equal(8878);
     expect(_.get(result, 'components.gateway.anotherConfig')).to.equal('default-value');
     expect(_.get(result, 'components.discovery.port')).to.equal(12346);
     expect(_.get(result, 'components.discovery.discoverySpecialConfig')).to.equal('default-value');
+    expect(_.get(result, 'components.dummy.port')).to.equal(8889);
+    expect(_.get(result, 'components.dummy2.port')).to.equal(8887);
 
     expect(_.get(result, 'configs.port')).to.equal(12346);
     expect(_.get(result, 'configs.discoverySpecialConfig')).to.equal('default-value');
@@ -127,6 +130,7 @@ describe('test yaml utility method convertConfigs', function () {
     expect(_.get(result, 'components.gateway.anotherConfig')).to.equal('default-value');
     expect(_.get(result, 'components.discovery.port')).to.equal(12346);
     expect(_.get(result, 'components.discovery.discoverySpecialConfig')).to.equal('default-value');
+    expect(_.get(result, 'haInstances.first.components.haDummy.port')).to.equal(8898);
 
     expect(_.get(result, 'configs.port')).to.equal(12346);
     expect(_.get(result, 'configs.discoverySpecialConfig')).to.equal('default-value');
@@ -149,6 +153,7 @@ describe('test yaml utility method convertConfigs', function () {
 
     expect(_.get(result, 'haInstance.id')).to.equal('second');
     expect(_.get(result, 'haInstance.hostname')).to.equal('my-second-zos.com');
+    expect(_.get(result, 'haInstances.second.components.gateway.server.internal.port')).to.equal(7552);
     expect(_.get(result, 'components.gateway.enabled')).to.be.false;
     expect(_.get(result, 'components.gateway.port')).to.equal(7554);
     expect(_.get(result, 'components.gateway.anotherConfig')).to.equal('default-value');
@@ -180,11 +185,11 @@ describe('test yaml utility method convertConfigs', function () {
     expect(_.get(result, 'components.gateway.port')).to.equal(17554);
     expect(_.get(result, 'components.gateway.anotherConfig')).to.equal('customized-value');
     expect(_.get(result, 'components.discovery.enabled')).to.be.false;
-    expect(_.get(result, 'components.discovery.port')).to.equal(17553);
+    expect(_.get(result, 'components.discovery.port')).to.equal(17555);
     expect(_.get(result, 'components.discovery.discoverySpecialConfig')).to.equal('default-value');
 
     expect(_.get(result, 'configs.enabled')).to.be.false;
-    expect(_.get(result, 'configs.port')).to.equal(17553);
+    expect(_.get(result, 'configs.port')).to.equal(17555);
     expect(_.get(result, 'configs.discoverySpecialConfig')).to.equal('default-value');
   });
 
