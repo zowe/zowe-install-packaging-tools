@@ -61,16 +61,21 @@ const getDiscoveryList = (originalConfigObj) => {
   return _.uniq(val).join(',');
 };
 
+const applySpecificPortOffset = (component, referencePort = 0) => {
+  if (component && component.port) {
+    if (_.isString(component.port) && (component.port.startsWith("+") || component.port.startsWith("-"))) {
+      const offset = parseInt(component.port);
+      if (!isNaN(offset)) {
+        component.port = referencePort + offset;
+      }
+    }
+  }
+}
+
 const applyComponentPortOffsets = (components, referencePort = 0) => {
   for (const component in components) {
     if (component !== "gateway") { // reference port is the gateway
-      const configuredPort = components[component].port;
-      if (_.isString(configuredPort) && (configuredPort.startsWith("+") || configuredPort.startsWith("-"))) {
-        const offset = parseInt(configuredPort);
-        if (!isNaN(offset)) {
-          components[component].port = referencePort + offset; // offset is negative if started with '-'
-        }
-      }
+      applySpecificPortOffset(components[component], referencePort);
     }
   }
 }
@@ -240,15 +245,9 @@ const convertConfigs = (configObj, haInstance, workspaceDir = null) => {
     if (gatewayPort) {
       applyComponentPortOffsets(configObjCopy.components, gatewayPort);
       
-      // apply offset for gateway internal port components.gateway.server.internal.port
+      // apply offset for gateway internal port
       if (configObjCopy.components.gateway.server && configObjCopy.components.gateway.server.internal) {
-        const configuredInternalPort = configObjCopy.components.gateway.server.internal.port;
-        if (_.isString(configuredInternalPort) && (configuredInternalPort.startsWith("+") || configuredInternalPort.startsWith("-"))) {
-          const offset = parseInt(configuredInternalPort);
-          if (!isNaN(offset)) {
-            configObjCopy.components.gateway.server.internal.port = gatewayPort + offset;
-          }
-        }
+        applySpecificPortOffset(configObjCopy.components.gateway.server.internal, gatewayPort)
       }
     }
   }
