@@ -10,20 +10,18 @@ printSchema(nestedSchema, "NESTED SCHEMA");
 
 const { properties, ...flatSchema } = nestedSchema;
 printSchema(properties, "PROPERTIES")
-const res = flattenProperties(properties);
-printSchema(res, "RES");
+const flatProperties = flattenProperties(properties);
+flatSchema.properties = flatProperties;
 
-// printSchema(flatSchema, "FLAT SCHEMA");
+printSchema(flatSchema, "FLAT SCHEMA");
 
-function flattenProperties(properties) {
+function flattenProperties(properties, parentKey = "") {
     let flatProperties = {}
     for (const [propKey, prop] of Object.entries(properties)) {
-        console.log(propKey);
-        console.log(prop);
         if (prop.type === "object") {
-            flatProperties = {...flatProperties, ...flattenProperties(prop.properties) };
+            flatProperties = {...flatProperties, ...flattenProperties(prop.properties, `${parentKey}.${propKey}`) };
         } else {
-            flatProperties = {...flatProperties, [`.${propKey}`]: prop }
+            flatProperties = {...flatProperties, [`${parentKey}.${propKey}`]: prop }
         }
     }
     return flatProperties;
