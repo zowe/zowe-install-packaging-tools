@@ -1,3 +1,6 @@
+// TODO input for schema to convert, not a hardcoded require
+// TODO handle patternProperties regex
+
 const nestedSchema = require("../zowe-schema.json");
 
 const { properties, ...flatSchema } = nestedSchema;
@@ -47,7 +50,7 @@ function getReferencedObject(link, schema) {
 function flattenProperties(properties, parentKey = "") {
     let flatProperties = {};
     for (const [propKey, prop] of Object.entries(properties)) {
-        const keyPrefix = parentKey ? `${parentKey}.` : "" // ensure no leading '.'
+        const keyPrefix = parentKey ? `${parentKey}.` : ""; // ensure no leading '.'
         if (prop.type === "object") {
             flatProperties = { ...flatProperties, ...flattenProperties(prop.properties, `${keyPrefix}${propKey}`) };
         } else {
