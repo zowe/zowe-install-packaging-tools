@@ -1,10 +1,5 @@
-const Ajv = require("ajv/dist/2020");
-const ajv = new Ajv();
-
 const nestedSchema = require("../zowe-schema.json");
 
-// validate nested schema before trying to convert
-ajv.compile(nestedSchema);
 const { properties, ...flatSchema } = nestedSchema;
 
 // resolve $ref references so they can be flattened
