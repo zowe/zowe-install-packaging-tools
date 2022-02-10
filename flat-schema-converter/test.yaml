@@ -1,5 +1,9 @@
 components:
  gateway:
   enabled: 123
+ othernested: "SDF"
+ another:
+  enabled: 123
+othertop: "SDF"
 haInstances:
   a: b
