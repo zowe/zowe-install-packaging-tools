@@ -1,0 +1,5 @@
+components:
+ gateway:
+  enabled: 123
+haInstances:
+  a: b
