@@ -9,8 +9,9 @@ ajv.compile(nestedSchema);
 printSchema(nestedSchema, "NESTED SCHEMA");
 
 const { properties, ...flatSchema } = nestedSchema;
-printSchema(properties, "PROPERTIES")
 const flatProperties = flattenProperties(properties);
+
+
 flatSchema.properties = flatProperties;
 
 printSchema(flatSchema, "FLAT SCHEMA");
@@ -18,10 +19,11 @@ printSchema(flatSchema, "FLAT SCHEMA");
 function flattenProperties(properties, parentKey = "") {
     let flatProperties = {}
     for (const [propKey, prop] of Object.entries(properties)) {
+        const keyPrefix = parentKey ? `${parentKey}.` : "" // ensure no leading .
         if (prop.type === "object") {
-            flatProperties = {...flatProperties, ...flattenProperties(prop.properties, `${parentKey}.${propKey}`) };
+            flatProperties = {...flatProperties, ...flattenProperties(prop.properties, `${keyPrefix}${propKey}`) };
         } else {
-            flatProperties = {...flatProperties, [`${parentKey}.${propKey}`]: prop }
+            flatProperties = {...flatProperties, [`${keyPrefix}${propKey}`]: prop }
         }
     }
     return flatProperties;
