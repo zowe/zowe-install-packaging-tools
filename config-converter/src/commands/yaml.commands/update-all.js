@@ -10,6 +10,7 @@
 
 const { updateYamlFromEnvs } = require('../../libs/yaml')
 const { readEnvFile, loadCertificateEnv } = require('../../libs/instance-env');
+const _ = require('lodash');
 const builder = (yargs) => {
     yargs.options({});
 }
