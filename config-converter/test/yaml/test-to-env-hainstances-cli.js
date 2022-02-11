@@ -121,7 +121,7 @@ describe('test zcc yaml to-env <yaml-with-ha-instances>', function () {
     debug(`validating workspace/${componentId}/.instance-second-alt.env`);
     content = fs.readFileSync(path.resolve(workspaceDir, componentId, '.instance-second-alt.env')).toString();
     debug(`converted result: ${content}`);
-    expect(content).to.include('ZWE_configs_port="17553"');
+    expect(content).to.include('ZWE_configs_port="17555"');
     expect(content).to.include('ZWE_components_gateway_port="17554"');
     expect(content).to.include('ZWE_haInstance_hostname="my-second-zos.com"');
     expect(content).to.include('UNKNOWN_KEY="value"');
