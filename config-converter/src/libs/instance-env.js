@@ -33,10 +33,9 @@ const readEnvOutput = (envOutput) => {
       }
       return;
     }
-
     const equalChar = line.indexOf('=');
     if (equalChar <= 0) {
-      throw new Error(`Invalid env line: ${line}`)
+      // throw new Error(`Invalid env line: ${line}`)
     }
     const key = line.substr(0, equalChar);
     const val = line.substr(equalChar + 1);

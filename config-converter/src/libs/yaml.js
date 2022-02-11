@@ -447,6 +447,43 @@ const updateYaml = (yamlFile, objectPath, newValue) => {
   });
 };
 
+const updateYamlFromEnvs = (envs, yamlFile) => {
+  try {
+    const yamlText = fs.readFileSync(yamlFile).toString();
+    let yawn = new YAWN(yamlText);
+
+    for (const k in envs) {
+      if (_.has(ENV_TO_YAML_MAPPING, k)) {
+        if (_.isArray(ENV_TO_YAML_MAPPING[k])) {
+          ENV_TO_YAML_MAPPING[k].forEach((mv) => {
+            yawn.json = _.set(yawn.json, mv, envs[k]);
+          });
+        } else if (ENV_TO_YAML_MAPPING[k] === false) {
+          // ignore
+          if (process.env[VERBOSE_ENV]) {
+            process.stdout.write(util.format('Ignore key %s with value %j\n', k, envs[k]));
+          }
+        } else if (_.isFunction(ENV_TO_YAML_MAPPING[k])) {
+          yawn.json = ENV_TO_YAML_MAPPING[k](envs[k], envs, yawn.json);
+        } else {
+          yawn.json = _.set(yawn.json, ENV_TO_YAML_MAPPING[k], envs[k]);
+        }
+      } else {
+        if (process.env[VERBOSE_ENV]) {
+          process.stdout.write(util.format('Unknown key %s with value %j\n', k, envs[k]));
+        }
+        yawn.json = _.set(yawn.json, `zowe.environments[${k}]`, envs[k]);
+      }
+    }
+
+    fs.writeFileSync(yamlFile, yawn.yaml, {
+      mode: DEFAULT_NEW_FILE_MODE,
+    });
+  } catch (e) {
+    throw new Error(`Error converting to YAML format: ${e.message}`);
+  }
+};
+
 // delete a property from YAML file without losing format
 const deleteYamlProperty = (yamlFile, objectPath) => {
   const yamlText = fs.readFileSync(yamlFile).toString();
@@ -473,4 +510,5 @@ module.exports = {
   writeJson,
   updateYaml,
   deleteYamlProperty,
+  updateYamlFromEnvs,
 };
