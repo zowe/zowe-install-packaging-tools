@@ -18,7 +18,7 @@ const builder = (yargs) => {
 const handler = async (options) => {
     const instanceFile = options.instanceEnvFile;
     const yamlFile = options.yamlFile;
-    const envs = readEnvFile(instanceFile);
+    let envs = readEnvFile(instanceFile);
     if (envs['KEYSTORE_DIRECTORY']) {
         _.merge(envs, loadCertificateEnv(envs['KEYSTORE_DIRECTORY']));
     }
