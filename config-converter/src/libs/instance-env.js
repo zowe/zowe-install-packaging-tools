@@ -15,6 +15,7 @@ const _ = require('lodash');
 // convert output of "env" command to object
 const readEnvOutput = (envOutput) => {
   const lines = envOutput.split(/\r|\n/);
+  const zwe_parameters_pattern = /(.*\|){6}.*/;
   const envs = {};
   let isMultipleLine = false;
   let mlKey = '';
@@ -35,6 +36,9 @@ const readEnvOutput = (envOutput) => {
     }
     const equalChar = line.indexOf('=');
     if (equalChar <= 0) {
+      if(line.match(zwe_parameters_pattern)){
+        return;
+      }
       throw new Error(`Invalid env line: ${line}`)
     }
     const key = line.substr(0, equalChar);
@@ -46,7 +50,7 @@ const readEnvOutput = (envOutput) => {
       envs[key] = val;
     }
   });
-
+  
   return envs;
 };
 
