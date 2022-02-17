@@ -292,7 +292,7 @@ const signCsr = (csr, options) => {
  * Add new certificate to PKCS#12 file
  * @param {*} p12File 
  * @param {*} password 
- * @param {*} ceert 
+ * @param {*} cert 
  * @param {*} options 
  */
 const saveCertificate = (p12File, password, cert, key, alias) => {

@@ -37,6 +37,7 @@ describe('test yaml utility method updateYaml', function () {
     fs.copyFileSync(getYamlResource('simple'), tmpfile.name);
 
     updateYaml(tmpfile.name, 'zowe.runtimeDirectory', '/new/value');
+    updateYaml(tmpfile.name, 'zowe.identifier', '""');
     updateYaml(tmpfile.name, 'components.discovery.debug', 'false');
 
     const text = fs.readFileSync(tmpfile.name).toString();
@@ -49,6 +50,7 @@ describe('test yaml utility method updateYaml', function () {
 
     expect(result).to.be.an('object');
     expect(_.get(result, 'zowe.runtimeDirectory')).to.equal('/new/value');
+    expect(_.get(result, 'zowe.identifier')).to.equal('');
     expect(_.get(result, 'components.discovery.debug')).to.false;
   });
 

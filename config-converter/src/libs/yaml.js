@@ -487,6 +487,8 @@ const updateYaml = (yamlFile, objectPath, newValue) => {
     newValue = true;
   } else if (newValue === 'false') {
     newValue = false;
+  } else if (newValue === '') {
+    newValue = '""';
   }
 
   yawn.json = _.set(yawn.json, objectPath, newValue);
