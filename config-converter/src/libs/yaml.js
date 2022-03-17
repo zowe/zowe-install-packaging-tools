@@ -487,7 +487,8 @@ const updateYaml = (yamlFile, objectPath, newValue) => {
     newValue = true;
   } else if (newValue === 'false') {
     newValue = false;
-  } else if (newValue === '') {
+  } else if (newValue === '' || newValue === '""' || newValue === '\'\'' || newValue === '\'""\'' || newValue === '"\'\'"') {
+    // sometimes ansible may send empty string as '""'
     newValue = '""';
   }
 
