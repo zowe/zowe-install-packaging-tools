@@ -4,7 +4,7 @@
   "description": "A certificate tool implementation with node.js",
   "main": "src/index.js",
   "dependencies": {
-    "node-forge": "0.10.0",
+    "node-forge": "1.3.0",
     "yargs": "15.4.1"
   },
   "optionalDependencies": {
