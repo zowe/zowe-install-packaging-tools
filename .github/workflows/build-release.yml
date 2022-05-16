@@ -36,7 +36,10 @@ jobs:
 
       - name: "[CI] Build, test, and package"
         uses: ./.github/actions/ci
-
+        with:
+          SSH_MARIST_USERNAME: ${{ secrets.SSH_MARIST_USERNAME }}
+          SSH_MARIST_RACF_PASSWORD: ${{ secrets.SSH_MARIST_RACF_PASSWORD }}
+          
       - name: "[Upload 2] Publish release to artifactory"
         timeout-minutes: 10
         uses: zowe-actions/shared-actions/publish@main
