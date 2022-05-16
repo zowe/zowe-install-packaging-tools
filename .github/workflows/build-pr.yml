@@ -1,0 +1,67 @@
+name: Build and Publish Zowe-Install-Packaging-Tools
+on:
+  pull_request:
+    branches:
+      - v1.x/master
+      - v2.x/master
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: 'The version that is going to be released'
+        required: false
+      new_version:
+        description: 'The version that should be used as a new one after the release.'
+        required: false
+
+jobs:
+
+  build-and-test: 
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: '[Setup 1] Checkout'
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+      - name: '[Setup 2] Prepare Environment'
+        uses: ./.github/actions/setup
+      
+      - name: '[Setup 3] Setup jFrog CLI'
+        uses: jfrog/setup-jfrog-cli@v2
+        env:
+          JF_ENV_1: ${{ secrets.JF_ARTIFACTORY_TOKEN }}
+
+      - name: "[Setup 4] Prepare workflow"
+        uses: zowe-actions/shared-actions/prepare-workflow@main
+
+      - name: "[CI] Build, test, and package"
+        uses: ./.github/actions/ci
+
+      - name: "[Upload 2] Publish release to artifactory"
+        timeout-minutes: 10
+        uses: zowe-actions/shared-actions/publish@main
+        with:
+          artifacts: |
+            zowe-utility-tools-package/build/distributions/zowe-utility-tools.zip   
+
+
+      - if: ${{ github.event.inputs.release_version }}
+        name: Release
+        run: >
+          ./gradlew release -Prelease.useAutomaticVersion=true
+          -Prelease.releaseVersion=${{ github.event.inputs.release_version }}
+          -Prelease.newVersion=${{ github.event.inputs.new_version }}
+      #  timeout: 60
+
+   #  - name: Test Report
+   #    uses: dorny/test-reporter@v1
+   #    if: success() || failure()    # run this step even if previous step failed
+   #    with:
+   #      name: Report Tests            # Name of the check run which will be created
+   #      path: reports/jest-*.xml,ncert/.reports/unit-test/index.html    # Path to test results
+   #      reporter: jest-junit        # Format of test results
+
+      - uses: ./.github/actions/teardown
+        if: success() || failure()
+
+
