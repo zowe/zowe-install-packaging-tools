@@ -2,14 +2,12 @@ name: "CI Build, Test, and Package"
 description: "Runs build, test, and package for zowe-install-packaging-tools"
 
 inputs:
-  nodeVersion:
-    description: "NodeJS Version"
-    required: false
-    default: "12"
-  jdkVersion:
-    description: "JDK version"
-    required: false
-    default: "8"
+  SSH_MARIST_USERNAME:
+    description: "Marist SSH User Secret"
+    required: true
+  SSH_MARIST_RACF_PASSWORD:
+    description: "Marist SSH Password Secret"
+    required: true
 
 runs:
   using: "composite"
@@ -27,8 +25,8 @@ runs:
       with:
         pax-name: "zowe-ncert.pax"
         pax-options: "-o saveext"
-        pax-ssh-username: ${{ secrets.SSH_MARIST_USERNAME }}
-        pax-ssh-password: ${{ secrets.SSH_MARIST_RACF_PASSWORD }}
+        pax-ssh-username: ${{ inputs.SSH_MARIST_USERNAME }}
+        pax-ssh-password: ${{ inputs.SSH_MARIST_RACF_PASSWORD }}
 
     - name: "[NCert] Move ncert pax into final position"
       run: >
