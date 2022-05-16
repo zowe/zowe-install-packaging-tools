@@ -1,0 +1,43 @@
+name: "CI Build, Test, and Package"
+description: "Runs build, test, and package for zowe-install-packaging-tools"
+
+inputs:
+  nodeVersion:
+    description: "NodeJS Version"
+    required: false
+    default: "12"
+  jdkVersion:
+    description: "JDK version"
+    required: false
+    default: "8"
+
+runs:
+  using: "composite"
+  steps:
+    - name: "[Build] Gradle Build"
+      run: ./gradlew assemble
+      shell: bash
+
+    - name: "[Test] Run Gradle Test"
+      run: ./gradlew --info test coverage
+      shell: bash
+
+    - name: "[Package] Package ncert in a PAX"
+      uses: zowe-actions/shared-actions/make-pax@main
+      with:
+        pax-name: "zowe-ncert.pax"
+        pax-options: "-o saveext"
+        pax-ssh-username: ${{ secrets.SSH_MARIST_USERNAME }}
+        pax-ssh-password: ${{ secrets.SSH_MARIST_RACF_PASSWORD }}
+
+    - name: "[NCert] Move ncert pax into final position"
+      run: >
+        NCERT_VERSION=$(node -e \"const p=require('./ncert/package.json');console.log(p.version);\")
+        mv .pax/zowe-ncert.pax ncert/zowe-ncert-$NCERT_VERSION.pax
+      shell: bash
+
+    - name: "[Package] Package zowe utility tools"
+      run: >
+        ./gradlew zowe-utility-tools-package:clean
+        ./gradlew packageZoweUtilityTools
+      shell: bash
