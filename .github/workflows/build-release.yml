@@ -1,4 +1,4 @@
-name: Build and Publish Zowe-Install-Packaging-Tools
+name: Main CI-CD Build
 on:
   push:
     branches:
@@ -9,6 +9,7 @@ on:
       release_version:
         description: 'The version that is going to be released'
         required: false
+        default: ''
       new_version:
         description: 'The version that should be used as a new one after the release.'
         required: false
@@ -39,22 +40,29 @@ jobs:
         with:
           SSH_MARIST_USERNAME: ${{ secrets.SSH_MARIST_USERNAME }}
           SSH_MARIST_RACF_PASSWORD: ${{ secrets.SSH_MARIST_RACF_PASSWORD }}
-          
+
       - name: "[Upload 2] Publish release to artifactory"
         timeout-minutes: 10
         uses: zowe-actions/shared-actions/publish@main
         with:
+          perform-release: ${{ github.event.inputs.release_version != '' }} 
           artifacts: |
             zowe-utility-tools-package/build/distributions/zowe-utility-tools.zip   
 
-
-      - if: ${{ github.event.inputs.release_version }}
-        name: Release
+      - if: ${{ github.event.inputs.release_version != ''}}
+        name: "[Release and Tag] Gradle Release "
         run: >
           ./gradlew release -Prelease.useAutomaticVersion=true
           -Prelease.releaseVersion=${{ github.event.inputs.release_version }}
           -Prelease.newVersion=${{ github.event.inputs.new_version }}
-      #  timeout: 60
+          -Pdeploy.username=$ARTIFACTORY_USERNAME -Pdeploy.password=$ARTIFACTORY_PASSWORD
+        env:
+          ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
+          ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
+
+    #  - if: ${{ github.event.inputs.release_version }}
+    #    name: Release
+    #    uses: zowe-actions/shared-actions/release@main
 
    #  - name: Test Report
    #    uses: dorny/test-reporter@v1
