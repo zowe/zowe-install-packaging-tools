@@ -135,7 +135,7 @@ describe('YAML / JSON converter', function () {
       rc: 1,
       // stderr: 'Unknown encoding: non-exist-encoding',
       // "non-exist-encoding" is invalid... the quotes around "non-exist-encoding" caused issues
-      stderr: 'is invalid encoding',
+      stderr: 'is invalid for option',
     });
   });
 
