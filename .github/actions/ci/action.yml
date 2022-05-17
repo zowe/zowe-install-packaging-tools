@@ -18,6 +18,8 @@ runs:
 
     - name: "[Test] Run Gradle Test"
       run: ./gradlew --info test coverage
+      env:
+        DEBUG: "*"
       shell: bash
 
     - name: "[Package] Package ncert in a PAX"
