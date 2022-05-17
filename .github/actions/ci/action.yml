@@ -23,7 +23,7 @@ runs:
         DEFAULT_BRANCHES_JSON_TEXT=: ""
       shell: bash
 
-    - name: "[Package] Package ncert in a PAX"
+    - name: "[Package 1] Package ncert in a PAX"
       uses: zowe-actions/shared-actions/make-pax@main
       with:
         pax-name: "zowe-ncert"
@@ -37,8 +37,12 @@ runs:
         mv .pax/zowe-ncert.pax ncert/zowe-ncert-$NCERT_VERSION.pax
       shell: bash
 
-    - name: "[Package] Package zowe utility tools"
+    - name: "[Package 2] Cleanup local packaging area"
       run: >
-        ./gradlew zowe-utility-tools-package:clean
+        ./gradlew zowe-utility-tools-package:clean 
+      shell: bash
+
+    - name: "[Package 3] Package zowe utility tools"
+      run: >
         ./gradlew packageZoweUtilityTools
       shell: bash
