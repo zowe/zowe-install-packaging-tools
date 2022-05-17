@@ -26,14 +26,14 @@ runs:
     - name: "[Package] Package ncert in a PAX"
       uses: zowe-actions/shared-actions/make-pax@main
       with:
-        pax-name: "zowe-ncert.pax"
+        pax-name: "zowe-ncert"
         pax-options: "-o saveext"
         pax-ssh-username: ${{ inputs.SSH_MARIST_USERNAME }}
         pax-ssh-password: ${{ inputs.SSH_MARIST_RACF_PASSWORD }}
 
     - name: "[NCert] Move ncert pax into final position"
       run: >
-        NCERT_VERSION=$(node -e \"const p=require('./ncert/package.json');console.log(p.version);\")
+        NCERT_VERSION=$(node -e "const p=require('./ncert/package.json');console.log(p.version);")
         mv .pax/zowe-ncert.pax ncert/zowe-ncert-$NCERT_VERSION.pax
       shell: bash
 
