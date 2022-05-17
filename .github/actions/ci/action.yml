@@ -32,8 +32,8 @@ runs:
         pax-ssh-password: ${{ inputs.SSH_MARIST_RACF_PASSWORD }}
 
     - name: "[NCert] Move ncert pax into final position"
-      run: >
-        NCERT_VERSION=$(node -e "const p=require('./ncert/package.json');console.log(p.version);")
+      run: |
+        NCERT_VERSION=$(node -e "const p=require('./ncert/package.json');console.log(p.version);") && \
         mv .pax/zowe-ncert.pax ncert/zowe-ncert-$NCERT_VERSION.pax
       shell: bash
 
