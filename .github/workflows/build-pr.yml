@@ -23,6 +23,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: ${{ github.head_ref }}
+
       - name: '[Setup 2] Prepare Environment'
         uses: ./.github/actions/setup
       
@@ -33,6 +34,10 @@ jobs:
 
       - name: "[Setup 4] Prepare workflow"
         uses: zowe-actions/shared-actions/prepare-workflow@main
+
+      - name: "Check Node version"
+        run: node --version
+            
 
       - name: "[CI] Build, test, and package"
         uses: ./.github/actions/ci
