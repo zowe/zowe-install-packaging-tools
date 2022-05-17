@@ -24,7 +24,7 @@ task npmInstallDev(type: NpmTask) {
 task npmAudit(type: NpmTask) {
     group = 'Verification'
     description = "Audit npm dependencies"
-    args = ['audit']
+    args = ['audit', '--production']
 }
 
 task npmLint(type: NpmTask) {
