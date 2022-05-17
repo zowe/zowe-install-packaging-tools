@@ -43,6 +43,7 @@ jobs:
         uses: zowe-actions/shared-actions/publish@main
         with:
           perform-release: false
+          publish-target-file-pattern: '{filename}-${{ steps.get_version.outputs.project_version }}{branchtag-uc}{fileext}'
           publish-target-path-pattern: '{repository}/org/zowe/utility_tools/${{ steps.get_version.outputs.project_version }}{branchtag-uc}/'
           artifacts: |
             zowe-utility-tools-package/build/distributions/zowe-utility-tools.zip   
