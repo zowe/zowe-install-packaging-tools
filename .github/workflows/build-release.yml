@@ -50,7 +50,8 @@ jobs:
         uses: zowe-actions/shared-actions/publish@main
         with:
           perform-release: false
-          publish-target-path-pattern: "{repository}/org/zowe/utility_tools/${{ steps.get_version.outputs.project_version }}{branchtag-uc}/"
+          publish-target-file-pattern: '{filename}-${{ steps.get_version.outputs.project_version }}-SNAPSHOT{fileext}'
+          publish-target-path-pattern: "{repository}/org/zowe/utility_tools/${{ steps.get_version.outputs.project_version }}-SNAPSHOT/"
           artifacts: |
             zowe-utility-tools-package/build/distributions/zowe-utility-tools.zip
 
@@ -60,7 +61,8 @@ jobs:
         uses: zowe-actions/shared-actions/publish@main
         with:
           perform-release: true
-          publish-target-path-pattern: "{repository}/org/zowe/utility_tools/${{ steps.get_version.outputs.project_version }}{branchtag-uc}/"
+          publish-target-file-pattern: '{filename}-${{ steps.get_version.outputs.project_version }}{fileext}'
+          publish-target-path-pattern: "{repository}/org/zowe/utility_tools/${{ steps.get_version.outputs.project_version }}/"
           artifacts: |
             zowe-utility-tools-package/build/distributions/zowe-utility-tools.zip
 
