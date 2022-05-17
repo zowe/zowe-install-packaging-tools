@@ -14,13 +14,14 @@ runs:
   steps:
     - name: "[Build] Gradle Build"
       run: ./gradlew assemble
-      shell: sh
+      shell: bash
 
+    # This env must be set to blank; the '{}' it normally contains breaks test cases
     - name: "[Test] Run Gradle Test"
       run: ./gradlew --info test coverage
       env:
-        DEBUG: "*"
-      shell: sh
+        DEFAULT_BRANCHES_JSON_TEXT=: ""
+      shell: bash
 
     - name: "[Package] Package ncert in a PAX"
       uses: zowe-actions/shared-actions/make-pax@main
@@ -34,10 +35,10 @@ runs:
       run: >
         NCERT_VERSION=$(node -e \"const p=require('./ncert/package.json');console.log(p.version);\")
         mv .pax/zowe-ncert.pax ncert/zowe-ncert-$NCERT_VERSION.pax
-      shell: sh
+      shell: bash
 
     - name: "[Package] Package zowe utility tools"
       run: >
         ./gradlew zowe-utility-tools-package:clean
         ./gradlew packageZoweUtilityTools
-      shell: sh
+      shell: bash
