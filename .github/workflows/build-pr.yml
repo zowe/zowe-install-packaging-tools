@@ -1,17 +1,10 @@
-name: Build and Publish Zowe-Install-Packaging-Tools
+name: Pull Request CI Build
 on:
   pull_request:
     branches:
       - v1.x/master
       - v2.x/master
   workflow_dispatch:
-    inputs:
-      release_version:
-        description: 'The version that is going to be released'
-        required: false
-      new_version:
-        description: 'The version that should be used as a new one after the release.'
-        required: false
 
 jobs:
 
@@ -35,31 +28,18 @@ jobs:
       - name: "[Setup 4] Prepare workflow"
         uses: zowe-actions/shared-actions/prepare-workflow@main
 
-      - name: "Check Node version"
-        run: node --version
-            
-
-      - name: "[CI] Build, test, and package"
+      - name: "[CI] Build, Test, and Package"
         uses: ./.github/actions/ci
         with:
           SSH_MARIST_USERNAME: ${{ secrets.SSH_MARIST_USERNAME }}
           SSH_MARIST_RACF_PASSWORD: ${{ secrets.SSH_MARIST_RACF_PASSWORD }}
 
-      - name: "[Upload 2] Publish release to artifactory"
+      - name: "[Upload 2] Publish PR Snapshot to Artifactory"
         timeout-minutes: 10
         uses: zowe-actions/shared-actions/publish@main
         with:
           artifacts: |
             zowe-utility-tools-package/build/distributions/zowe-utility-tools.zip   
-
-
-      - if: ${{ github.event.inputs.release_version }}
-        name: Release
-        run: >
-          ./gradlew release -Prelease.useAutomaticVersion=true
-          -Prelease.releaseVersion=${{ github.event.inputs.release_version }}
-          -Prelease.newVersion=${{ github.event.inputs.new_version }}
-      #  timeout: 60
 
    #  - name: Test Report
    #    uses: dorny/test-reporter@v1
