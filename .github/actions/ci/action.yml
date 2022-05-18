@@ -1,0 +1,48 @@
+name: "CI Build, Test, and Package"
+description: "Runs build, test, and package for zowe-install-packaging-tools"
+
+inputs:
+  SSH_MARIST_USERNAME:
+    description: "Marist SSH User Secret"
+    required: true
+  SSH_MARIST_RACF_PASSWORD:
+    description: "Marist SSH Password Secret"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: "[Build] Gradle Build"
+      run: ./gradlew assemble
+      shell: bash
+
+    # This env must be set to blank; the '{}' it normally contains breaks test cases
+    - name: "[Test] Run Gradle Test"
+      run: ./gradlew --info test coverage
+      env:
+        DEFAULT_BRANCHES_JSON_TEXT=: ""
+      shell: bash
+
+    - name: "[Package 1] Package ncert in a PAX"
+      uses: zowe-actions/shared-actions/make-pax@main
+      with:
+        pax-name: "zowe-ncert"
+        pax-options: "-o saveext"
+        pax-ssh-username: ${{ inputs.SSH_MARIST_USERNAME }}
+        pax-ssh-password: ${{ inputs.SSH_MARIST_RACF_PASSWORD }}
+
+    - name: "[NCert] Move ncert pax into final position"
+      run: |
+        NCERT_VERSION=$(node -e "const p=require('./ncert/package.json');console.log(p.version);") && \
+        mv .pax/zowe-ncert.pax ncert/zowe-ncert-$NCERT_VERSION.pax
+      shell: bash
+
+    - name: "[Package 2] Cleanup local packaging area"
+      run: >
+        ./gradlew zowe-utility-tools-package:clean 
+      shell: bash
+
+    - name: "[Package 3] Package zowe utility tools"
+      run: >
+        ./gradlew packageZoweUtilityTools
+      shell: bash

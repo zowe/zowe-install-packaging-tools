@@ -1,0 +1,104 @@
+name: Main CI-CD Build
+on:
+  push:
+    branches:
+      - v1.x/master
+      - v2.x/master
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: "The version that is going to be released"
+        required: false
+        default: ""
+      new_version:
+        description: "The version that should be used as a new one after the release."
+        required: false
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "[Setup 1] Checkout"
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+      - name: "[Setup 2] Prepare Environment"
+        uses: ./.github/actions/setup
+
+      - name: "[Setup 3] Setup jFrog CLI"
+        uses: jfrog/setup-jfrog-cli@v2
+        env:
+          JF_ENV_1: ${{ secrets.JF_ARTIFACTORY_TOKEN }}
+
+      - name: "[Setup 4] Prepare workflow"
+        uses: zowe-actions/shared-actions/prepare-workflow@main
+
+      - name: "[Setup 5] Set project version"
+        id: get_version
+        run: echo ::set-output name=project_version::$(./gradlew properties -q | grep "version:" | awk '{print $2}')
+
+      - name: "[CI] Build, test, and package"
+        uses: ./.github/actions/ci
+        with:
+          SSH_MARIST_USERNAME: ${{ secrets.SSH_MARIST_USERNAME }}
+          SSH_MARIST_RACF_PASSWORD: ${{ secrets.SSH_MARIST_RACF_PASSWORD }}
+
+      - if: ${{ github.event.inputs.release_version == ''}}
+        name: "[Upload 2] Publish SNAPSHOT to artifactory"
+        timeout-minutes: 10
+        uses: zowe-actions/shared-actions/publish@main
+        with:
+          perform-release: false
+          publish-target-file-pattern: '{filename}-${{ steps.get_version.outputs.project_version }}-SNAPSHOT{fileext}'
+          publish-target-path-pattern: "{repository}/org/zowe/utility_tools/${{ steps.get_version.outputs.project_version }}-SNAPSHOT/"
+          artifacts: |
+            zowe-utility-tools-package/build/distributions/zowe-utility-tools.zip
+
+      - if: ${{ github.event.inputs.release_version != ''}}
+        name: "[Upload 2] Publish release to artifactory"
+        timeout-minutes: 10
+        uses: zowe-actions/shared-actions/publish@main
+        with:
+          perform-release: true
+          publish-target-file-pattern: '{filename}-${{ steps.get_version.outputs.project_version }}{fileext}'
+          publish-target-path-pattern: "{repository}/org/zowe/utility_tools/${{ steps.get_version.outputs.project_version }}/"
+          artifacts: |
+            zowe-utility-tools-package/build/distributions/zowe-utility-tools.zip
+
+      - if: ${{ github.event.inputs.release_version != ''}}
+        name: "[Release and Tag] Gradle Release "
+        run: >
+          ./gradlew release -Prelease.useAutomaticVersion=true
+          -Prelease.releaseVersion=${{ github.event.inputs.release_version }}
+          -Prelease.newVersion=${{ github.event.inputs.new_version }}
+          -Pdeploy.username=$ARTIFACTORY_USERNAME -Pdeploy.password=$ARTIFACTORY_PASSWORD
+        env:
+          ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
+          ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
+
+      #  - if: ${{ github.event.inputs.release_version }}
+      #    name: Release
+      #    uses: zowe-actions/shared-actions/release@main
+
+      #  - name: Test Report
+      #    uses: dorny/test-reporter@v1
+      #    if: success() || failure()    # run this step even if previous step failed
+      #    with:
+      #      name: Report Tests            # Name of the check run which will be created
+      #      path: reports/jest-*.xml,ncert/.reports/unit-test/index.html    # Path to test results
+      #      reporter: jest-junit        # Format of test results
+
+      - uses: ./.github/actions/teardown
+        if: success() || failure()
+
+  # Test Files from Jenkinsfile:
+  #
+  #   [dir: "fconv/.reports/lcov-report", files: "index.html", name: "Format Converter: Code Coverage"],
+  #   [dir: "fconv/.reports/unit-test", files: "index.html", name: "Format Converter: Unit Test"],
+  #   [dir: "njq/.reports/lcov-report", files: "index.html", name: "Node JQ: Code Coverage"],
+  #   [dir: "njq/.reports/unit-test", files: "index.html", name: "Node JQ: Unit Test"],
+  #   [dir: "config-converter/.reports/lcov-report", files: "index.html", name: "Config Converter: Code Coverage"],
+  #   [dir: "config-converter/.reports/unit-test", files: "index.html", name: "Config Converter: Unit Test"],
+  #   [dir: "ncert/.reports/lcov-report", files: "index.html", name: "Node Certificate Tool: Code Coverage"],
+  #   [dir: "ncert/.reports/unit-test", files: "index.html", name: "Node Certificate Tool: Unit Test"],
