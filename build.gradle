@@ -126,7 +126,7 @@ apply plugin: 'net.researchgate.release'
 ext.releaseScope = project.hasProperty('release.scope') ? project.getProperty('release.scope') : 'patch'
 
 release {
-    failOnCommitNeeded = true
+    failOnCommitNeeded = false
     failOnPublishNeeded = false
     failOnSnapshotDependencies = false
     failOnUnversionedFiles = false
