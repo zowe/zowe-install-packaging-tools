@@ -29,6 +29,7 @@ buildscript {
     repositories mavenRepositories
 
     dependencies {
+        classpath 'net.researchgate:gradle-release:2.7.0'
         classpath 'com.palantir:jacoco-coverage:0.4.0'
         classpath "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:${licenseGradlePluginVerion}"
     }
@@ -115,3 +116,53 @@ task npmPackAll() {
 task npmLintAll() {
     subprojects.findAll { it.name in npmProjects }.each { dependsOn("${it.name}:npmLint") }
 }
+
+//-----------Release part start
+//
+// for this project, the release artifacts are built and published outside the gradle scripts. 
+// This should just increment the project version and tag the release.
+apply plugin: 'net.researchgate.release'
+
+ext.releaseScope = project.hasProperty('release.scope') ? project.getProperty('release.scope') : 'patch'
+
+release {
+    failOnCommitNeeded = true
+    failOnPublishNeeded = false
+    failOnSnapshotDependencies = false
+    failOnUnversionedFiles = false
+    failOnUpdateNeeded = true
+    revertOnFail = true
+    preCommitText = '[Gradle Release plugin]'
+    preTagCommitMessage = '[skip ci] Before tag commit'
+    tagCommitMessage = 'Release:'
+    tagTemplate = 'v${version}'
+    newVersionCommitMessage = 'Create new version:'
+    versionPropertyFile = 'gradle.properties'
+
+    if (releaseScope == 'minor') {
+        versionPatterns = [
+            /[.]*\.(\d+)\.(\d+)[.]*/: { Matcher m, Project p -> m.replaceAll(".${(m[0][1] as int) + 1}.0") }
+        ]
+    } else if (releaseScope == 'major') {
+        versionPatterns = [
+            /(\d+)\.(\d+)\.(\d+)[.]*/: { Matcher m, Project p -> m.replaceAll("${(m[0][1] as int) + 1}.0.0") }
+        ]
+    } else {
+        versionPatterns = [
+            /(\d+)([^\d]*$)/: { Matcher m, Project p -> m.replaceAll("${(m[0][1] as int) + 1}${m[0][2]}") }
+        ]
+    }
+
+    scmAdapters = [
+        net.researchgate.release.GitAdapter
+    ]
+
+    git {
+        requireBranch = ''
+        pushToRemote = 'origin'
+        pushToBranchPrefix = ''
+        commitVersionFileOnly = true
+        signTag = false
+    }
+}
+//-----------Release part end
