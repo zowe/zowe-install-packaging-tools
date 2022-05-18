@@ -67,6 +67,15 @@ jobs:
           artifacts: |
             zowe-utility-tools-package/build/distributions/zowe-utility-tools.zip
 
+      - name: Clean git
+        run: git reset --hard HEAD
+
+      - name: Set email
+        run: git config user.email "zowe-robot@users.noreply.github.com"
+
+      - name: Set name
+        run: git config user.name "Zowe Robot"
+
       # We do not publish the artifacts with gradle release; just version/tag
       - if: ${{  github.event.inputs.release_scope }}
         name: "[Release and Tag] Gradle Release "
