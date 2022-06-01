@@ -24,6 +24,8 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: ${{ github.head_ref }}
+          token: ${{ secrets.ZOWE_ROBOT_TOKEN }}
+
       - name: "[Setup 2] Prepare Environment"
         uses: ./.github/actions/setup
 
