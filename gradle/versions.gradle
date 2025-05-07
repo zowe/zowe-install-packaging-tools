@@ -8,7 +8,7 @@ ext {
     snakeyamlVersion = '1.24'
     slf4jVersion = "1.7.26"
 
-    junit4Version = "4.12"
+    junit4Version = "4.13.2"
     junitSystemRulesVersion = "1.19.0"
 
     libraries = [
