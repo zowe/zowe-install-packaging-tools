@@ -11,6 +11,9 @@
     "yargs": "17.2.1",
     "yawn-yaml": "1.5.0"
   },
+  "overrides": {
+    "js-yaml": "3.14.2"
+  },
   "bundledDependencies": [
     "deepmerge",
     "flat",
