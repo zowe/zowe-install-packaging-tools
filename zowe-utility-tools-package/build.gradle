@@ -27,7 +27,7 @@ task packageZoweUtilityTools(type: Zip) {
 
     into('/') {
         from // configurations.fconvNpmPackage,
-             configurations.njqNpmPackage,
+             configurations.njqNpmPackage
              // configurations.configConverterNpmPackage,
              // configurations.ncertNpmPackage
             //  configurations.formatConverterJar,
