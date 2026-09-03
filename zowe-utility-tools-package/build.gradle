@@ -25,14 +25,16 @@ task packageZoweUtilityTools(type: Zip) {
     archiveName = artifactName + ".zip"
     includeEmptyDirs = true
 
-    into('/') {
-        from // configurations.fconvNpmPackage,
-             configurations.njqNpmPackage
+    from configurations.njqNpmPackage
+    into('/')
+    // {
+        // from // configurations.fconvNpmPackage,
+            //  configurations.njqNpmPackage
              // configurations.configConverterNpmPackage,
              // configurations.ncertNpmPackage
             //  configurations.formatConverterJar,
             //  configurations.jacksonJq,
-    }
+    // }
 }
 
 jar.dependsOn(packageZoweUtilityTools)
@@ -50,4 +52,3 @@ publishing {
         }
     }
 }
- 
