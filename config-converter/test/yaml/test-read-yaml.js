@@ -9,12 +9,13 @@
  */
 
 const debug = require('debug')('zcc-test:yaml:read-yaml');
+const path = require('path');
 
 const { expect } = require('chai');
 const _ = require('lodash');
 
 const { readZoweYaml } = require('../../src/libs/yaml');
-const { getYamlResource } = require('../utils');
+const { getYamlResource, RESOURCES_DIR } = require('../utils');
 
 describe('test yaml utility method readZoweYaml', function () {
 
@@ -64,6 +65,41 @@ describe('test yaml utility method readZoweYaml', function () {
     };
 
     expect(testFunction).to.throw('no such file or directory');
+  });
+
+  it('should throw error if @include uses a relative path that escapes the base directory', () => {
+    const testFunction = () => {
+      readZoweYaml(getYamlResource('with-include', 'zowe-path-traversal.yaml'));
+    };
+
+    expect(testFunction).to.throw('is invalid');
+  });
+
+  it('should throw error if @include uses an absolute path', () => {
+    const fs = require('fs');
+    const secretFile = path.resolve(RESOURCES_DIR, 'secret.yaml');
+    const withIncludeDir = path.resolve(RESOURCES_DIR, 'yaml', 'with-include');
+    const tmpYamlFile = path.resolve(withIncludeDir, 'zowe-absolute-include.tmp.yaml');
+
+    fs.writeFileSync(tmpYamlFile, [
+      'zowe:',
+      '  runtimeDirectory: /ZOWE/staging/zowe',
+      'components:',
+      '  api-catalog:',
+      '    enabled: true',
+      `    "@include": "${secretFile.replace(/\\/g, '\\\\')}"`,
+      '',
+    ].join('\n'));
+
+    try {
+      const testFunction = () => {
+        readZoweYaml(tmpYamlFile);
+      };
+
+      expect(testFunction).to.throw('absolute paths are not allowed');
+    } finally {
+      fs.unlinkSync(tmpYamlFile);
+    }
   });
 
 });
