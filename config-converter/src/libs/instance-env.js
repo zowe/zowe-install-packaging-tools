@@ -54,6 +54,10 @@ const readEnvOutput = (envOutput) => {
 // read instance.env or zowe-certificates.env file
 const readEnvFile = (file) => {
   try {
+    if (!fs.statSync(file).isFile()) {
+      throw new Error(`"${file}" is not a regular file`);
+    }
+
     const readOptions = { flag: 'r' };
     const content = fs.readFileSync(file, readOptions).toString();
     const lines = content.split(/\r|\n/);
@@ -76,7 +80,8 @@ const readEnvFile = (file) => {
     });
 
     // source instance.env and export all variables
-    const result = spawnSync('/bin/sh', ['-c', `set -a && . ${file} && env`]);
+    // pass file as a positional parameter (not interpolated into the script) to avoid shell injection
+    const result = spawnSync('/bin/sh', ['-c', 'set -a && . "$1" && env', '_', file]);
     const sourcedEnvs = readEnvOutput(`${result.stdout}`);
 
     // cross check and find correct values of the env variables
