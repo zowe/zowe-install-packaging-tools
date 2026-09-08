@@ -362,4 +362,4 @@ module.exports = {
 };
 
 // merge 2 keystores
-// keytool -v -importkeystore -srckeystore localhost/localhost-new.keystore.p12 -srcstoretype PKCS12 -srcstorepass password -keypass password -destkeystore localhost/localhost.keystore.p12 -deststoretype PKCS12 -deststorepass password
+// keytool -v -importkeystore -srckeystore localhost/localhost-new.keystore.p12 -srcstoretype PKCS12 -srcstorepass <your-password> -keypass <your-password> -destkeystore localhost/localhost.keystore.p12 -deststoretype PKCS12 -deststorepass <your-password>
