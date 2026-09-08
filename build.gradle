@@ -36,10 +36,10 @@ buildscript {
 }
 
 ext.npmProjects = [
-    'fconv',
     'njq',
-    'config-converter',
-    'ncert',
+    // 'fconv',
+    // 'config-converter',
+    // 'ncert',
 ]
 
 apply plugin: 'com.palantir.jacoco-full-report'
