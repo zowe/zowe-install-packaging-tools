@@ -299,7 +299,7 @@ const saveCertificate = (p12File, password, cert, key, alias) => {
   const p12Asn1 = forge.pkcs12.toPkcs12Asn1(key, [cert], password, {
     generateLocalKeyId: true,
     friendlyName: alias,
-    algorithm: '3des'
+    algorithm: 'aes256'
   });
   const p12Der = forge.asn1.toDer(p12Asn1).getBytes();
   fs.writeFileSync(p12File, Buffer.from(p12Der, 'binary'));
