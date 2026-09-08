@@ -355,18 +355,24 @@ const convertZoweYamlToEnv = (workspaceDir, haInstance, componentId, yamlConfigF
   const envContent = ['#!/bin/sh', ''];
   const escapeEnvValue = (val) => {
     val = `${val}`;
-    if (val.startsWith('"') && val.endsWith('"')) {
-      return val;
-    } else if (val.indexOf('"') > -1) {
-      return `"${val.replace(/"/g, '\\"')}"`;
-    } else if (val === 'null') {
+    if (val === 'null') {
       // do not write null to env vars
       return "\"\"";
-    } else {
-      return `"${val}"`;
     }
+    // escape backslash first, then the characters that are still special inside
+    // double quotes in POSIX sh (", $, `), so values cannot break out of the
+    // quoted string or trigger command/variable substitution when the file is sourced
+    const escaped = val
+      .replace(/\\/g, '\\\\')
+      .replace(/"/g, '\\"')
+      .replace(/\$/g, '\\$')
+      .replace(/`/g, '\\`');
+    return `"${escaped}"`;
   };
   const pushKeyValue = (key, val) => {
+    if (!/^[A-Za-z_][0-9A-Za-z_]*$/.test(key)) {
+      throw new Error(`Invalid environment variable name "${key}"`);
+    }
     envContent.push([key, escapeEnvValue(val)].join('='));
   };
   const convertPathToEnvVar = (objPath) => {
