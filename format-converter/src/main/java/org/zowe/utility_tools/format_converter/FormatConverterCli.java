@@ -16,7 +16,9 @@ import com.google.gson.GsonBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -36,6 +38,9 @@ import picocli.CommandLine.Parameters;
 @Command(name = "java -jar format-converter-cli.jar", header = "@|green JSON YAML format converter|@", sortOptions = false, headerHeading = "Usage:%n%n", synopsisHeading = "%n", parameterListHeading = "%nParameters:%n", optionListHeading = "%nOptions:%n")
 public class FormatConverterCli implements Callable<Integer> {
     private static Logger logger = LoggerFactory.getLogger(FormatConverterCli.class);
+
+    // Raised from snakeyaml 2.x's 3 MB default, but low enough to reject oversized input.
+    private static final int YAML_CODE_POINT_LIMIT = 16 * 1024 * 1024;
 
     @Parameters(index = "0", description = "YAML or JSON file")
     File inputFile;
@@ -116,7 +121,9 @@ public class FormatConverterCli implements Callable<Integer> {
             : new InputStreamReader(fi, inputEncoding);
         ) {
             if (inputFileFormat == FileFormat.YAML) {
-                Yaml yaml = new Yaml();
+                LoaderOptions loaderOptions = new LoaderOptions();
+                loaderOptions.setCodePointLimit(YAML_CODE_POINT_LIMIT);
+                Yaml yaml = new Yaml(new SafeConstructor(loaderOptions));
                 result = yaml.load(reader);
             } else if (inputFileFormat == FileFormat.JSON) {
                 Gson gson = new Gson();
