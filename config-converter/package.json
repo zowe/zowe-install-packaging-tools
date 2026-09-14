@@ -7,7 +7,7 @@
     "deepmerge": "4.2.2",
     "flat": "5.0.2",
     "lodash": "4.18.1",
-    "yaml": "2.9.1",
+    "yaml": "2.9.0",
     "yargs": "17.2.1",
     "yawn-yaml": "1.5.0"
   },
@@ -54,5 +54,13 @@
   "bugs": {
     "url": "https://github.com/zowe/zowe-install-packaging-tools/issues"
   },
-  "homepage": "https://github.com/zowe/zowe-install-packaging-tools#readme"
+  "homepage": "https://github.com/zowe/zowe-install-packaging-tools#readme",
+  "bundleDependencies": [
+    "deepmerge",
+    "flat",
+    "lodash",
+    "yaml",
+    "yargs",
+    "yawn-yaml"
+  ]
 }
