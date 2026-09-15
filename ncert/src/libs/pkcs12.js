@@ -9,6 +9,7 @@
  */
 
 const fs = require('fs');
+const crypto = require('crypto');
 const forge = require('node-forge');
 forge.options.usePureJavaScript = true;
 
@@ -20,10 +21,11 @@ const formatSubject = (obj) => {
   return result.join(', ');
 };
 
-const generateSerialNumber = (seed) => {
-  const md = forge.md.sha1.create();
-  md.update(seed);
-  return md.digest().toHex();
+const generateSerialNumber = () => {
+  const bytes = crypto.randomBytes(20);
+  // clear the sign bit so the value is always a positive DER INTEGER
+  bytes[0] &= 0x7f;
+  return bytes.toString('hex');
 }
 
 const loadPkcs12 = (p12File, password) => {
@@ -255,7 +257,7 @@ const signCsr = (csr, options) => {
   }
 
   const cert = forge.pki.createCertificate();
-  cert.serialNumber = options.serialNumber || generateSerialNumber(`${new Date()} - ${JSON.stringify(csr.getAttribute({name: 'extensionRequest'}).extensions)}`);
+  cert.serialNumber = options.serialNumber || generateSerialNumber();
 
   cert.publicKey = csr.publicKey;
 
