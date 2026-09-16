@@ -340,7 +340,7 @@ const exportPrivateKey = (p12File, password, alias, options) => {
   }
 
   if (options.verbose) {
-    process.stdout.write(`Private key found: ${JSON.stringify(key)}\n\n`);
+    process.stdout.write(`Private key found for alias "${alias}" (not displayed).\n\n`);
   }
 
   const result = forge.pki.privateKeyToPem(key);
