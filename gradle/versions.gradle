@@ -5,7 +5,7 @@ ext {
     picocliVersion = '4.5.2'
 
     gsonVersion = '2.8.2'
-    snakeyamlVersion = '1.24'
+    snakeyamlVersion = '2.7'
     slf4jVersion = "1.7.26"
 
     junit4Version = "4.13.2"
