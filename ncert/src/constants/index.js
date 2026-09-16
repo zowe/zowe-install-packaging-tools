@@ -12,7 +12,11 @@ const VERBOSE_ENV = 'ZOWE_CERTIFICATE_TOOL_VERBOSE';
 
 const DEFAULT_JSON_INDENT = 2;
 
+// used for files that may contain private key material (PKCS#12 keystores, exported PEM keys)
+const DEFAULT_PRIVATE_KEY_FILE_MODE = 0o640;
+
 module.exports = {
   VERBOSE_ENV,
   DEFAULT_JSON_INDENT,
+  DEFAULT_PRIVATE_KEY_FILE_MODE,
 };
