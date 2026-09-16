@@ -46,7 +46,7 @@ const handler = async (options) => {
 
   if (options.verbose) {
     process.stdout.write(`Certificate will be imported:\n${forge.pki.certificateToPem(cert)}\n`);
-    process.stdout.write(`Private key:\n${forge.pki.privateKeyToPem(key)}\n`);
+    process.stdout.write(`Private key loaded (not displayed).\n`);
   }
 
   if (options.verbose) {
