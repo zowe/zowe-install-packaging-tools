@@ -206,7 +206,7 @@ const generateCsr = (options) => {
   csr.setAttributes(attrs);
 
   // sign certification request
-  csr.sign(pair.privateKey);
+  csr.sign(pair.privateKey, forge.md.sha256.create());
 
   // verify certification request
   if (!csr.verify()) {
