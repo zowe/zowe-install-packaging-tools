@@ -11,6 +11,7 @@
 const fs = require('fs');
 const crypto = require('crypto');
 const forge = require('node-forge');
+const { DEFAULT_PRIVATE_KEY_FILE_MODE } = require('../constants');
 forge.options.usePureJavaScript = true;
 
 const formatSubject = (obj) => {
@@ -207,7 +208,7 @@ const generateCsr = (options) => {
   csr.setAttributes(attrs);
 
   // sign certification request
-  csr.sign(pair.privateKey);
+  csr.sign(pair.privateKey, forge.md.sha256.create());
 
   // verify certification request
   if (!csr.verify()) {
@@ -301,10 +302,10 @@ const saveCertificate = (p12File, password, cert, key, alias) => {
   const p12Asn1 = forge.pkcs12.toPkcs12Asn1(key, [cert], password, {
     generateLocalKeyId: true,
     friendlyName: alias,
-    algorithm: '3des'
+    algorithm: 'aes256'
   });
   const p12Der = forge.asn1.toDer(p12Asn1).getBytes();
-  fs.writeFileSync(p12File, Buffer.from(p12Der, 'binary'));
+  fs.writeFileSync(p12File, Buffer.from(p12Der, 'binary'), { mode: DEFAULT_PRIVATE_KEY_FILE_MODE });
 };
 
 const exportCertificate = (p12File, password, alias, options) => {
@@ -347,7 +348,7 @@ const exportPrivateKey = (p12File, password, alias, options) => {
 
   const result = forge.pki.privateKeyToPem(key);
   if (options.outputFile) {
-    fs.writeFileSync(options.outputFile, result);
+    fs.writeFileSync(options.outputFile, result, { mode: DEFAULT_PRIVATE_KEY_FILE_MODE });
   } else {
     process.stdout.write(`${result}\n`);
   }
