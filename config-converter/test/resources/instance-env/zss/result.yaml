@@ -21,7 +21,7 @@ zowe:
   certificate:
     keystore:
       alias: localhost
-      password: password
+      password: test-fixture-not-a-real-secret-8f2c
       file: /var/zowe/keystore/localhost/localhost.keystore.p12
       type: PKCS12
     truststore:
