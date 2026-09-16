@@ -43,7 +43,7 @@ const exportPrivateKey = (owner, keyring, label, options) => {
   }
 
   if (options.verbose) {
-    process.stdout.write(`Private key found: ${JSON.stringify(pem.key)}\n\n`);
+    process.stdout.write(`Private key found for label "${label}" (not displayed).\n\n`);
   }
 
   if (options.outputFile) {
