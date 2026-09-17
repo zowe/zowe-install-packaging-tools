@@ -117,8 +117,29 @@ const convertToYamlConfig = (envs) => {
 
 // Read Zowe YAML config and also process @include
 const readZoweYaml = (file) => {
-  const baseFilePath = path.dirname(file);
+  // resolve symlinks so the containment check below can't be bypassed by a symlinked base directory
+  const baseFilePath = fs.realpathSync(path.dirname(file));
   const data = simpleReadYaml(file);
+
+  // @include must stay within the directory of the YAML file that references it: no absolute
+  // paths, and no '..' traversal (directly or via a symlink) out of that directory
+  const resolveIncludePath = (include) => {
+    if (!_.isString(include) || !include) {
+      throw new Error(`Invalid "@include" value: ${JSON.stringify(include)}`);
+    }
+    if (path.isAbsolute(include)) {
+      throw new Error(`"@include" value "${include}" is invalid: absolute paths are not allowed`);
+    }
+
+    const includeFilePath = path.resolve(baseFilePath, include);
+    const realIncludeFilePath = fs.realpathSync(includeFilePath);
+    const relativePath = path.relative(baseFilePath, realIncludeFilePath);
+    if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
+      throw new Error(`"@include" value "${include}" is invalid: it resolves outside of "${baseFilePath}"`);
+    }
+
+    return realIncludeFilePath;
+  };
 
   // @include is a special annotation which allows YAML to import another YAML file
   const recursivelyInclude = (obj) => {
@@ -139,7 +160,7 @@ const readZoweYaml = (file) => {
         }
       }
       for (const include of includes) {
-        const includeFilePath = path.resolve(baseFilePath, include);
+        const includeFilePath = resolveIncludePath(include);
         const includeData = simpleReadYaml(includeFilePath);
         result = merge(result, includeData);
       }
@@ -355,18 +376,24 @@ const convertZoweYamlToEnv = (workspaceDir, haInstance, componentId, yamlConfigF
   const envContent = ['#!/bin/sh', ''];
   const escapeEnvValue = (val) => {
     val = `${val}`;
-    if (val.startsWith('"') && val.endsWith('"')) {
-      return val;
-    } else if (val.indexOf('"') > -1) {
-      return `"${val.replace(/"/g, '\\"')}"`;
-    } else if (val === 'null') {
+    if (val === 'null') {
       // do not write null to env vars
       return "\"\"";
-    } else {
-      return `"${val}"`;
     }
+    // escape backslash first, then the characters that are still special inside
+    // double quotes in POSIX sh (", $, `), so values cannot break out of the
+    // quoted string or trigger command/variable substitution when the file is sourced
+    const escaped = val
+      .replace(/\\/g, '\\\\')
+      .replace(/"/g, '\\"')
+      .replace(/\$/g, '\\$')
+      .replace(/`/g, '\\`');
+    return `"${escaped}"`;
   };
   const pushKeyValue = (key, val) => {
+    if (!/^[A-Za-z_][0-9A-Za-z_]*$/.test(key)) {
+      throw new Error(`Invalid environment variable name "${key}"`);
+    }
     envContent.push([key, escapeEnvValue(val)].join('='));
   };
   const convertPathToEnvVar = (objPath) => {

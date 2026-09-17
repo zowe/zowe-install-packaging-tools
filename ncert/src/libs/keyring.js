@@ -10,6 +10,7 @@
 
 const fs = require('fs');
 const KEYRING = require('keyring_js');
+const { DEFAULT_PRIVATE_KEY_FILE_MODE } = require('../constants');
 
 const readCertificates = (owner, keyring) => {
   const results = KEYRING.listKeyring(owner, keyring);
@@ -43,11 +44,11 @@ const exportPrivateKey = (owner, keyring, label, options) => {
   }
 
   if (options.verbose) {
-    process.stdout.write(`Private key found: ${JSON.stringify(pem.key)}\n\n`);
+    process.stdout.write(`Private key found for label "${label}" (not displayed).\n\n`);
   }
 
   if (options.outputFile) {
-    fs.writeFileSync(options.outputFile, pem.key);
+    fs.writeFileSync(options.outputFile, pem.key, { mode: DEFAULT_PRIVATE_KEY_FILE_MODE });
   } else {
     process.stdout.write(`${pem.key}\n`);
   }

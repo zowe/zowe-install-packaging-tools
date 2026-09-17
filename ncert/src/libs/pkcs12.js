@@ -9,7 +9,9 @@
  */
 
 const fs = require('fs');
+const crypto = require('crypto');
 const forge = require('node-forge');
+const { DEFAULT_PRIVATE_KEY_FILE_MODE } = require('../constants');
 forge.options.usePureJavaScript = true;
 
 const formatSubject = (obj) => {
@@ -20,10 +22,11 @@ const formatSubject = (obj) => {
   return result.join(', ');
 };
 
-const generateSerialNumber = (seed) => {
-  const md = forge.md.sha1.create();
-  md.update(seed);
-  return md.digest().toHex();
+const generateSerialNumber = () => {
+  const bytes = crypto.randomBytes(20);
+  // clear the sign bit so the value is always a positive DER INTEGER
+  bytes[0] &= 0x7f;
+  return bytes.toString('hex');
 }
 
 const loadPkcs12 = (p12File, password) => {
@@ -205,7 +208,7 @@ const generateCsr = (options) => {
   csr.setAttributes(attrs);
 
   // sign certification request
-  csr.sign(pair.privateKey);
+  csr.sign(pair.privateKey, forge.md.sha256.create());
 
   // verify certification request
   if (!csr.verify()) {
@@ -255,7 +258,7 @@ const signCsr = (csr, options) => {
   }
 
   const cert = forge.pki.createCertificate();
-  cert.serialNumber = options.serialNumber || generateSerialNumber(`${new Date()} - ${JSON.stringify(csr.getAttribute({name: 'extensionRequest'}).extensions)}`);
+  cert.serialNumber = options.serialNumber || generateSerialNumber();
 
   cert.publicKey = csr.publicKey;
 
@@ -299,10 +302,10 @@ const saveCertificate = (p12File, password, cert, key, alias) => {
   const p12Asn1 = forge.pkcs12.toPkcs12Asn1(key, [cert], password, {
     generateLocalKeyId: true,
     friendlyName: alias,
-    algorithm: '3des'
+    algorithm: 'aes256'
   });
   const p12Der = forge.asn1.toDer(p12Asn1).getBytes();
-  fs.writeFileSync(p12File, Buffer.from(p12Der, 'binary'));
+  fs.writeFileSync(p12File, Buffer.from(p12Der, 'binary'), { mode: DEFAULT_PRIVATE_KEY_FILE_MODE });
 };
 
 const exportCertificate = (p12File, password, alias, options) => {
@@ -340,12 +343,12 @@ const exportPrivateKey = (p12File, password, alias, options) => {
   }
 
   if (options.verbose) {
-    process.stdout.write(`Private key found: ${JSON.stringify(key)}\n\n`);
+    process.stdout.write(`Private key found for alias "${alias}" (not displayed).\n\n`);
   }
 
   const result = forge.pki.privateKeyToPem(key);
   if (options.outputFile) {
-    fs.writeFileSync(options.outputFile, result);
+    fs.writeFileSync(options.outputFile, result, { mode: DEFAULT_PRIVATE_KEY_FILE_MODE });
   } else {
     process.stdout.write(`${result}\n`);
   }
@@ -362,4 +365,4 @@ module.exports = {
 };
 
 // merge 2 keystores
-// keytool -v -importkeystore -srckeystore localhost/localhost-new.keystore.p12 -srcstoretype PKCS12 -srcstorepass password -keypass password -destkeystore localhost/localhost.keystore.p12 -deststoretype PKCS12 -deststorepass password
+// keytool -v -importkeystore -srckeystore localhost/localhost-new.keystore.p12 -srcstoretype PKCS12 -srcstorepass <your-password> -keypass <your-password> -destkeystore localhost/localhost.keystore.p12 -deststoretype PKCS12 -deststorepass <your-password>
