@@ -3,20 +3,20 @@ ext {
 }
 
 configurations {
-    fconvNpmPackage
     njqNpmPackage
-    configConverterNpmPackage
-    ncertNpmPackage
+    // fconvNpmPackage
+    // configConverterNpmPackage
+    // ncertNpmPackage
     // formatConverterJar
     // jacksonJq
     zip
 }
 
 dependencies {
-    fconvNpmPackage fileTree(dir: '../fconv', include: "zowe-fconv-*.tgz")
     njqNpmPackage fileTree(dir: '../njq', include: "zowe-njq-*.tgz")
-    configConverterNpmPackage fileTree(dir: '../config-converter', include: "zowe-config-converter-*.tgz")
-    ncertNpmPackage fileTree(dir: '../ncert', include: "zowe-ncert-*.pax")
+    // fconvNpmPackage fileTree(dir: '../fconv', include: "zowe-fconv-*.tgz")
+    // configConverterNpmPackage fileTree(dir: '../config-converter', include: "zowe-config-converter-*.tgz")
+    // ncertNpmPackage fileTree(dir: '../ncert', include: "zowe-ncert-*.pax")
     // formatConverterJar(project(path: ":format-converter", configuration: "archives"))
     // jacksonJq(project(path: ":jackson-jq", configuration: "archives"))
 }
@@ -26,12 +26,12 @@ task packageZoweUtilityTools(type: Zip) {
     includeEmptyDirs = true
 
     into('/') {
-        from configurations.fconvNpmPackage,
-             configurations.njqNpmPackage,
-             configurations.configConverterNpmPackage,
-             configurations.ncertNpmPackage
-            //  configurations.formatConverterJar,
-            //  configurations.jacksonJq,
+        from configurations.njqNpmPackage
+            // configurations.fconvNpmPackage,
+            // configurations.configConverterNpmPackage,
+            // configurations.ncertNpmPackage,
+            // configurations.formatConverterJar,
+            // configurations.jacksonJq,
     }
 }
 
