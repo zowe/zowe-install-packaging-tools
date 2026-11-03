@@ -21,7 +21,7 @@ const builder = (yargs) => {
       },
       password: {
         alias: 'p',
-        description: 'Password of the PKCS#12 file.',
+        description: 'Password of the PKCS#12 file. Use ZCT_PASSWORD env variable instead for a more secure approach.',
       },
       'key-size': {
         alias: 'ks',
@@ -76,7 +76,7 @@ const builder = (yargs) => {
       },
       'ca-password': {
         alias: 'cap',
-        description: 'Password of the certificate authority PKCS#12 file',
+        description: 'Password of the certificate authority PKCS#12 file. Use ZCT_CA_PASSWORD env variable instead for a more secure approach.',
       },
       'ca-alias': {
         alias: 'caa',
