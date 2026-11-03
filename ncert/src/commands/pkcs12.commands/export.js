@@ -17,7 +17,7 @@ const builder = (yargs) => {
     .options({
       password: {
         alias: 'p',
-        description: 'Password of the PKCS#12 file.',
+        description: 'Password of the PKCS#12 file. Use ZCT_PASSWORD env variable instead for a more secure approach.',
       },
       'private-key': {
         alias: 'k',

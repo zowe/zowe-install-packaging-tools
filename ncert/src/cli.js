@@ -20,6 +20,7 @@ const version = pkg && pkg.version;
 // parse arguments
 const yargs = require('yargs');
 yargs
+  .env("ZCT_")
   .version(version)
   .scriptName('zct') // zowe certificate tools
   .commandDir('commands')
