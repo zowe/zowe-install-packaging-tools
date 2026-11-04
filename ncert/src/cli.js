@@ -4,11 +4,11 @@
  * This program and the accompanying materials are made available under the terms of the
  * Eclipse Public License v2.0 which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-v20.html
- *
- * SPDX-License-Identifier: EPL-2.0
- *
- * Copyright IBM Corporation 2021
- */
+*
+* SPDX-License-Identifier: EPL-2.0
+*
+* Copyright IBM Corporation 2021
+*/
 
 const util = require('util');
 const { VERBOSE_ENV } = require('./constants');
@@ -19,8 +19,7 @@ const version = pkg && pkg.version;
 
 // parse arguments
 const yargs = require('yargs');
-yargs
-  .version(version)
+yargs.version(version)
   .scriptName('zct') // zowe certificate tools
   .commandDir('commands')
   .demandCommand()
@@ -38,7 +37,18 @@ yargs
   .middleware([(argv) => {
     process.env[VERBOSE_ENV] = argv.verbose ? '1' : '';
     if (argv.verbose) {
-      process.stdout.write(util.format('CLI arguments: %j\n', argv));
+      const maskedArgs = { ...argv };
+      const toMask = [
+        "password", "p",
+        "ca-password", "caPassword", "cap",
+      ];
+
+      for (const maskedItem of toMask) {
+        if (maskedItem in maskedArgs) {
+          maskedArgs[maskedItem] = "*****";
+        }
+      }
+      process.stdout.write(util.format('CLI arguments: %j\n', maskedArgs));
     }
   }])
   .fail((msg, err) => {

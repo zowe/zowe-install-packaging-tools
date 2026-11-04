@@ -22,6 +22,7 @@ const builder = (yargs) => {
       password: {
         alias: 'p',
         description: 'Password of the PKCS#12 file.',
+        type: 'string',
       },
       'key-size': {
         alias: 'ks',
@@ -77,6 +78,7 @@ const builder = (yargs) => {
       'ca-password': {
         alias: 'cap',
         description: 'Password of the certificate authority PKCS#12 file',
+        type: 'string',
       },
       'ca-alias': {
         alias: 'caa',

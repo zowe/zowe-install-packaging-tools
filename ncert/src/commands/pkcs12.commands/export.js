@@ -18,6 +18,7 @@ const builder = (yargs) => {
       password: {
         alias: 'p',
         description: 'Password of the PKCS#12 file.',
+        type: 'string',
       },
       'private-key': {
         alias: 'k',
