@@ -19,8 +19,7 @@ const version = pkg && pkg.version;
 
 // parse arguments
 const yargs = require('yargs');
-const { hideBin } = require('yargs/helpers');
-yargs(hideBin(process.argv)).version(version)
+yargs.version(version)
   .scriptName('zct') // zowe certificate tools
   .commandDir('commands')
   .demandCommand()
