@@ -44,7 +44,7 @@ yargs.version(version)
       ];
 
       for (const maskedItem of toMask) {
-        if (maskedArgs[maskedItem]) {
+        if (maskedItem in maskedArgs) {
           maskedArgs[maskedItem] = "*****";
         }
       }

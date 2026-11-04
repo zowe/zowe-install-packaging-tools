@@ -19,6 +19,7 @@ const builder = (yargs) => {
       password: {
         alias: 'p',
         description: 'Password of the PKCS#12 file.',
+        type: 'string',
       },
       alias: {
         alias: 'a',
@@ -79,7 +80,7 @@ const handler = async (options) => {
         process.stdout.write(`- Subject Alt Name (IP): ${cert.extensions.subjectAltName.ip.join(', ')}\n`);
       }
       process.stdout.write(`Private Key: ${cert.privateKey ? 'YES' : 'NO'}\n`)
-      
+
       process.stdout.write('\n');
     }
   }
